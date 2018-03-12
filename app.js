@@ -31,7 +31,7 @@ io.on( "connection", function( socket )
 {
     console.log( "A user connected" );
     //console.log(socket)
-    for(let i = 0; i<3; i++) {
+    for(let i = 0; i<100; i++) {
         const node = nodes[i]
         const iconPath = `${__dirname}/icons/${node.name}.jpg`
         fs.readFile(iconPath, function(err, buf){
