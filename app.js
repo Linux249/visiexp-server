@@ -33,14 +33,27 @@ io.on( "connection", function( socket )
     //console.log(socket)
     for(let i = 0; i<3; i++) {
         const node = nodes[i]
-        const imagePath = `${__dirname}/icons/${node.name}.jpg`
-        fs.readFile(imagePath, function(err, buf){
-            node.image = true
-            node.buffer =  buf.toString('base64'),
-            socket.emit('image', node);
-            console.log('image file is send: ' + node.name);
+        const iconPath = `${__dirname}/icons/${node.name}.jpg`
+        fs.readFile(iconPath, function(err, buf){
+            // TODO handle error
+            node.iconExists = true
+            node.buffer =  buf.toString('base64');
+            socket.emit('node', node);
+            console.log('node is send: ' + node.name);
         });
     }
+
+    socket.on("requestImage", function(imageName) {
+        console.log("requestImage")
+        console.log(imageName)
+        if(imageName) {
+            const iconPath = `${__dirname}/images/${imageName}.jpg`
+            fs.readFile(iconPath, function(err, buf){
+                // TODO handle error
+                socket.emit('receiveImage', {name: imageName, buffer: buf.toString('base64')});
+            });
+        }
+    })
 });
 
 module.exports = app;
