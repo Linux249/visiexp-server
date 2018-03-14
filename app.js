@@ -123,7 +123,7 @@ io.on( "connection", function( socket )
                 })
             } else {
                 const nodes = mergeLinksToNodes(graphMock.nodes, graphMock.links)
-                for(let i = 0; i < 200; i++) {
+                for(let i = 0; i < 50; i++) {
                     const node = nodes[i]
                     node.index = i
                     const iconPath = `${__dirname}/icons/${node.name}.jpg`
