@@ -100,7 +100,6 @@ io.on( "connection", function( socket )
             dataFromPy += string
         });
 
-
         py.stdout.on('end', function(){
             const graph = JSON.parse(dataFromPy)
             console.log(graph)
