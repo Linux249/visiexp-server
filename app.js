@@ -14,6 +14,7 @@ const mockedNodes = mergeLinksToNodes(graphMock.nodes, graphMock.links)
 const io = socket_io();
 app.io = io;
 
+const fileHash = {}
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -89,17 +90,32 @@ io.on( "connection", function( socket )
 
         // TODO convert data to graph again
         if(process.env.NODE_ENV === 'development') {
-            for(let i = 0; i < 50; i++) {
+            for(let i = 0; i < 100; i++) {
                 const node = mockedNodes[i]
                 node.index = i
                 const iconPath = `${__dirname}/icons/${node.name}.jpg`
-                fs.readFile(iconPath, function(err, buf){
-                    // TODO handle error
-                    node.iconExists = true
-                    node.buffer =  buf.toString('base64');
+
+                if(fileHash[node.name]) {
+                    node.buffer = fileHash[node.name]
                     socket.emit('node', node);
-                    console.log('node is send: ' + node.name);
-                });
+                } else {
+                    fs.readFile(iconPath, function(err, buf){
+                        // TODO handle error
+                        //node.iconExists = true
+                        const buffer = buf.toString('base64');
+                        fileHash[node.name] = buffer
+                        node.buffer =  buffer
+                        socket.emit('node', node);
+                        console.log('node is send: ' + node.name);
+
+                        if(!node.neighbours) {
+                            console.log(node)
+                            throw new Error()
+                        }
+                    });
+                }
+
+
             }
 
         } else {
@@ -119,7 +135,7 @@ io.on( "connection", function( socket )
                 // there is a response from the python script
 
                 nodes.map((node, i) =>  {
-                    node.index = i
+                    node.index = i  // TODO remove
                     const iconPath = `${__dirname}/icons/${node.name}.jpg`
                     fs.readFile(iconPath, function(err, buf){
                         // TODO handle error

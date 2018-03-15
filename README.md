@@ -5,10 +5,11 @@
 node = {
     index: number,  // identifier
     name: string,   // name of the picture,
-    color: string,  // bedder group? or groupname/id?
+old    color: string,  // bedder group? or groupname/id?
+new    label: string,  // bedder group? or groupname/id?
     x: number,
     y: number
-    neighbours: [{target: number, value: number]}] // list of links to other nodes - target = index of neighbour node
-    size: ???
+old    neighbours: [{target: number, value: number]}] // list of links to other nodes - target = index of neighbour node
+new    neighbours: [{index: number, strength: number]}] // list of links to other nodes - target = index of neighbour node
 }
 ```
