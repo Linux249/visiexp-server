@@ -8,9 +8,10 @@
 
 export function mergeLinksToNodes(nodes, links){
     console.log("merge started")
+    const nodesNew = [...nodes]
     links.map(link => {
-        if(!nodes[link.source].neighbours) nodes[link.source].neighbours = []
-        nodes[link.source].neighbours.push({target: link.target, value: link.value})
+        if(!nodesNew[link.source].neighbours) nodesNew[link.source].neighbours = []
+        nodesNew[link.source].neighbours.push({target: link.target, value: link.value/10})
     })
-    return nodes
+    return nodesNew
 }

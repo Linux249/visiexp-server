@@ -8,6 +8,7 @@ const app = express()
 import graphMock from './mock/graphSmall'
 import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 
+const mockedNodes = mergeLinksToNodes(graphMock.nodes, graphMock.links)
 
 // Socket.io
 const io = socket_io();
@@ -88,9 +89,8 @@ io.on( "connection", function( socket )
 
         // TODO convert data to graph again
         if(process.env.NODE_ENV === 'development') {
-            const nodes = mergeLinksToNodes(graphMock.nodes, graphMock.links)
             for(let i = 0; i < 50; i++) {
-                const node = nodes[i]
+                const node = mockedNodes[i]
                 node.index = i
                 const iconPath = `${__dirname}/icons/${node.name}.jpg`
                 fs.readFile(iconPath, function(err, buf){
