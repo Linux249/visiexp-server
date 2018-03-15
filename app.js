@@ -86,10 +86,11 @@ io.on( "connection", function( socket )
 
     socket.on('updateNodes', function(data){
         console.log("updateNodes")
+        const updatedNodes = data || []
         console.log(data)
 
         // TODO convert data to graph again
-        if(process.env.NODE_ENV === 'development') {
+        if(!process.env.NODE_ENV === 'development') {
             for(let i = 0; i < 100; i++) {
                 const node = mockedNodes[i]
                 node.index = i
@@ -140,14 +141,14 @@ io.on( "connection", function( socket )
                     fs.readFile(iconPath, function(err, buf){
                         // TODO handle error
                         node.buffer =  buf.toString('base64');
-                        socket.emit('node', node);
                         console.log('node is send: ' + node.name);
+                        socket.emit('node', node);
                     });
                 })
 
             });
 
-            py.stdin.write(JSON.stringify(data));
+            py.stdin.write(JSON.stringify(updatedNodes));
             py.stdin.end();
 
         }
