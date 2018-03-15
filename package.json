@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon --exec babel-node -- ./bin/www"
+    "start": "cross-env NODE_ENV=production nodemon --exec babel-node -- ./bin/www",
+    "dev": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./bin/www"
   },
   "dependencies": {
     "body-parser": "~1.13.2",

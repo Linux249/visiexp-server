@@ -3,25 +3,23 @@ const path = require('path')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const socket_io    = require( "socket.io" );
-const users = require('./routes/users')
 const fs = require('fs'); // required for file serving
 const app = express()
 import graphMock from './mock/graphSmall'
 import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
+
+
 // Socket.io
 const io = socket_io();
 app.io = io;
 
-//
-
-
-//console.log(nodes)
-
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(cookieParser())
+//app.use(cookieParser())
 
+
+//console.log(process.env.NODE_ENV === 'development')
 
 app.use("/", express.static("public"))
 //app.use('/api/v1/users', users)
@@ -89,57 +87,54 @@ io.on( "connection", function( socket )
         console.log(data)
 
         // TODO convert data to graph again
+        if(process.env.NODE_ENV === 'development') {
+            const nodes = mergeLinksToNodes(graphMock.nodes, graphMock.links)
+            for(let i = 0; i < 50; i++) {
+                const node = nodes[i]
+                node.index = i
+                const iconPath = `${__dirname}/icons/${node.name}.jpg`
+                fs.readFile(iconPath, function(err, buf){
+                    // TODO handle error
+                    node.iconExists = true
+                    node.buffer =  buf.toString('base64');
+                    socket.emit('node', node);
+                    console.log('node is send: ' + node.name);
+                });
+            }
 
-        const spawn = require('child_process').spawn
-        const py = spawn('python', ['pythonAdapter.py'])
-        let dataFromPy = '' // datastring
+        } else {
+            const spawn = require('child_process').spawn
+            const py = spawn('python', ['pythonAdapter.py'])
+            let dataFromPy = '' // datastring
 
-        py.stdout.on('data', function(data){
-            const string = data.toString()
-            //console.log(string)
-            dataFromPy += string
-        });
+            py.stdout.on('data', function(data){
+                dataFromPy += data.toString()
+            });
 
-        py.stdout.on('end', function(){
-            const graph = JSON.parse(dataFromPy)
-            console.log(graph)
-            console.log(typeof graph)
-            console.log((graph))
-            // there is a response from the python script
-            if(Object.keys(graph).length) {
-                //TODO convert ????
-                const nodes = mergeLinksToNodes(graph.nodes, graph.links)
+            py.stdout.on('end', function(){
+                const nodes = JSON.parse(dataFromPy)
+                console.log("nodes from python")
+                console.log(nodes)
+                console.log(typeof nodes)
+                // there is a response from the python script
+
                 nodes.map((node, i) =>  {
                     node.index = i
                     const iconPath = `${__dirname}/icons/${node.name}.jpg`
                     fs.readFile(iconPath, function(err, buf){
                         // TODO handle error
-                        node.iconExists = true
                         node.buffer =  buf.toString('base64');
                         socket.emit('node', node);
                         console.log('node is send: ' + node.name);
                     });
                 })
-            } else {
-                const nodes = mergeLinksToNodes(graphMock.nodes, graphMock.links)
-                for(let i = 0; i < 50; i++) {
-                    const node = nodes[i]
-                    node.index = i
-                    const iconPath = `${__dirname}/icons/${node.name}.jpg`
-                    fs.readFile(iconPath, function(err, buf){
-                        // TODO handle error
-                        node.iconExists = true
-                        node.buffer =  buf.toString('base64');
-                        socket.emit('node', node);
-                        console.log('node is send: ' + node.name);
-                    });
-                }
-            }
 
-        });
+            });
 
-        py.stdin.write(JSON.stringify(data));
-        py.stdin.end();
+            py.stdin.write(JSON.stringify(data));
+            py.stdin.end();
+
+        }
 
     })
 
@@ -150,11 +145,3 @@ io.on( "connection", function( socket )
 
 module.exports = app;
 
-// Or a shorter version of previous lines:
-//
-//    var app = require( "express"   )();
-//    var io  = app.io = require( "socket.io" )();
-//    io.on( "connection", function( socket ) {
-//        console.log( "A user connected" );
-//    });
-//    module.exports = app;
