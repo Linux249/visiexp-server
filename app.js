@@ -140,7 +140,7 @@ io.on( "connection", function( socket )
 
             // python output ends
             py.stdout.on('end', function(){
-                let nodes = JSON.parse(dataFromPy)
+                let nodes = JSON.parse(dataFromPy.split('$$$')[1])
                 console.log("nodes from python")
                 console.log(nodes)
                 console.log(typeof nodes)
