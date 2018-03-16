@@ -1,4 +1,5 @@
 const express = require('express')
+import fetch from 'node-fetch';
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
@@ -93,6 +94,10 @@ io.on( "connection", function( socket )
         let updatedNodes = data || {}
         console.log(data)
 
+        if(Object.keys(nodesStore).length) {
+            updatedNodes = compareAndClean(nodesStore, updatedNodes)
+        }
+
 
         // TODO convert data to graph again
         if(process.env.NODE_ENV === 'development') {
@@ -128,7 +133,7 @@ io.on( "connection", function( socket )
             }
 
         // PRODUCTION MODE
-        } else {
+        } else if(false) {
             const spawn = require('child_process').spawn
             const py = spawn('python', ['pythonAdapter.py'])
             let dataFromPy = '' // datastring
@@ -140,8 +145,11 @@ io.on( "connection", function( socket )
 
             // python output ends
             py.stdout.on('end', function(){
-                let nodes = JSON.parse(dataFromPy.split('$$$')[1])
                 console.log("nodes from python")
+                console.log(dataFromPy)
+                dataFromPy = dataFromPy.split('$$$')[1]
+                console.log(dataFromPy)
+                let nodes = JSON.parse(dataFromPy)
                 console.log(nodes)
                 console.log(typeof nodes)
 
@@ -170,8 +178,49 @@ io.on( "connection", function( socket )
 
 
 
-            py.stdin.write(JSON.stringify(updatedNodes));
+            //py.stdin.write(JSON.stringify(updatedNodes));
             py.stdin.end();
+
+        } else if (false) {
+            console.log("send data to python socket")
+        } else {
+            console.log("send data to python api")
+            try {
+
+
+
+                fetch('http://localhost:8000/nodes', {
+                    method: 'POST',
+                    header: { 'Content-type': 'application/json'},
+                    body: JSON.stringify(updatedNodes)
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data)
+                        const nodes = data
+                        // check if the updatedNodes are not empty what they are on first time
+                        // store nodes from python
+                        nodesStore = nodes
+
+                        Object.values(nodes).map((node, i) =>  {
+                            node.index = i  // TODO remove
+                            const iconPath = `${__dirname}/icons/${node.name}.jpg`
+                            fs.readFile(iconPath, function(err, buf){
+
+                                // TODO file hash
+                                // TODO handle error
+                                node.buffer =  buf.toString('base64');
+                                console.log('node is send: ' + node.name);
+                                socket.emit('node', node);
+                            });
+                        })
+
+
+
+                    })
+            } catch(err) {
+                console.error(err)
+            }
 
         }
 

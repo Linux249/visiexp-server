@@ -1,6 +1,7 @@
 ## compute_input.py
 
 import sys, json
+from embedding_dummy import print_graph
 
 def format_string(graph):
     s = str(graph)
@@ -17,7 +18,7 @@ def read_in():
 
 def main():
     #get our data as an array from read_in()
-    lines = read_in()
+    #lines = read_in()
 
     #create a numpy array
     #np_lines = np.array(lines)
@@ -25,9 +26,11 @@ def main():
     #use numpys sum method to find sum of all elements in the array
     #lines_sum = np.sum(np_lines)
 
+    lines = print_graph()
+
     #return the sum to the output stream
     #print str(lines) #lines_sum
-    print(format_string(lines))
+    print(lines)
 
 #start process
 if __name__ == '__main__':
