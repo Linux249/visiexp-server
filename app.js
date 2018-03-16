@@ -89,12 +89,10 @@ io.on( "connection", function( socket )
     })
 
     socket.on('updateNodes', function(data){
-        console.log("updateNodes")
+        console.log("updateNodes from client")
         let updatedNodes = data || {}
         console.log(data)
 
-        // save nodes for comparing
-        if(Object.keys(updatedNodes).length) nodesStore = updatedNodes
 
         // TODO convert data to graph again
         if(process.env.NODE_ENV === 'development') {
@@ -142,11 +140,17 @@ io.on( "connection", function( socket )
 
             // python output ends
             py.stdout.on('end', function(){
-                const nodes = JSON.parse(dataFromPy)
+                let nodes = JSON.parse(dataFromPy)
                 console.log("nodes from python")
                 console.log(nodes)
                 console.log(typeof nodes)
 
+                // check if the updatedNodes are not empty what they are on first time
+                if(Object.keys(nodesStore).length) {
+                    nodes = compareAndClean(nodesStore, nodes)
+                }
+
+                // store nodes from python
                 nodesStore = nodes
 
                 Object.values(nodes).map((node, i) =>  {
@@ -164,7 +168,7 @@ io.on( "connection", function( socket )
 
             });
 
-            updatedNodes = compareAndClean(nodesStore, updatedNodes)
+
 
             py.stdin.write(JSON.stringify(updatedNodes));
             py.stdin.end();
