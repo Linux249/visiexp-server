@@ -13,3 +13,6 @@ old    neighbours: [{target: number, value: number]}] // list of links to other 
 new    neighbours: [{index: number, strength: number]}] // list of links to other nodes - target = index of neighbour node
 }
 ```
+
+
+someText = someText.replace(/(\r\n\t|\n|\r\t)/gm,"");
