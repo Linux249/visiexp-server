@@ -91,12 +91,13 @@ io.on( "connection", function( socket )
 
     socket.on('updateNodes', function(data){
         console.log("updateNodes from client")
-        let updatedNodes = data || {}
+        console.log(typeof data)
         console.log(data)
+        let updatedNodes = data || {}
+        if(typeof updatedNodes !== 'object') updatedNodes = JSON.parse(updatedNodes)
+        //updatedNodes = JSON.parse(updatedNodes)
 
-        if(Object.keys(nodesStore).length) {
-            updatedNodes = compareAndClean(nodesStore, updatedNodes)
-        }
+
 
 
         // TODO convert data to graph again
@@ -185,6 +186,10 @@ io.on( "connection", function( socket )
             console.log("send data to python socket")
         } else {
             console.log("send data to python api")
+            // console.log(Object.keys(nodesStore).length)
+            if(Object.keys(nodesStore).length) {
+                updatedNodes = compareAndClean(nodesStore, updatedNodes)
+            }
             try {
 
 
@@ -196,6 +201,7 @@ io.on( "connection", function( socket )
                 })
                     .then(res => res.json())
                     .then(data => {
+                        console.log("nodes received from python")
                         console.log(data)
                         const nodes = data
                         // check if the updatedNodes are not empty what they are on first time
@@ -206,17 +212,16 @@ io.on( "connection", function( socket )
                             node.index = i  // TODO remove
                             const iconPath = `${__dirname}/icons/${node.name}.jpg`
                             fs.readFile(iconPath, function(err, buf){
-
-                                // TODO file hash
-                                // TODO handle error
-                                node.buffer =  buf.toString('base64');
-                                console.log('node is send: ' + node.name);
-                                socket.emit('node', node);
+                                if(err) console.log(err)
+                                else {
+                                    // TODO file hash
+                                    // TODO handle error
+                                    node.buffer =  buf.toString('base64');
+                                    console.log('node is send: ' + node.name);
+                                    socket.emit('node', node);
+                                }
                             });
                         })
-
-
-
                     })
             } catch(err) {
                 console.error(err)

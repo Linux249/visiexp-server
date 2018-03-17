@@ -10,14 +10,14 @@ import time
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer       # python 2
 #from http.server import BaseHTTPRequestHandler, HTTPServer        # python 3
 import json
-from compute_embedding import compute_graph
-
+#from compute_embedding import compute_graph
+"""
 def format_string(graph):
     s = str(graph)
     s = s.replace("'", '"').replace(': ', ':').replace('False', 'false').replace('True', 'true')\
         .replace(', ', ',').replace(':u"', ':"')
     return s
-
+"""
 ### prod server
 def get_graph(userData=[]):
     graph = compute_graph(userData)
@@ -55,7 +55,7 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             ### POST Request Header ###
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', self.headers['origin'])
+            #self.send_header('Access-Control-Allow-Origin', self.headers['origin'])
             self.end_headers()
 
             # get body from request
@@ -65,12 +65,18 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             # convert body to list
             data = json.loads(str(body).decode('utf-8'))  # python 2
             #data = json.loads(str(body, encoding='utf-8'))      # python 3
-            #print(data)
+            print(data)
 
-            ## get new graph
-            data = get_graph(data)
+            ## Katjas code goes here
+            #data = get_graph(data)
+            
 
-            self.wfile.write(data)  #body zurueckschicken
+            testDict = {0: {'name': 'vincent-van-gogh_sower-1888-1', 'links': {1: 0.5}, 'x': 5, 'y': -5}, 1: {'name': 'vincent-van-gogh_sower-1888-1', 'links': {19: 0.5}, 'x': -5, 'y': 5}}
+
+            # make json
+            testDict = json.dumps(testDict).encode()
+            self.wfile.write(testDict)  #body zurueckschicken
+
 
         return
 
