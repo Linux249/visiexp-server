@@ -10,7 +10,7 @@ import time
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer       # python 2
 #from http.server import BaseHTTPRequestHandler, HTTPServer        # python 3
 import json
-#from compute_embedding import compute_graph
+from compute_embedding_snack import compute_graph
 """
 def format_string(graph):
     s = str(graph)
@@ -18,11 +18,6 @@ def format_string(graph):
         .replace(', ', ',').replace(':u"', ':"')
     return s
 """
-### prod server
-def get_graph(userData=[]):
-    graph = compute_graph(userData)
-    return graph
-    #return userData
 
 """
 ### dev Server
@@ -67,15 +62,12 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             #data = json.loads(str(body, encoding='utf-8'))      # python 3
             print(data)
 
-            ## Katjas code goes here
-            #data = get_graph(data)
-            
-
-            testDict = {0: {'name': 'vincent-van-gogh_sower-1888-1', 'links': {1: 0.5}, 'x': 5, 'y': -5}, 1: {'name': 'vincent-van-gogh_sower-1888-1', 'links': {19: 0.5}, 'x': -5, 'y': 5}}
+            # Katjas code goes here
+            data = compute_graph(data)
 
             # make json
-            testDict = json.dumps(testDict).encode()
-            self.wfile.write(testDict)  #body zurueckschicken
+            data = json.dumps(data).encode()
+            self.wfile.write(data)  #body zurueckschicken
 
 
         return
