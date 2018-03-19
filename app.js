@@ -99,14 +99,13 @@ io.on( "connection", function( socket )
 
 
 
-
         // TODO convert data to graph again
         if(process.env.NODE_ENV === 'development') {
-            //console.log("send data to python api")
+            console.log("get mock data")
             // console.log(Object.keys(nodesStore).length)
-            if(Object.keys(nodesStore).length) {
-                updatedNodes = compareAndClean(nodesStore, updatedNodes)
-            } else console.log("NODE STORE EMPTY")
+
+            updatedNodes = compareAndClean(nodesStore, updatedNodes)
+
 
             nodesStore = updatedNodes
 
