@@ -38,13 +38,17 @@ export function compareAndClean(oldNodes, newNodes){
         if(Object.keys(oldNodes).length) {
             nodes[i].mPosition = compareXY(oldNodes[i], newNodes[i])
             nodes[i].mLinks = compareLinks(oldNodes[i], newNodes[i])
-        }
 
-
-        if(nodes[i].mLinks) {
-            console.log("A Node with updated Links - node.mLinks = true")
+            if(nodes[i].mLinks === true) {
+                console.log("node.mLinks = true")
+            } else if(nodes[i].mLinks === false) {
+                console.log("nodes[i].mLinks === false")
+            }
             console.log(nodes[i])
         }
+
+
+
     })
 
 
