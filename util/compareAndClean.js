@@ -39,8 +39,12 @@ export function compareAndClean(oldNodes, newNodes){
         nodes[i].mLinks = compareLinks(oldNodes[i], newNodes[i])
 
 
+        if(nodes[i].mLinks) {
+            console.log("A Node with updated Links - node.mLinks = true")
+            console.log(nodes[i])
+        }
     })
-    console.log(nodes)
+
 
     return nodes
 
