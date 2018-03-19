@@ -33,14 +33,14 @@ export function compareAndClean(oldNodes, newNodes){
 
         nodes[i].links = newNodes[i].links
 
-        nodes[i].label = newNodes.label
+        nodes[i].label = newNodes[i].label
 
         nodes[i].mPosition = compareXY(oldNodes[i], newNodes[i])
         nodes[i].mLinks = compareLinks(oldNodes[i], newNodes[i])
 
 
     })
-    // console.log(nodes)
+    console.log(nodes)
 
     return nodes
 
