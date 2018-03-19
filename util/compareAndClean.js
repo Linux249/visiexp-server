@@ -29,7 +29,7 @@ export function compareAndClean(oldNodes, newNodes){
         nodes[i].name = newNodes[i].name
 
         nodes[i].x = newNodes[i]._x
-        nodes[i].y = newNodes[i]._Y
+        nodes[i].y = newNodes[i]._y
 
         nodes[i].links = newNodes[i].links
 
