@@ -51,10 +51,10 @@ def create_links(neighbors, distances, strenght_range=(0, 1)):
     for i in range(len(neighbors)):
         links[i] = {}
         for n, d in zip(neighbors[i], distances[i]):
-            # prevent double linking
-            if n < i:
-                if i in neighbors[n]:
-                    continue
+            # # prevent double linking      # allow double linking!
+            # if n < i:
+            #     if i in neighbors[n]:
+            #         continue
             links[i][n] = float(d)
     return links
 
@@ -143,13 +143,14 @@ def compute_graph(current_graph=[]):
         idx = int(idx)
         if node['mPosition']:
             current_embedding[idx, 0] = node['x']
-            current_embedding[idx, 1] = node['y']
-            modified_pos.append(modified_pos)
+            # current_embedding[idx, 1] = node['y']
+            current_embedding[idx, 1] = 5       # TODO DUMMY VALUE, REMOVE
+            modified_pos.append(idx)
 
         if node['mLinks']:
             modified_links.append(idx)
 
-
+    print('modified nodes:\nPosition: {}\nLinks:{}'.format(modified_pos, modified_links))
     # compute triplets from user modifications
     n_triplets = 0
     for idx in modified_links:
