@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+"""
+@author: kschwarz
+"""
 import sys
 import numpy as np
 import pickle
