@@ -86,7 +86,10 @@ io.on( "connection", function( socket )
         if(data.name) {
             const iconPath = `${__dirname}/images/${data.name}.jpg`
             fs.readFile(iconPath, function(err, buf){
-                // TODO handle error
+                if (err) {
+                    console.error(err)
+                    return
+                }
                 socket.emit('receiveImage', {name: data.name, buffer: buf.toString('base64'), index: data.index});
             });
         }
@@ -219,12 +222,7 @@ io.on( "connection", function( socket )
             // saving used colors
             const colorsHash = {};
 
-
-
             try {
-
-
-
                 fetch('http://localhost:8000/nodes', {
                     method: 'POST',
                     header: { 'Content-type': 'application/json'},
@@ -267,9 +265,7 @@ io.on( "connection", function( socket )
             } catch(err) {
                 console.error(err)
             }
-
         }
-
     })
 
     socket.on('disconnect', function() {
