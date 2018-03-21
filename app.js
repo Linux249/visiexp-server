@@ -160,7 +160,7 @@ io.on( "connection", function( socket )
 
             nodesStore = updatedNodes
 
-            for(let i = 0; i < 100; i++) {
+            for(let i = 0; i < Object.keys(updatedNodes).length; i++) {
                 const node = updatedNodes[i]
                 node.index = i      // !important -
                 if(!node.x && !node.y) {
@@ -174,20 +174,24 @@ io.on( "connection", function( socket )
                     node.buffer = fileHash[node.name]
                     socket.emit('node', node);
                 } else {
-                    fs.readFile(iconPath, function(err, buf){
-                        // TODO handle error
-                        //node.iconExists = true
-                        const buffer = buf.toString('base64');
-                        fileHash[node.name] = buffer
-                        node.buffer =  buffer
-                        socket.emit('node', node);
-                        console.log('node is send: ' + node.name);
+                    try {
+                        fs.readFile(iconPath, function(err, buf){
+                            if(err) {
+                                console.error(err)
+                                return
+                            }
+                            //node.iconExists = true
+                            const buffer = buf.toString('base64');
+                            fileHash[node.name] = buffer
+                            node.buffer =  buffer
+                            socket.emit('node', node);
+                            console.log('node is send: ' + node.name);
 
-                        if(!node.links) {
-                            console.log(node)
-                            throw new Error()
-                        }
-                    });
+                        })
+                    } catch (err) {
+                        console.error(err)
+                    }
+
                 }
             }
 
