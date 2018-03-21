@@ -12,7 +12,6 @@ import exampleGraph from './mock/example_graph'
 import { compareAndClean } from "./util/compareAndClean";
 import { getRandomColor } from "./util/getRandomColor";
 
-//const mockedNodes = mergeLinksToNodes(graphMock.nodes, graphMock.links)
 
 const colorTable = {
     0: '#ff3b14',
@@ -156,6 +155,8 @@ io.on( "connection", function( socket )
                     }
                 }
             });
+
+            socket.emit("updateLabels", colorHash)
 
             nodesStore = updatedNodes
 
@@ -301,6 +302,8 @@ io.on( "connection", function( socket )
                                 }
                             });
                         })
+
+                        socket.emit("updateLabels", colorHash)
                     })
             } catch(err) {
                 console.error(err)
