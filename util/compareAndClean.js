@@ -47,8 +47,6 @@ export function compareAndClean(oldNodes, newNodes){
             console.log(nodes[i])
         }
 
-
-
     })
 
 
