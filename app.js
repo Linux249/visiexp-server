@@ -1,6 +1,7 @@
 "use strict";
 const express = require('express')
 import fetch from 'node-fetch';
+import {promisify} from 'util';
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
@@ -12,6 +13,14 @@ import exampleGraph from './mock/example_graph'
 //import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from "./util/compareAndClean";
 import { getRandomColor } from "./util/getRandomColor";
+
+const readFile = (path) =>
+    new Promise((res, rej) => {
+        fs.readFile(path, (err, data) => {
+            if (err) rej(err)
+            else res(data)
+        })
+    })
 
 
 const colorTable = {
@@ -34,7 +43,9 @@ const colorTable = {
 const io = socket_io();
 app.io = io;
 
-const fileHash = {}
+const iconsFileHash = {}
+
+const imagesFileHash = {}
 
 let nodesStore = {}
 
@@ -61,19 +72,33 @@ io.on( "connection", function( socket )
     console.log( "A user connected: ", socket.id );
     console.log('# sockets connected', io.engine.clientsCount);
 
-    socket.on("requestImage", function(data) {
+    socket.on("requestImage", async function(data) {
         //console.log("requestImage")
         //console.log(data.name)
-        if(data.name) {
-            const iconPath = `${__dirname}/images/${data.name}.jpg`
-            fs.readFile(iconPath, function(err, buf){
-                if (err) {
-                    console.error(err)
-                    return
+        const name = data.name
+        if(name) {
+            try {
+                let buffer
+                if(imagesFileHash[name]) {
+                    buffer = imagesFileHash[name]
+                } else {
+                    const imagePath = `${__dirname}/images/${name}.jpg`
+                    const file = await readFile(imagePath)
+                    buffer = file.toString('base64')
+                    imagesFileHash[name] = buffer
                 }
-                socket.emit('receiveImage', {name: data.name, buffer: buf.toString('base64'), index: data.index});
-            });
+                socket.emit('receiveImage', {name, buffer, index: data.index});
+                console.log('Image is send: ' + name);
+            }
+            catch (err) {
+                console.error(err)
+            }
+
+        } else {
+            console.error("that shoud now happen - report please!!! (requests image withoutname")
         }
+
+
     })
 
     socket.on('updateNodes', async function(data){
@@ -99,7 +124,7 @@ io.on( "connection", function( socket )
 
 
         if(process.env.NODE_ENV === 'development') {
-            const count = 20 //Object.keys(exampleGraph).length //
+            const count = 10 //Object.keys(exampleGraph).length //
             console.log("nodes generated from mock #: " + count)
 
             // generate dummy nodes
@@ -144,7 +169,7 @@ io.on( "connection", function( socket )
         const colorHash = {}
 
         // doing everything for each node and send it back
-        Object.values(nodes).forEach((node, i) => {
+        Object.values(nodes).forEach(async (node, i) => {
 
             // that this is not inside !!! DONT FORGET THIS
             node.index = i
@@ -158,7 +183,6 @@ io.on( "connection", function( socket )
                 node.color = colorHash[node.label]
             }
 
-
             // get a unique color for each node as a key
             while(true) {
                 const colorKey = getRandomColor();
@@ -171,41 +195,30 @@ io.on( "connection", function( socket )
 
             const iconPath = `${__dirname}/icons/${node.name}.jpg`
 
-            if(fileHash[node.name]) {
-                node.buffer = fileHash[node.name]
-                socket.emit('node', node);
-            } else {
-                try {
-                    fs.readFile(iconPath, function(err, buf){
-                        if(err) {
-                            console.error(err)
-                            return
-                        }
-                        //node.iconExists = true
-                        const buffer = buf.toString('base64');
-                        fileHash[node.name] = buffer
-                        node.buffer =  buffer
-                        socket.emit('node', node);
-                        //console.log('node is send: ' + node.name);
+            try {
+                if(iconsFileHash[node.name]) {
+                    node.buffer = iconsFileHash[node.name]
+                } else {
+                    const file = await readFile(iconPath)
+                    const buffer = file.toString('base64')
+                    iconsFileHash[node.name] = buffer//.toString('base64')
+                    node.buffer = buffer
 
-                    })
-                } catch (err) {
-                    console.error(err)
                 }
-
+                socket.emit('node', node);
+                console.log('node is send: ' + node.name);
+            } catch (err) {
+                console.log("Node was not send cause of missing image - how to handle?")
+                console.error(err)
             }
+
+
         });
+
 
         // sending back the labels and the colors
         socket.emit("updateLabels", colorHash)
-
-
-
-
-
-
-
-
+        console.log("color labels send")
 
 
         /*
