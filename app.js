@@ -13,6 +13,9 @@ import exampleGraph from './mock/example_graph'
 //import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from "./util/compareAndClean";
 import { getRandomColor } from "./util/getRandomColor";
+import kdbush from 'kdbush'
+const clusterfck = require("tayden-clusterfck");
+
 
 const readFile = (path) =>
     new Promise((res, rej) => {
@@ -119,12 +122,15 @@ io.on( "connection", function( socket )
         // in dev mode ...
 
         // before they should be cleaned and compared with maybe old data
+        let time = process.hrtime();
         updatedNodes = compareAndClean(nodesStore, updatedNodes)
+        let diff = process.hrtime(time);
+        console.log(`CopareAndClean took ${diff[0] + diff[1] / 1e9} seconds`);
 
 
 
         if(process.env.NODE_ENV === 'development') {
-            const count = 10 //Object.keys(exampleGraph).length //
+            const count = 250 //Object.keys(exampleGraph).length //
             console.log("nodes generated from mock #: " + count)
 
             // generate dummy nodes
@@ -140,6 +146,7 @@ io.on( "connection", function( socket )
             console.log("get nodes from python")
 
             try {
+                let time = process.hrtime();
                 const res = await fetch('http://localhost:8000/nodes', {
                     method: 'POST',
                     header: { 'Content-type': 'application/json'},
@@ -147,6 +154,8 @@ io.on( "connection", function( socket )
                 })
                 // there are only nodes comming back from here
                 nodes = await res.json()
+                let diff = process.hrtime(time);
+                console.log(`getNodesFromPython took ${diff[0] + diff[1] / 1e9} seconds`);
             } catch (err) {
                 console.error("error - get nodes from python - error")
                 console.error(err)
@@ -162,6 +171,34 @@ io.on( "connection", function( socket )
         //console.log("this nodes are stored")
         //console.log(nodesStore)
 
+
+        console.log("start clustering")
+        const points = Object.values(nodes).map((n, i) => {
+            const arr = [n.x, n.y]
+            arr.id = i
+            return arr
+        })
+        //const index = kdbush(points, n => n.x, n => n.y, 10 )
+        //console.log(index)
+        //const smallBox = index.range(-3, -3, 3, 3).map(id => nodes[id])
+        //const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
+        const cluster = clusterfck.hcluster(points)
+
+        const clusters = []
+        for(let i = 1; i <= 200; i++) clusters.push(cluster.clusters(i))
+
+        clusters.forEach(cluster => {
+            //console.log(`### ${cluster.length} Clusters:`)
+            const countCluster = cluster.length
+            cluster.forEach((clust, i) => {
+                const agentId = clust[0].id
+                // the user can change the amount of clusters
+                if(!nodes[agentId].cluster) nodes[agentId].cluster = countCluster
+                //console.log(`${i}. first items has id: ${clust[0].id}`)
+            })
+        })
+
+
         // saving used colorKeys
         const colorKeyHash = {};
 
@@ -173,6 +210,7 @@ io.on( "connection", function( socket )
 
             // that this is not inside !!! DONT FORGET THIS
             node.index = i
+            console.log(node.cluster)
 
             // setting color based on label
             if(colorHash[node.label]) {
