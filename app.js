@@ -130,16 +130,19 @@ io.on( "connection", function( socket )
 
 
         if(process.env.NODE_ENV === 'development') {
-            const count = 250 //Object.keys(exampleGraph).length //
+            const count = 100 //Object.keys(exampleGraph).length //
             console.log("nodes generated from mock #: " + count)
 
+            const mockDataLength = Object.keys(exampleGraph).length
             // generate dummy nodes
-            for (let i = 0; i < count; i++) {
-                nodes[i] = exampleGraph[i]
-                if(!nodes[i].x && !nodes[i].y) {
-                    nodes[i].x = Math.random()*40 -20
-                    nodes[i].y = Math.random()*40 -20
+            for (let n = 0; n < count; n++) {
+                const i = n % mockDataLength
+                const node = exampleGraph[i]
+                if(!node.x && !node.y) {
+                    node.x = Math.random()*40 -20
+                    node.y = Math.random()*40 -20
                 }
+                nodes[n] = node
             }
 
         } else {
@@ -182,10 +185,10 @@ io.on( "connection", function( socket )
         //console.log(index)
         //const smallBox = index.range(-3, -3, 3, 3).map(id => nodes[id])
         //const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
-        const cluster = clusterfck.hcluster(points)
+        const hcCluster = clusterfck.hcluster(points)
 
         const clusters = []
-        for(let i = 1; i <= 200; i++) clusters.push(cluster.clusters(i))
+        for(let i = 1; i <= 200; i++) clusters.push(hcCluster.clusters(i))
 
         clusters.forEach(cluster => {
             //console.log(`### ${cluster.length} Clusters:`)
