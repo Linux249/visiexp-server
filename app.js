@@ -9,7 +9,8 @@ const socket_io    = require( "socket.io" );
 const fs = require('fs'); // required for file serving
 const app = express()
 //import graphMock from './mock/graphSmall'
-import exampleGraph from './mock/example_graph'
+//import exampleGraph from './mock/example_graph'
+import exampleNodes from './mock/exampleNodes'
 //import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from "./util/compareAndClean";
 import { getRandomColor } from "./util/getRandomColor";
@@ -136,19 +137,14 @@ io.on( "connection", function( socket )
 
 
         if(process.env.NODE_ENV === 'development') {
-            const count = 100 //Object.keys(exampleGraph).length //
+            const count = 800 //Object.keys(exampleNodes).length //
             console.log("nodes generated from mock #: " + count)
 
-            const mockDataLength = Object.keys(exampleGraph).length
+            const mockDataLength = Object.keys(exampleNodes).length
             // generate dummy nodes
             for (let n = 0; n < count; n++) {
                 const i = n % mockDataLength
-                const node = exampleGraph[i]
-                if(!node.x && !node.y) {
-                    node.x = Math.random()*40 -20
-                    node.y = Math.random()*40 -20
-                }
-                nodes[n] = node
+                nodes[n] = exampleNodes[i]
             }
 
         } else {
@@ -171,7 +167,10 @@ io.on( "connection", function( socket )
             }
         }
 
+        const nodeDataLength = Object.keys(nodes).length
 
+        // add index before storing
+        Object.values(nodes).forEach((node, i) => node.index = i)
 
         // store data data for comparing later
         nodesStore = nodes
@@ -192,7 +191,7 @@ io.on( "connection", function( socket )
         const hcCluster = clusterfck.hcluster(points)
 
         const clusters = []
-        for(let i = 1; i <= 200; i++) clusters.push(hcCluster.clusters(i))
+        for(let i = 1; i <= nodeDataLength; i += 10) clusters.push(hcCluster.clusters(i))
 
         clusters.forEach(cluster => {
             //console.log(`### ${cluster.length} Clusters:`)
@@ -278,7 +277,7 @@ io.on( "connection", function( socket )
             nodes = {}
             // generate dummy nodes
             for(let i = 0; i < 10; i++) {
-                nodes[i] = exampleGraph[i]
+                nodes[i] = exampleNodes[i]
 
             }
 
