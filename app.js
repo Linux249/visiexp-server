@@ -127,6 +127,8 @@ io.on( "connection", function( socket )
         console.log("buildTripel")
         const tripel = buildTripel(updatedNodes)
         console.log({tripel})
+        if(tripel) console.log(tripel)
+
 
         // before they should be cleaned and compared with maybe old data
         let time = process.hrtime();
