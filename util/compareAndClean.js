@@ -40,11 +40,11 @@ export function compareAndClean(oldNodes, newNodes){
             nodes[i].mLinks = compareLinks(oldNodes[i], newNodes[i])
 
             if(nodes[i].mLinks === true) {
-                console.log("node.mLinks = true")
+                //console.log("node.mLinks = true")
             } else if(nodes[i].mLinks === false) {
-                console.log("nodes[i].mLinks === false")
+                //console.log("nodes[i].mLinks === false")
             }
-            console.log(nodes[i])
+            //console.log(nodes[i])
         }
 
     })

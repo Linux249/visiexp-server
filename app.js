@@ -15,7 +15,7 @@ import { compareAndClean } from "./util/compareAndClean";
 import { getRandomColor } from "./util/getRandomColor";
 import kdbush from 'kdbush'
 const clusterfck = require("tayden-clusterfck");
-
+import buildTripel from './util/buildTripels'
 
 const readFile = (path) =>
     new Promise((res, rej) => {
@@ -106,8 +106,8 @@ io.on( "connection", function( socket )
 
     socket.on('updateNodes', async function(data){
         console.log("updateNodes from client")
-        console.log(typeof data)
-        console.log(data)
+        //console.log(typeof data)
+        //console.log(data)
 
         // first time data is empty (the client should send a empty object {})
         let updatedNodes = data //|| {}
@@ -120,6 +120,12 @@ io.on( "connection", function( socket )
         // the data, on the first time an empty object is
         // in production mode send to the server
         // in dev mode ...
+
+
+        //build tripel from data
+        console.log("buildTripel")
+        const tripel = buildTripel(updatedNodes)
+        console.log({tripel})
 
         // before they should be cleaned and compared with maybe old data
         let time = process.hrtime();
@@ -153,7 +159,7 @@ io.on( "connection", function( socket )
                 const res = await fetch('http://localhost:8000/nodes', {
                     method: 'POST',
                     header: { 'Content-type': 'application/json'},
-                    body: JSON.stringify(updatedNodes)
+                    body: JSON.stringify({nodes: updatedNodes, tripel})
                 })
                 // there are only nodes comming back from here
                 nodes = await res.json()
@@ -166,8 +172,6 @@ io.on( "connection", function( socket )
         }
 
 
-        // add index before storing
-        Object.values((node, i) => node.index = i)
 
         // store data data for comparing later
         nodesStore = nodes
@@ -213,6 +217,8 @@ io.on( "connection", function( socket )
 
             // that this is not inside !!! DONT FORGET THIS
             node.index = i
+            node.positives = []
+            node.negatives = []
             console.log(node.cluster)
 
             // setting color based on label
