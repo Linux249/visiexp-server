@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 import {promisify} from 'util';
 const path = require('path')
 const cookieParser = require('cookie-parser')
-const bodyParser = require('body-parser')
 const socket_io    = require( "socket.io" );
 const fs = require('fs'); // required for file serving
 const app = express()
@@ -55,8 +54,11 @@ let nodesStore = {}
 
 
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
+/*app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))*/
+
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 //app.use(cookieParser())
 
 
