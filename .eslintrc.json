@@ -1,1 +1,10 @@
-{"extends": "airbnb"}
+{
+  "extends": "airbnb-base",
+
+  "rules": {
+    "indent": ["error", 4]
+  },
+  "env": {
+    "node": true
+  }
+}

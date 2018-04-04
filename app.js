@@ -1,29 +1,34 @@
-"use strict";
-const express = require('express')
+'use strict';
+const express = require('express');
 import fetch from 'node-fetch';
-import {promisify} from 'util';
-const path = require('path')
-const cookieParser = require('cookie-parser')
-const socket_io    = require( "socket.io" );
+import { promisify } from 'util';
+
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const socket_io = require('socket.io');
 const fs = require('fs'); // required for file serving
-const app = express()
+const app = express();
 //import graphMock from './mock/graphSmall'
 //import exampleGraph from './mock/example_graph'
-import exampleNodes from './mock/exampleNodes'
+import exampleNodes from './mock/exampleNodes';
 //import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
-import { compareAndClean } from "./util/compareAndClean";
-import { getRandomColor } from "./util/getRandomColor";
-import kdbush from 'kdbush'
-const clusterfck = require("tayden-clusterfck");
-import buildTripel from './util/buildTripels'
+import { compareAndClean } from './util/compareAndClean';
+import { getRandomColor } from './util/getRandomColor';
+const kdbush = require('kdbush');
+
+const clusterfck = require('tayden-clusterfck');
+import buildTripel from './util/buildTripels';
 
 const readFile = (path) =>
     new Promise((res, rej) => {
         fs.readFile(path, (err, data) => {
-            if (err) rej(err)
-            else res(data)
-        })
-    })
+            if (err) {
+                rej(err);
+            } else {
+                res(data);
+            }
+        });
+    });
 
 
 const colorTable = {
@@ -39,86 +44,87 @@ const colorTable = {
     10: '#fffe6f',
     11: '#ff6af1',
     12: '#85feff'
-}
+};
 
 
 // Socket.io
 const io = socket_io();
 app.io = io;
 
-const iconsFileHash = {}
+const iconsFileHash = {};
 
-const imagesFileHash = {}
+const imagesFileHash = {};
 
-let nodesStore = {}
-
+let nodesStore = {};
 
 
 /*app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))*/
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser())
 
 
 //console.log(process.env.NODE_ENV === 'development')
 
-app.use("/", express.static("public"))
+app.use('/', express.static('public'));
 //app.use('/api/v1/users', users)
-
 
 
 // checking for allready used color
 
 // socket.io events
 
-io.on( "connection", function( socket )
-{
-    console.log( "A user connected: ", socket.id );
+io.on('connection', function (socket) {
+    console.log('A user connected: ', socket.id);
     console.log('# sockets connected', io.engine.clientsCount);
 
-    socket.on("requestImage", async function(data) {
+    socket.on('requestImage', async function (data) {
         //console.log("requestImage")
         //console.log(data.name)
-        const name = data.name
-        if(name) {
+        const name = data.name;
+        if (name) {
             try {
-                let buffer
-                if(imagesFileHash[name]) {
-                    buffer = imagesFileHash[name]
+                let buffer;
+                if (imagesFileHash[name]) {
+                    buffer = imagesFileHash[name];
                 } else {
-                    const imagePath = `${__dirname}/images/${name}.jpg`
-                    const file = await readFile(imagePath)
-                    buffer = file.toString('base64')
-                    imagesFileHash[name] = buffer
+                    const imagePath = `${__dirname}/images/${name}.jpg`;
+                    const file = await readFile(imagePath);
+                    buffer = file.toString('base64');
+                    imagesFileHash[name] = buffer;
                 }
-                socket.emit('receiveImage', {name, buffer, index: data.index});
+                socket.emit('receiveImage', {
+                    name,
+                    buffer,
+                    index: data.index
+                });
                 console.log('Image is send: ' + name);
             }
             catch (err) {
-                console.error(err)
+                console.error(err);
             }
 
         } else {
-            console.error("that shoud now happen - report please!!! (requests image withoutname")
+            console.error('that shoud now happen - report please!!! (requests image withoutname');
         }
 
 
-    })
+    });
 
-    socket.on('updateNodes', async function(data){
-        console.log("updateNodes from client")
+    socket.on('updateNodes', async function (data) {
+        console.log('updateNodes from client');
         //console.log(typeof data)
         //console.log(data)
 
         // first time data is empty (the client should send a empty object {})
-        let updatedNodes = data //|| {}
+        let updatedNodes = data; //|| {}
         ///if(typeof updatedNodes !== 'object') updatedNodes = JSON.parse(updatedNodes)
         //updatedNodes = JSON.parse(updatedNodes)
 
         // the nodes object for mutating data before sending
-        let nodes = {}
+        let nodes = {};
 
         // the data, on the first time an empty object is
         // in production mode send to the server
@@ -126,149 +132,167 @@ io.on( "connection", function( socket )
 
 
         //build tripel from data
-        console.log("buildTripel")
-        const tripel = buildTripel(updatedNodes)
-        console.log({tripel})
-        if(tripel) console.log(tripel)
+        console.log('buildTripel');
+        const tripel = buildTripel(updatedNodes);
+        console.log({ tripel });
+        if (tripel) console.log(tripel);
 
 
         // before they should be cleaned and compared with maybe old data
         let time = process.hrtime();
-        updatedNodes = compareAndClean(nodesStore, updatedNodes)
+        updatedNodes = compareAndClean(nodesStore, updatedNodes);
         let diff = process.hrtime(time);
         console.log(`CopareAndClean took ${diff[0] + diff[1] / 1e9} seconds`);
 
 
+        if (process.env.NODE_ENV === 'development') {
+            const count = 800; //Object.keys(exampleNodes).length //
+            console.log('nodes generated from mock #: ' + count);
 
-        if(process.env.NODE_ENV === 'development') {
-            const count = 800 //Object.keys(exampleNodes).length //
-            console.log("nodes generated from mock #: " + count)
-
-            const mockDataLength = Object.keys(exampleNodes).length
+            const mockDataLength = Object.keys(exampleNodes).length;
             // generate dummy nodes
             for (let n = 0; n < count; n++) {
-                const i = n % mockDataLength
-                nodes[n] = exampleNodes[i]
+                const i = n % mockDataLength;
+                nodes[n] = exampleNodes[i];
             }
 
         } else {
-            console.log("get nodes from python")
+            console.log('get nodes from python');
 
             try {
                 let time = process.hrtime();
                 const res = await fetch('http://localhost:8000/nodes', {
                     method: 'POST',
-                    header: { 'Content-type': 'application/json'},
-                    body: JSON.stringify({nodes: updatedNodes, tripel})
-                })
+                    header: { 'Content-type': 'application/json' },
+                    body: JSON.stringify({
+                        nodes: updatedNodes,
+                        tripel
+                    })
+                });
                 // there are only nodes comming back from here
-                nodes = await res.json()
+                nodes = await res.json();
                 let diff = process.hrtime(time);
                 console.log(`getNodesFromPython took ${diff[0] + diff[1] / 1e9} seconds`);
             } catch (err) {
-                console.error("error - get nodes from python - error")
-                console.error(err)
+                console.error('error - get nodes from python - error');
+                console.error(err);
             }
         }
 
-        const nodeDataLength = Object.keys(nodes).length
+        const nodeDataLength = Object.keys(nodes).length;
 
         // add index before storing
-        Object.values(nodes).forEach((node, i) => node.index = i)
+        Object.values(nodes)
+            .forEach((node, i) => node.index = i);
 
         // store data data for comparing later
-        nodesStore = nodes
+        nodesStore = nodes;
         //console.log("this nodes are stored")
         //console.log(nodesStore)
 
 
-        console.log("start clustering")
-        const points = Object.values(nodes).map((n, i) => {
-            const arr = [n.x, n.y]
-            arr.id = i
-            return arr
-        })
-        //const index = kdbush(points, n => n.x, n => n.y, 10 )
-        //console.log(index)
-        //const smallBox = index.range(-3, -3, 3, 3).map(id => nodes[id])
-        //const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
-        const hcCluster = clusterfck.hcluster(points)
+        // starting the clustering
+        console.log('start clustering');
+        let timeCluster = process.hrtime();
+        const points = Object.values(nodes)
+            .map((n, i) => {
+                const point = [n.x, n.y];   // array with properties is ugly!
+                point.id = i;
+                point.x = n.x;
+                point.y = n.y;
+                return point;
+            });
 
-        const clusters = []
-        for(let i = 1; i <= nodeDataLength; i += 10) clusters.push(hcCluster.clusters(i))
+        const kdtree = kdbush(points, n => n.x, n => n.y)
+
+        //const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
+        //console.log(smallBox)
+        //const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
+        const hcCluster = clusterfck.hcluster(points);
+
+        const clusters = [];
+        for (let i = 1; i <= nodeDataLength; i += 10) clusters.push(hcCluster.clusters(i));
 
         clusters.forEach(cluster => {
             //console.log(`### ${cluster.length} Clusters:`)
-            const countCluster = cluster.length
+            const countCluster = cluster.length;
             cluster.forEach((clust, i) => {
-                const agentId = clust[0].id
+                const agentId = clust[0].id;
                 // the user can change the amount of clusters
-                if(!nodes[agentId].cluster) nodes[agentId].cluster = countCluster
+                if (!nodes[agentId].cluster) nodes[agentId].cluster = countCluster;
                 //console.log(`${i}. first items has id: ${clust[0].id}`)
-            })
-        })
-
+            });
+        });
+        let diffCluster = process.hrtime(timeCluster);
+        console.log(`add cluster took ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
 
         // saving used colorKeys
         const colorKeyHash = {};
 
         // saving used colors for labels
-        const colorHash = {}
+        const colorHash = {};
 
         // doing everything for each node and send it back
-        Object.values(nodes).forEach(async (node, i) => {
+        Promise.all(Object.values(nodes)
+            .map(async (node, i) => {
 
-            // that this is not inside !!! DONT FORGET THIS
-            node.index = i
-            node.positives = []
-            node.negatives = []
-            console.log(node.cluster)
+                // that this is not inside !!! DONT FORGET THIS
+                node.index = i;
+                node.positives = [];
+                node.negatives = [];
+                //console.log(node.cluster); // TODO sometimes this is undefined - why and how to handle?
 
-            // setting color based on label
-            if(colorHash[node.label]) {
-                node.color = colorHash[node.label]
-            } else {
-                const index = Object.keys(colorHash).length
-                colorHash[node.label] = colorTable[index]
-                node.color = colorHash[node.label]
-            }
-
-            // get a unique color for each node as a key
-            while(true) {
-                const colorKey = getRandomColor();
-                if (!colorKeyHash[colorKey]) {
-                    node.colorKey = colorKey;
-                    colorKeyHash[colorKey] = node;
-                    break;
-                }
-            }
-
-            const iconPath = `${__dirname}/icons/${node.name}.jpg`
-
-            try {
-                if(iconsFileHash[node.name]) {
-                    node.buffer = iconsFileHash[node.name]
+                // setting color based on label
+                if (colorHash[node.label]) {
+                    node.color = colorHash[node.label];
                 } else {
-                    const file = await readFile(iconPath)
-                    const buffer = file.toString('base64')
-                    iconsFileHash[node.name] = buffer//.toString('base64')
-                    node.buffer = buffer
-
+                    const index = Object.keys(colorHash).length;
+                    colorHash[node.label] = colorTable[index];
+                    node.color = colorHash[node.label];
                 }
-                socket.emit('node', node);
-                console.log('node is send: ' + node.name);
-            } catch (err) {
-                console.log("Node was not send cause of missing image - how to handle?")
-                console.error(err)
-            }
+
+                // get a unique color for each node as a key
+                while (true) {
+                    const colorKey = getRandomColor();
+                    if (!colorKeyHash[colorKey]) {
+                        node.colorKey = colorKey;
+                        colorKeyHash[colorKey] = node;
+                        break;
+                    }
+                }
+
+                const iconPath = `${__dirname}/icons/${node.name}.jpg`;
+
+                try {
+                    if (iconsFileHash[node.name]) {
+                        node.buffer = iconsFileHash[node.name];
+                    } else {
+                        const file = await readFile(iconPath);
+                        const buffer = file.toString('base64');
+                        iconsFileHash[node.name] = buffer;//.toString('base64')
+                        node.buffer = buffer;
+
+                    }
+                    socket.emit('node', node);
+                    //console.log('node is send: ' + node.name);
+                } catch (err) {
+                    console.log('Node was not send cause of missing image - how to handle?');
+                    console.error(err);
+                }
 
 
-        });
+            })
+        ).then(() => {
+            console.log("all nodes send")
+            //console.log(a)
+            socket.emit("allNodesUpdated")
+            socket.emit('updateKdtree', kdtree)
+        })
 
 
         // sending back the labels and the colors
-        socket.emit("updateLabels", colorHash)
-        console.log("color labels send")
+        socket.emit('updateLabels', colorHash);
+        console.log('color labels send');
 
 
         /*
@@ -420,10 +444,10 @@ io.on( "connection", function( socket )
             }
         }
         */
-    })
+    });
 
-    socket.on('disconnect', function() {
-        console.log("disconnect: ", socket.id);
+    socket.on('disconnect', function () {
+        console.log('disconnect: ', socket.id);
     });
 });
 
