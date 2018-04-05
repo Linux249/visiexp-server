@@ -249,7 +249,8 @@ io.on('connection', function (socket) {
                 node.index = i;
                 node.positives = [];
                 node.negatives = [];
-                //console.log(node.cluster); // TODO sometimes this is undefined - why and how to handle?
+
+                if(!node.cluster) node.cluster = nodeDataLength
 
                 // setting color based on label
                 if (colorHash[node.label]) {
