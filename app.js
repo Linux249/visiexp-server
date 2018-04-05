@@ -157,7 +157,7 @@ io.on('connection', function (socket) {
 
 
         if (process.env.NODE_ENV === 'development') {
-            const count = 800; //Object.keys(exampleNodes).length //
+            const count = 80; //Object.keys(exampleNodes).length //
             console.log('nodes generated from mock #: ' + count);
 
             const mockDataLength = Object.keys(exampleNodes).length;
@@ -277,13 +277,13 @@ io.on('connection', function (socket) {
                         node.buffer = iconsFileHash[node.name];
                     } else {
                         const file = await readFile(iconPath);
-                        let buffer = file.toString('base64');
-                        /*buffer = await sharp(buffer)
+                        //let buffer = file//.toString('base64');
+                        let buffer = await sharp(file)
                             .resize(200, 200)
                             .max()
                             .toFormat('jpeg')
-                            .toBuffer()*/
-                        iconsFileHash[node.name] = buffer;//.toString('base64')
+                            .toBuffer()
+                        iconsFileHash[node.name] = buffer.toString('base64')
                         node.buffer = buffer;
 
                     }
