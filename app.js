@@ -2,7 +2,7 @@
 const express = require('express');
 import fetch from 'node-fetch';
 import { promisify } from 'util';
-
+import sharp from 'sharp'
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const socket_io = require('socket.io');
@@ -74,7 +74,16 @@ app.use('/', express.static('public'));
 
 // checking for allready used color
 
-// socket.io events
+// set different image path for prod/dev mode
+let imgPath = ""
+
+if (process.env.NODE_ENV === 'development') {
+    imgPath = `${__dirname}/images/`;
+} else {
+    imgPath = `/export/home/asanakoy/workspace/wikiart/images/`;
+}
+
+if(!fs.existsSync(imgPath)) new Error(`IMAGE PATH NOT EXISTS - ${imgPath}`)
 
 io.on('connection', function (socket) {
     console.log('A user connected: ', socket.id);
@@ -90,7 +99,7 @@ io.on('connection', function (socket) {
                 if (imagesFileHash[name]) {
                     buffer = imagesFileHash[name];
                 } else {
-                    const imagePath = `${__dirname}/images/${name}.jpg`;
+                    const imagePath = `${imgPath}${name}.jpg`;
                     const file = await readFile(imagePath);
                     buffer = file.toString('base64');
                     imagesFileHash[name] = buffer;
@@ -131,6 +140,8 @@ io.on('connection', function (socket) {
         // in dev mode ...
 
 
+
+
         //build tripel from data
         console.log('buildTripel');
         const tripel = buildTripel(updatedNodes);
@@ -155,7 +166,6 @@ io.on('connection', function (socket) {
                 const i = n % mockDataLength;
                 nodes[n] = exampleNodes[i];
             }
-
         } else {
             console.log('get nodes from python');
 
@@ -181,15 +191,14 @@ io.on('connection', function (socket) {
 
         const nodeDataLength = Object.keys(nodes).length;
 
-        // add index before storing
-        Object.values(nodes)
-            .forEach((node, i) => node.index = i);
-
         // store data data for comparing later
         nodesStore = nodes;
         //console.log("this nodes are stored")
         //console.log(nodesStore)
 
+        // add default cluster value (max cluster/zooming)
+        /*Object.values(nodes)
+            .forEach((node, i) => node.cluster = nodeDataLength);*/
 
         // starting the clustering
         console.log('start clustering');
@@ -261,14 +270,19 @@ io.on('connection', function (socket) {
                     }
                 }
 
-                const iconPath = `${__dirname}/icons/${node.name}.jpg`;
+                const iconPath = `${imgPath}${node.name}.jpg`;
 
                 try {
                     if (iconsFileHash[node.name]) {
                         node.buffer = iconsFileHash[node.name];
                     } else {
                         const file = await readFile(iconPath);
-                        const buffer = file.toString('base64');
+                        let buffer = file.toString('base64');
+                        /*buffer = await sharp(buffer)
+                            .resize(200, 200)
+                            .max()
+                            .toFormat('jpeg')
+                            .toBuffer()*/
                         iconsFileHash[node.name] = buffer;//.toString('base64')
                         node.buffer = buffer;
 
