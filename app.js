@@ -10,7 +10,8 @@ const fs = require('fs'); // required for file serving
 const app = express();
 //import graphMock from './mock/graphSmall'
 //import exampleGraph from './mock/example_graph'
-import exampleNodes from './mock/exampleNodes';
+//import exampleNodes from './mock/exampleNodes';
+import exampleNodes from './mock/graph_3000';
 //import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
@@ -71,13 +72,11 @@ app.use('/', express.static('public'));
 //app.use('/api/v1/users', users)
 
 
-// checking for allready used color
-
 // set different image path for prod/dev mode
 let imgPath = ""
 
 if (process.env.NODE_ENV === 'development') {
-    imgPath = `${__dirname}/images/`;
+    imgPath = `${__dirname}/images/images_nofolders/`;
 } else {
     imgPath = `/export/home/asanakoy/workspace/wikiart/images/`;
 }
@@ -138,9 +137,6 @@ io.on('connection', function (socket) {
         // in production mode send to the server
         // in dev mode ...
 
-
-
-
         //build tripel from data
         console.log('buildTripel');
         const tripel = buildTripel(updatedNodes);
@@ -156,10 +152,11 @@ io.on('connection', function (socket) {
 
 
         if (process.env.NODE_ENV === 'development') {
-            const count = 80; //Object.keys(exampleNodes).length //
+            const mockDataLength = Object.keys(exampleNodes).length;
+
+            const count = mockDataLength;
             console.log('nodes generated from mock #: ' + count);
 
-            const mockDataLength = Object.keys(exampleNodes).length;
             // generate dummy nodes
             for (let n = 0; n < count; n++) {
                 const i = n % mockDataLength;
@@ -212,15 +209,16 @@ io.on('connection', function (socket) {
             });
 
         const kdtree = kdbush(points, n => n.x, n => n.y)
-
+        console.log("finish kdtree")
         //const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
         //console.log(smallBox)
         //const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
         const hcCluster = clusterfck.hcluster(points);
+        console.log("finish hccluster")
 
         const clusters = [];
-        for (let i = 1; i <= nodeDataLength; i += 10) clusters.push(hcCluster.clusters(i));
-
+        for (let i = 1; i <= nodeDataLength; i += 100) clusters.push(hcCluster.clusters(i));
+        console.log("finish clusters")
         clusters.forEach(cluster => {
             //console.log(`### ${cluster.length} Clusters:`)
             const countCluster = cluster.length;
@@ -232,7 +230,7 @@ io.on('connection', function (socket) {
             });
         });
         let diffCluster = process.hrtime(timeCluster);
-        console.log(`add cluster took ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
+        console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
 
         // saving used colorKeys
         const colorKeyHash = {};
@@ -283,8 +281,8 @@ io.on('connection', function (socket) {
                             .max()
                             .toFormat('jpeg')
                             .toBuffer()
-                        iconsFileHash[node.name] = buffer.toString('base64')
-                        node.buffer = buffer;
+                        node.buffer = buffer.toString('base64')       // save for faster reload TODO test with lots + large image
+                        iconsFileHash[node.name] = node.buffer;
 
                     }
                     socket.emit('node', node);
@@ -297,16 +295,19 @@ io.on('connection', function (socket) {
 
             })
         ).then(() => {
-            console.log("all nodes send")
+            console.log(`all ${Object.keys(nodes).length} nodes send`)
             //console.log(a)
             socket.emit("allNodesUpdated")
+
             socket.emit('updateKdtree', kdtree)
+
+            // sending back the labels and the colors
+            socket.emit('updateLabels', colorHash);
+            console.log('color labels send');
         })
 
 
-        // sending back the labels and the colors
-        socket.emit('updateLabels', colorHash);
-        console.log('color labels send');
+
 
 
         /*
@@ -462,6 +463,7 @@ io.on('connection', function (socket) {
 
     socket.on('disconnect', function () {
         console.log('disconnect: ', socket.id);
+        console.log('# sockets connected', io.engine.clientsCount);
     });
 });
 
