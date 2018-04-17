@@ -48,7 +48,7 @@ const colorTable = {
 
 
 // Socket.io
-const io = socket_io();
+const io = socket_io({'pingTimeout': 120000, 'pingInterval': 30000});
 app.io = io;
 
 const iconsFileHash = {};
@@ -83,7 +83,7 @@ if (process.env.NODE_ENV === 'development') {
 
 if(!fs.existsSync(imgPath)) new Error(`IMAGE PATH NOT EXISTS - ${imgPath}`)
 
-io.on('connection', function (socket) {
+io.sockets.on('connection', function (socket) {
     console.log('A user connected: ', socket.id);
     console.log('# sockets connected', io.engine.clientsCount);
 
@@ -154,7 +154,7 @@ io.on('connection', function (socket) {
         if (process.env.NODE_ENV === 'development') {
             const mockDataLength = Object.keys(exampleNodes).length;
 
-            const count = mockDataLength;
+            const count = 500 //mockDataLength;
             console.log('nodes generated from mock #: ' + count);
 
             // generate dummy nodes
@@ -197,7 +197,7 @@ io.on('connection', function (socket) {
             .forEach((node, i) => node.cluster = nodeDataLength);*/
 
         // starting the clustering
-        console.log('start clustering');
+        /*console.log('start clustering');
         let timeCluster = process.hrtime();
         const points = Object.values(nodes)
             .map((n, i) => {
@@ -230,7 +230,7 @@ io.on('connection', function (socket) {
             });
         });
         let diffCluster = process.hrtime(timeCluster);
-        console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
+        console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);*/
 
         // saving used colorKeys
         const colorKeyHash = {};
@@ -277,16 +277,24 @@ io.on('connection', function (socket) {
                         const file = await readFile(iconPath);
                         //let buffer = file//.toString('base64');
                         let buffer = await sharp(file)
-                            .resize(200, 200)
+                            .resize(50, 50)
                             .max()
-                            .toFormat('jpeg')
+                            .toFormat('jpg')
                             .toBuffer()
-                        node.buffer = buffer.toString('base64')       // save for faster reload TODO test with lots + large image
+                        node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`       // save for faster reload TODO test with lots + large image
                         iconsFileHash[node.name] = node.buffer;
 
                     }
-                    socket.emit('node', node);
-                    //console.log('node is send: ' + node.name);
+
+                    socket.compress(false).emit('node', node, function(nodeId) {
+                       // console.log("nodecount callback")
+                       // console.log(what)
+                    });
+
+                    if((i + 1) % 100 === 0) {
+                        console.log('node is send: ' + node.name + " #" + node.index);
+                        socket.compress(false).emit("nodesCount", node.index)
+                    }
                 } catch (err) {
                     console.log('Node was not send cause of missing image - how to handle?');
                     console.error(err);
@@ -299,172 +307,24 @@ io.on('connection', function (socket) {
             //console.log(a)
             socket.emit("allNodesUpdated")
 
-            socket.emit('updateKdtree', kdtree)
+            //socket.emit('updateKdtree', kdtree)
 
             // sending back the labels and the colors
             socket.emit('updateLabels', colorHash);
             console.log('color labels send');
         })
 
-
-
-
-
-        /*
-        // TODO convert data to graph again
-        if(process.env.NODE_ENV === 'development') {
-            console.log("get mock data")
-            // console.log(Object.keys(nodesStore).length)
-
-            // reset nodes
-            nodes = {}
-            // generate dummy nodes
-            for(let i = 0; i < 10; i++) {
-                nodes[i] = exampleNodes[i]
-
-            }
-
-
-            // empty in first time starting
-
-            // saving used colors
-            const colorKeyHash = {};
-
-            const colorHash = {}
-
-            Object.values(updatedNodes).forEach(node => {
-
-                if(colorHash[node.label]) {
-                    node.color = colorHash[node.label]
-                } else {
-                    const index = Object.keys(colorHash).length
-                    colorHash[node.label] = colorTable[index]
-                    node.color = colorHash[node.label]
-                }
-
-
-                while(true) {
-                    const colorKey = getRandomColor();
-                    if (!colorKeyHash[colorKey]) {
-                        node.colorKey = colorKey;
-                        colorKeyHash[colorKey] = node;
-                        return;
-                    }
-                }
-            });
-
-            socket.emit("updateLabels", colorHash)
-
-            nodesStore = updatedNodes
-
-            for(let i = 0; i < Object.keys(updatedNodes).length; i++) {
-                const node = updatedNodes[i]
-                node.index = i      // !important -
-                if(!node.x && !node.y) {
-                    node.x = Math.random()*40 -20
-                    node.y = Math.random()*40 -20
-                }
-
-                const iconPath = `${__dirname}/icons/${node.name}.jpg`
-
-                if(fileHash[node.name]) {
-                    node.buffer = fileHash[node.name]
-                    socket.emit('node', node);
-                } else {
-                    try {
-                        fs.readFile(iconPath, function(err, buf){
-                            if(err) {
-                                console.error(err)
-                                return
-                            }
-                            //node.iconExists = true
-                            const buffer = buf.toString('base64');
-                            fileHash[node.name] = buffer
-                            node.buffer =  buffer
-                            socket.emit('node', node);
-                            console.log('node is send: ' + node.name);
-
-                        })
-                    } catch (err) {
-                        console.error(err)
-                    }
-
-                }
-            }
-
-        // PRODUCTION MODE
-        }
-        else {
-            console.log("send data to python api")
-            // console.log(Object.keys(nodesStore).length)
-
-            //updatedNodes = compareAndClean(nodesStore, updatedNodes)
-
-
-
-            try {
-                fetch('http://localhost:8000/nodes', {
-                    method: 'POST',
-                    header: { 'Content-type': 'application/json'},
-                    body: JSON.stringify(updatedNodes)
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        console.log("nodes received from python")
-                        console.log(data)
-                        const nodes = data
-                        // check if the updatedNodes are not empty what they are on first time
-                        // store nodes from python
-                        nodesStore = nodes
-
-                        Object.values(nodes).map((node, i) =>  {
-                            node.index = i
-
-                            // add colorKey
-                            while(true) {
-                                const colorKey = getRandomColor();
-                                if (!colorsKeyHash[colorKey]) {
-                                    node.colorKey = colorKey;
-                                    colorsKeyHash[colorKey] = node;
-                                    break;
-                                }
-                            }
-
-                            // add label color
-                            if(colorHash[node.label]) {
-                                node.color = colorHash[node.label]
-                            } else {
-                                const index = Object.keys(colorHash).length
-                                colorHash[node.label] = colorTable[index]
-                                node.color = colorHash[node.label]
-                            }
-
-                            const iconPath = `${__dirname}/icons/${node.name}.jpg`
-                            fs.readFile(iconPath, function(err, buf){
-                                if(err) console.log(err)
-                                else {
-                                    // TODO file hash
-                                    // TODO handle error
-                                    node.buffer =  buf.toString('base64');
-                                    console.log('node is send: ' + node.name);
-                                    socket.emit('node', node);
-                                }
-                            });
-                        })
-
-                        socket.emit("updateLabels", colorHash)
-                    })
-            } catch(err) {
-                console.error(err)
-            }
-        }
-        */
     });
 
-    socket.on('disconnect', function () {
+    socket.on('disconnect', function (reason) {
         console.log('disconnect: ', socket.id);
         console.log('# sockets connected', io.engine.clientsCount);
+        console.log('reason: ' + reason)
     });
+    socket.on('reconnection', function(data) {
+        console.log("recconected: " +  socket.id)
+        console.log(data)
+    })
 });
 
 module.exports = app;

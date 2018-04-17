@@ -26,7 +26,7 @@ const server = http.createServer(app)
  */
 
 const io = app.io;
-io.attach( server );
+io.attach( server , {'pingTimeout': 120000, 'pingInterval': 30000});
 
 /**
  * Listen on provided port, on all network interfaces.
