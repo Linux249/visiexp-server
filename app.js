@@ -76,7 +76,7 @@ app.use('/', express.static('public'));
 let imgPath = ""
 
 if (process.env.NODE_ENV === 'development') {
-    imgPath = `${__dirname}/images/images_nofolders/`;
+    imgPath = `${__dirname}/images/images_3000/`;
 } else {
     imgPath = `/export/home/asanakoy/workspace/wikiart/images/`;
 }
@@ -133,9 +133,8 @@ io.sockets.on('connection', function (socket) {
         // the nodes object for mutating data before sending
         let nodes = {};
 
-        // the data, on the first time an empty object is
-        // in production mode send to the server
-        // in dev mode ...
+        // labels are scanned on serverside
+        const labels = []
 
         //build tripel from data
         console.log('buildTripel');
@@ -268,6 +267,17 @@ io.sockets.on('connection', function (socket) {
                     }
                 }
 
+                // labels
+                if (process.env.NODE_ENV === 'development') {
+                    const n = node.index % 5
+                    node.labels = []
+                    for(let i = 1; i <= n; i++) node.labels.push("label_" + i)
+                }
+
+                node.labels.forEach(label => (labels.indexOf(label) === -1) && labels.push(label) )
+
+
+
                 const iconPath = `${imgPath}${node.name}.jpg`;
 
                 try {
@@ -310,7 +320,7 @@ io.sockets.on('connection', function (socket) {
             //socket.emit('updateKdtree', kdtree)
 
             // sending back the labels and the colors
-            socket.emit('updateLabels', colorHash);
+            socket.emit('updateLabels', {colors: colorHash, labels: labels});
             console.log('color labels send');
         })
 
