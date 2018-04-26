@@ -14,7 +14,7 @@ const app = express();
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
 // import exampleNodes from './mock/exampleNodes';
-import exampleNodes from './mock/graph_3000';
+import exampleNodes from './mock/graph_6000';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
@@ -157,7 +157,7 @@ io.sockets.on('connection', (socket) => {
             console.log(`nodes generated from mock #: ${count}`);
 
             // generate dummy nodes
-            for (let n = 0; n < count; n++) {
+            for (let n = 0; n < count; n += 1) {
                 const i = n % mockDataLength;
                 nodes[n] = exampleNodes[i];
             }
@@ -196,7 +196,7 @@ io.sockets.on('connection', (socket) => {
             .forEach((node, i) => node.cluster = nodeDataLength);
 
         // starting the clustering
-         console.log('start clustering');
+        console.log('start clustering');
         let timeCluster = process.hrtime();
         const points = Object.values(nodes)
             .map((n, i) => {
@@ -225,7 +225,7 @@ io.sockets.on('connection', (socket) => {
             cluster.forEach((clust, i) => {
                 const agentId = clust[0].id;
                 // the user can change the amount of clusters
-                if (!nodes[agentId].cluster) nodes[agentId].cluster = countCluster;
+                if (nodes[agentId].cluster > countCluster) nodes[agentId].cluster = countCluster;
                 //console.log(`${i}. first items has id: ${clust[0].id}`)
             });
         });
