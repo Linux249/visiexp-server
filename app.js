@@ -151,7 +151,7 @@ io.sockets.on('connection', (socket) => {
 
 
         if (process.env.NODE_ENV === 'development') {
-            const mockDataLength = Object.keys(exampleNodes).length;
+            const mockDataLength = 5 //Object.keys(exampleNodes).length;
 
             const count = mockDataLength;
             console.log(`nodes generated from mock #: ${count}`);
