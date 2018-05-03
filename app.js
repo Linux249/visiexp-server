@@ -1,16 +1,7 @@
 
-const express = require('express');
-
 import fetch from 'node-fetch';
 import { promisify } from 'util';
 import sharp from 'sharp';
-
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const socket_io = require('socket.io');
-const fs = require('fs');
-// required for file serving
-const app = express();
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
 // import exampleNodes from './mock/exampleNodes';
@@ -19,11 +10,20 @@ import exampleNodes from './mock/graph_6000';
 import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
 
+import buildTripel from './util/buildTripels';
+
+const express = require('express');
+
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const socket_io = require('socket.io');
+const fs = require('fs');
+// required for file serving
+const app = express();
+
 const kdbush = require('kdbush');
 
 const clusterfck = require('tayden-clusterfck');
-
-import buildTripel from './util/buildTripels';
 
 const readFile = path =>
     new Promise((res, rej) => {
@@ -75,6 +75,30 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/', express.static('public'));
 // app.use('/api/v1/users', users)
+
+app.post('/api/v1/updateSvm', async (req, res) => {
+    console.log(req.path);
+    if (process.env.NODE_ENV === 'development') {
+        res.send({ p: [2, 4], n: [10, 20, 23] });
+    } else {
+        console.log('get updateSvm from python');
+
+        try {
+            const time = process.hrtime();
+            const data = await fetch('http://localhost:8000/svm', {
+                method: 'POST',
+                header: {'Content-type': 'application/json'},
+                body: JSON.stringify(req.body),
+            }).then(response => response.json());
+            const diff = process.hrtime(time);
+            res.send(data)
+            console.log(`get updateSvm from python took ${diff[0] + diff[1] / 1e9} seconds`);
+        } catch (err) {
+            console.error('error - get updateSvm from python - error');
+            console.error(err);
+        }
+    }
+});
 
 // set different image path for prod/dev mode
 let imgPath = '';
@@ -151,7 +175,7 @@ io.sockets.on('connection', (socket) => {
 
 
         if (process.env.NODE_ENV === 'development') {
-            const mockDataLength = 5 //Object.keys(exampleNodes).length;
+            const mockDataLength = 500; // Object.keys(exampleNodes).length;
 
             const count = mockDataLength;
             console.log(`nodes generated from mock #: ${count}`);
@@ -197,10 +221,10 @@ io.sockets.on('connection', (socket) => {
 
         // starting the clustering
         console.log('start clustering');
-        let timeCluster = process.hrtime();
+        const timeCluster = process.hrtime();
         const points = Object.values(nodes)
             .map((n, i) => {
-                const point = [n.x, n.y];   // array with properties is ugly!
+                const point = [n.x, n.y]; // array with properties is ugly!
                 point.id = i;
                 point.x = n.x;
                 point.y = n.y;
@@ -210,26 +234,26 @@ io.sockets.on('connection', (socket) => {
         // const kdtree = kdbush(points, n => n.x, n => n.y)
         // console.log("finish kdtree")
 
-        //const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
-        //console.log(smallBox)
-        //const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
+        // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
+        // console.log(smallBox)
+        // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
         const hcCluster = clusterfck.hcluster(points);
-        console.log("finish hccluster")
+        console.log('finish hccluster');
 
         const clusters = [];
         for (let i = 1; i <= nodeDataLength; i += 100) clusters.push(hcCluster.clusters(i));
-        console.log("finish clusters")
-        clusters.forEach(cluster => {
-            //console.log(`### ${cluster.length} Clusters:`)
+        console.log('finish clusters');
+        clusters.forEach((cluster) => {
+            // console.log(`### ${cluster.length} Clusters:`)
             const countCluster = cluster.length;
             cluster.forEach((clust, i) => {
                 const agentId = clust[0].id;
                 // the user can change the amount of clusters
                 if (nodes[agentId].cluster > countCluster) nodes[agentId].cluster = countCluster;
-                //console.log(`${i}. first items has id: ${clust[0].id}`)
+                // console.log(`${i}. first items has id: ${clust[0].id}`)
             });
         });
-        let diffCluster = process.hrtime(timeCluster);
+        const diffCluster = process.hrtime(timeCluster);
         console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
 
         // saving used colorKeys
@@ -284,6 +308,7 @@ io.sockets.on('connection', (socket) => {
                         node.buffer = iconsFileHash[node.name];
                     } else {
                         const file = await readFile(iconPath);
+                        console.log(file);
                         // let buffer = file//.toString('base64');
                         const buffer = await sharp(file)
                             .resize(50, 50)
