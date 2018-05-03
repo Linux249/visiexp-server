@@ -175,7 +175,7 @@ io.sockets.on('connection', (socket) => {
 
 
         if (process.env.NODE_ENV === 'development') {
-            const mockDataLength = 500; // Object.keys(exampleNodes).length;
+            const mockDataLength = 50//Object.keys(exampleNodes).length;
 
             const count = mockDataLength;
             console.log(`nodes generated from mock #: ${count}`);
@@ -216,8 +216,7 @@ io.sockets.on('connection', (socket) => {
         // console.log(nodesStore)
 
         // add default cluster value (max cluster/zooming)
-        Object.values(nodes)
-            .forEach((node, i) => node.cluster = nodeDataLength);
+        Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
 
         // starting the clustering
         console.log('start clustering');
@@ -240,19 +239,23 @@ io.sockets.on('connection', (socket) => {
         const hcCluster = clusterfck.hcluster(points);
         console.log('finish hccluster');
 
-        const clusters = [];
-        for (let i = 1; i <= nodeDataLength; i += 100) clusters.push(hcCluster.clusters(i));
-        console.log('finish clusters');
-        clusters.forEach((cluster) => {
-            // console.log(`### ${cluster.length} Clusters:`)
-            const countCluster = cluster.length;
-            cluster.forEach((clust, i) => {
-                const agentId = clust[0].id;
+        const zoomStages = 20
+        const nodesPerStage = Math.round(nodeDataLength/zoomStages)
+        for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
+            hcCluster.clusters(i).forEach((cluster, i) => {
+                const agentId = cluster[0].id;
                 // the user can change the amount of clusters
-                if (nodes[agentId].cluster > countCluster) nodes[agentId].cluster = countCluster;
+                if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
                 // console.log(`${i}. first items has id: ${clust[0].id}`)
+                // process.stdout.write("Downloading " + data.length + " bytes\r");
             });
-        });
+            console.log("Building " + i + " clusters finished");
+            // process.stdout.write("Building " + i + " clusters finished");
+            // process.stdout.write('\x1b[0G')
+            // process.stdout.write('\x1b[0G')
+        }
+        console.log('finish clusters');
+
         const diffCluster = process.hrtime(timeCluster);
         console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
 
@@ -308,7 +311,7 @@ io.sockets.on('connection', (socket) => {
                         node.buffer = iconsFileHash[node.name];
                     } else {
                         const file = await readFile(iconPath);
-                        console.log(file);
+                        //console.log(file);
                         // let buffer = file//.toString('base64');
                         const buffer = await sharp(file)
                             .resize(50, 50)
