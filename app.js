@@ -1,26 +1,31 @@
-'use strict';
-const express = require('express');
+
 import fetch from 'node-fetch';
 import { promisify } from 'util';
-import sharp from 'sharp'
+import sharp from 'sharp';
+// import graphMock from './mock/graphSmall'
+// import exampleGraph from './mock/example_graph'
+// import exampleNodes from './mock/exampleNodes';
+import exampleNodes from './mock/graph_6000';
+// import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
+import { compareAndClean } from './util/compareAndClean';
+import { getRandomColor } from './util/getRandomColor';
+
+import buildTripel from './util/buildTripels';
+
+const express = require('express');
+
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const socket_io = require('socket.io');
-const fs = require('fs'); // required for file serving
+const fs = require('fs');
+// required for file serving
 const app = express();
-//import graphMock from './mock/graphSmall'
-//import exampleGraph from './mock/example_graph'
-//import exampleNodes from './mock/exampleNodes';
-import exampleNodes from './mock/graph_3000';
-//import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
-import { compareAndClean } from './util/compareAndClean';
-import { getRandomColor } from './util/getRandomColor';
+
 const kdbush = require('kdbush');
 
 const clusterfck = require('tayden-clusterfck');
-import buildTripel from './util/buildTripels';
 
-const readFile = (path) =>
+const readFile = path =>
     new Promise((res, rej) => {
         fs.readFile(path, (err, data) => {
             if (err) {
@@ -43,12 +48,12 @@ const colorTable = {
     9: '#7cff6d',
     10: '#fffe6f',
     11: '#ff6af1',
-    12: '#85feff'
+    12: '#85feff',
 };
 
 
 // Socket.io
-const io = socket_io({'pingTimeout': 120000, 'pingInterval': 30000});
+const io = socket_io({ pingTimeout: 120000, pingInterval: 30000 });
 app.io = io;
 
 const iconsFileHash = {};
@@ -58,38 +63,61 @@ const imagesFileHash = {};
 let nodesStore = {};
 
 
-/*app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))*/
+/* app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false })) */
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-//app.use(cookieParser())
+// app.use(cookieParser())
 
 
-//console.log(process.env.NODE_ENV === 'development')
+// console.log(process.env.NODE_ENV === 'development')
 
 app.use('/', express.static('public'));
-//app.use('/api/v1/users', users)
+// app.use('/api/v1/users', users)
 
+app.post('/api/v1/updateSvm', async (req, res) => {
+    console.log(req.path);
+    if (process.env.NODE_ENV === 'development') {
+        res.send({ p: [2, 4], n: [10, 20, 23] });
+    } else {
+        console.log('get updateSvm from python');
+
+        try {
+            const time = process.hrtime();
+            const data = await fetch('http://localhost:8000/svm', {
+                method: 'POST',
+                header: {'Content-type': 'application/json'},
+                body: JSON.stringify(req.body),
+            }).then(response => response.json());
+            const diff = process.hrtime(time);
+            res.send(data)
+            console.log(`get updateSvm from python took ${diff[0] + diff[1] / 1e9} seconds`);
+        } catch (err) {
+            console.error('error - get updateSvm from python - error');
+            console.error(err);
+        }
+    }
+});
 
 // set different image path for prod/dev mode
-let imgPath = ""
+let imgPath = '';
 
 if (process.env.NODE_ENV === 'development') {
-    imgPath = `${__dirname}/images/images_nofolders/`;
+    imgPath = `${__dirname}/images/images_3000/`;
 } else {
-    imgPath = `/export/home/asanakoy/workspace/wikiart/images/`;
+    imgPath = '/export/home/asanakoy/workspace/wikiart/images/';
 }
 
-if(!fs.existsSync(imgPath)) new Error(`IMAGE PATH NOT EXISTS - ${imgPath}`)
+if (!fs.existsSync(imgPath)) new Error(`IMAGE PATH NOT EXISTS - ${imgPath}`);
 
-io.sockets.on('connection', function (socket) {
+io.sockets.on('connection', (socket) => {
     console.log('A user connected: ', socket.id);
     console.log('# sockets connected', io.engine.clientsCount);
 
-    socket.on('requestImage', async function (data) {
-        //console.log("requestImage")
-        //console.log(data.name)
+    socket.on('requestImage', async (data) => {
+        // console.log("requestImage")
+        // console.log(data.name)
         const name = data.name;
         if (name) {
             try {
@@ -105,39 +133,34 @@ io.sockets.on('connection', function (socket) {
                 socket.emit('receiveImage', {
                     name,
                     buffer,
-                    index: data.index
+                    index: data.index,
                 });
-                console.log('Image is send: ' + name);
-            }
-            catch (err) {
+                console.log(`Image is send: ${name}`);
+            } catch (err) {
                 console.error(err);
             }
-
         } else {
             console.error('that shoud now happen - report please!!! (requests image withoutname');
         }
-
-
     });
 
-    socket.on('updateNodes', async function (data) {
+    socket.on('updateNodes', async (data) => {
         console.log('updateNodes from client');
-        //console.log(typeof data)
-        //console.log(data)
+        // console.log(typeof data)
+        // console.log(data)
 
         // first time data is empty (the client should send a empty object {})
-        let updatedNodes = data; //|| {}
-        ///if(typeof updatedNodes !== 'object') updatedNodes = JSON.parse(updatedNodes)
-        //updatedNodes = JSON.parse(updatedNodes)
+        let updatedNodes = data; // || {}
+        // /if(typeof updatedNodes !== 'object') updatedNodes = JSON.parse(updatedNodes)
+        // updatedNodes = JSON.parse(updatedNodes)
 
         // the nodes object for mutating data before sending
         let nodes = {};
 
-        // the data, on the first time an empty object is
-        // in production mode send to the server
-        // in dev mode ...
+        // labels are scanned on serverside
+        const labels = [];
 
-        //build tripel from data
+        // build tripel from data
         console.log('buildTripel');
         const tripel = buildTripel(updatedNodes);
         console.log({ tripel });
@@ -145,20 +168,20 @@ io.sockets.on('connection', function (socket) {
 
 
         // before they should be cleaned and compared with maybe old data
-        let time = process.hrtime();
+        const time = process.hrtime();
         updatedNodes = compareAndClean(nodesStore, updatedNodes);
-        let diff = process.hrtime(time);
+        const diff = process.hrtime(time);
         console.log(`CopareAndClean took ${diff[0] + diff[1] / 1e9} seconds`);
 
 
         if (process.env.NODE_ENV === 'development') {
-            const mockDataLength = Object.keys(exampleNodes).length;
+            const mockDataLength = 50//Object.keys(exampleNodes).length;
 
-            const count = 500 //mockDataLength;
-            console.log('nodes generated from mock #: ' + count);
+            const count = mockDataLength;
+            console.log(`nodes generated from mock #: ${count}`);
 
             // generate dummy nodes
-            for (let n = 0; n < count; n++) {
+            for (let n = 0; n < count; n += 1) {
                 const i = n % mockDataLength;
                 nodes[n] = exampleNodes[i];
             }
@@ -166,19 +189,19 @@ io.sockets.on('connection', function (socket) {
             console.log('get nodes from python');
 
             try {
-                let time = process.hrtime();
+                const time2 = process.hrtime();
                 const res = await fetch('http://localhost:8000/nodes', {
                     method: 'POST',
                     header: { 'Content-type': 'application/json' },
                     body: JSON.stringify({
                         nodes: updatedNodes,
-                        tripel
-                    })
+                        tripel,
+                    }),
                 });
                 // there are only nodes comming back from here
                 nodes = await res.json();
-                let diff = process.hrtime(time);
-                console.log(`getNodesFromPython took ${diff[0] + diff[1] / 1e9} seconds`);
+                const diff2 = process.hrtime(time2);
+                console.log(`getNodesFromPython took ${diff2[0] + diff2[1] / 1e9} seconds`);
             } catch (err) {
                 console.error('error - get nodes from python - error');
                 console.error(err);
@@ -189,48 +212,52 @@ io.sockets.on('connection', function (socket) {
 
         // store data data for comparing later
         nodesStore = nodes;
-        //console.log("this nodes are stored")
-        //console.log(nodesStore)
+        // console.log("this nodes are stored")
+        // console.log(nodesStore)
 
         // add default cluster value (max cluster/zooming)
-        /*Object.values(nodes)
-            .forEach((node, i) => node.cluster = nodeDataLength);*/
+        Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
 
         // starting the clustering
-        /*console.log('start clustering');
-        let timeCluster = process.hrtime();
+        console.log('start clustering');
+        const timeCluster = process.hrtime();
         const points = Object.values(nodes)
             .map((n, i) => {
-                const point = [n.x, n.y];   // array with properties is ugly!
+                const point = [n.x, n.y]; // array with properties is ugly!
                 point.id = i;
                 point.x = n.x;
                 point.y = n.y;
                 return point;
             });
 
-        const kdtree = kdbush(points, n => n.x, n => n.y)
-        console.log("finish kdtree")
-        //const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
-        //console.log(smallBox)
-        //const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
-        const hcCluster = clusterfck.hcluster(points);
-        console.log("finish hccluster")
+        // const kdtree = kdbush(points, n => n.x, n => n.y)
+        // console.log("finish kdtree")
 
-        const clusters = [];
-        for (let i = 1; i <= nodeDataLength; i += 100) clusters.push(hcCluster.clusters(i));
-        console.log("finish clusters")
-        clusters.forEach(cluster => {
-            //console.log(`### ${cluster.length} Clusters:`)
-            const countCluster = cluster.length;
-            cluster.forEach((clust, i) => {
-                const agentId = clust[0].id;
+        // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
+        // console.log(smallBox)
+        // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
+        const hcCluster = clusterfck.hcluster(points);
+        console.log('finish hccluster');
+
+        const zoomStages = 20
+        const nodesPerStage = Math.round(nodeDataLength/zoomStages)
+        for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
+            hcCluster.clusters(i).forEach((cluster, i) => {
+                const agentId = cluster[0].id;
                 // the user can change the amount of clusters
-                if (!nodes[agentId].cluster) nodes[agentId].cluster = countCluster;
-                //console.log(`${i}. first items has id: ${clust[0].id}`)
+                if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
+                // console.log(`${i}. first items has id: ${clust[0].id}`)
+                // process.stdout.write("Downloading " + data.length + " bytes\r");
             });
-        });
-        let diffCluster = process.hrtime(timeCluster);
-        console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);*/
+            console.log("Building " + i + " clusters finished");
+            // process.stdout.write("Building " + i + " clusters finished");
+            // process.stdout.write('\x1b[0G')
+            // process.stdout.write('\x1b[0G')
+        }
+        console.log('finish clusters');
+
+        const diffCluster = process.hrtime(timeCluster);
+        console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
 
         // saving used colorKeys
         const colorKeyHash = {};
@@ -241,13 +268,12 @@ io.sockets.on('connection', function (socket) {
         // doing everything for each node and send it back
         Promise.all(Object.values(nodes)
             .map(async (node, i) => {
-
                 // that this is not inside !!! DONT FORGET THIS
                 node.index = i;
                 node.positives = [];
                 node.negatives = [];
 
-                if(!node.cluster) node.cluster = nodeDataLength
+                if (!node.cluster) node.cluster = nodeDataLength;
 
                 // setting color based on label
                 if (colorHash[node.label]) {
@@ -268,6 +294,16 @@ io.sockets.on('connection', function (socket) {
                     }
                 }
 
+                // labels
+                if (process.env.NODE_ENV === 'development') {
+                    const n = node.index % 5;
+                    node.labels = [];
+                    for (let i = 1; i <= n; i++) node.labels.push(`label_${i}`);
+                }
+
+                node.labels.forEach(label => (labels.indexOf(label) === -1) && labels.push(label));
+
+
                 const iconPath = `${imgPath}${node.name}.jpg`;
 
                 try {
@@ -275,56 +311,52 @@ io.sockets.on('connection', function (socket) {
                         node.buffer = iconsFileHash[node.name];
                     } else {
                         const file = await readFile(iconPath);
-                        //let buffer = file//.toString('base64');
-                        let buffer = await sharp(file)
+                        //console.log(file);
+                        // let buffer = file//.toString('base64');
+                        const buffer = await sharp(file)
                             .resize(50, 50)
                             .max()
                             .toFormat('jpg')
-                            .toBuffer()
-                        node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`       // save for faster reload TODO test with lots + large image
+                            .toBuffer();
+                        node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
                         iconsFileHash[node.name] = node.buffer;
-
                     }
 
-                    socket.compress(false).emit('node', node, function(nodeId) {
-                       // console.log("nodecount callback")
-                       // console.log(what)
+                    socket.compress(false).emit('node', node, (nodeId) => {
+                        // console.log("nodecount callback")
+                        // console.log(what)
                     });
 
-                    if((i + 1) % 100 === 0) {
-                        console.log('node is send: ' + node.name + " #" + node.index);
-                        socket.compress(false).emit("nodesCount", node.index)
+                    if ((i + 1) % 100 === 0) {
+                        console.log(`node is send: ${node.name} #${node.index}`);
+                        socket.compress(false).emit('nodesCount', node.index);
                     }
                 } catch (err) {
                     console.log('Node was not send cause of missing image - how to handle?');
                     console.error(err);
                 }
+            })).then(() => {
+            console.log(`all ${Object.keys(nodes).length} nodes send`);
+            // console.log(a)
+            socket.emit('allNodesUpdated');
 
-
-            })
-        ).then(() => {
-            console.log(`all ${Object.keys(nodes).length} nodes send`)
-            //console.log(a)
-            socket.emit("allNodesUpdated")
-
-            //socket.emit('updateKdtree', kdtree)
+            // socket.emit('updateKdtree', kdtree)
 
             // sending back the labels and the colors
-            socket.emit('updateLabels', colorHash);
+            socket.emit('updateLabels', labels);
             console.log('color labels send');
-        })
-
+        });
     });
 
-    socket.on('disconnect', function (reason) {
+    socket.on('disconnect', (reason) => {
         console.log('disconnect: ', socket.id);
         console.log('# sockets connected', io.engine.clientsCount);
-        console.log('reason: ' + reason)
+        console.log(`reason: ${reason}`);
     });
-    socket.on('reconnection', function(data) {
-        console.log("recconected: " +  socket.id)
-        console.log(data)
-    })
+    socket.on('reconnection', (data) => {
+        console.log(`recconected: ${socket.id}`);
+        console.log(data);
+    });
 });
 
 module.exports = app;
