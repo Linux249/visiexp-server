@@ -69,8 +69,8 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             data = json.dumps(data).encode()
             self.wfile.write(data)  #body zurueckschicken
 
-        if(self.path == "/svm"):
-            print("post /svm")
+        if(self.path == "/trainsvm"):
+            print("post /trainsvm")
             ### POST Request Header ###
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -91,6 +91,29 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             # make json
             data = json.dumps({p: p, n: n}).encode()
             self.wfile.write(data)  #body zurueckschicken
+
+        if(self.path == "/stopSvm"):
+            print("post /stopSvm")
+            ### POST Request Header ###
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+
+            # get body from request
+            #content_len = int(self.headers['Content-Length'])
+            #body = self.rfile.read(content_len)
+
+            # convert body to list
+            #data = json.loads(str(body).decode('utf-8'))  # python 2
+            #data = json.loads(str(body, encoding='utf-8'))      # python 3
+            #print(data)
+
+            # Katjas code goes here
+            p, n = katja_function(data.p, data.n)
+
+            # make json
+            #data = json.dumps({p: p, n: n}).encode()
+            self.wfile.write("stopped Svm")  #body zurueckschicken
 
 
         return

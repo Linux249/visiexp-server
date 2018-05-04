@@ -9,13 +9,14 @@ import exampleNodes from './mock/graph_6000';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
-
+import trainSvm from './routes/trainSvm'
+import stopSvm from './routes/stopSvm'
 import buildTripel from './util/buildTripels';
 
 const express = require('express');
 
 const path = require('path');
-const cookieParser = require('cookie-parser');
+//const cookieParser = require('cookie-parser');
 const socket_io = require('socket.io');
 const fs = require('fs');
 // required for file serving
@@ -76,29 +77,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/', express.static('public'));
 // app.use('/api/v1/users', users)
 
-app.post('/api/v1/updateSvm', async (req, res) => {
-    console.log(req.path);
-    if (process.env.NODE_ENV === 'development') {
-        res.send({ p: [2, 4], n: [10, 20, 23] });
-    } else {
-        console.log('get updateSvm from python');
-
-        try {
-            const time = process.hrtime();
-            const data = await fetch('http://localhost:8000/svm', {
-                method: 'POST',
-                header: {'Content-type': 'application/json'},
-                body: JSON.stringify(req.body),
-            }).then(response => response.json());
-            const diff = process.hrtime(time);
-            res.send(data)
-            console.log(`get updateSvm from python took ${diff[0] + diff[1] / 1e9} seconds`);
-        } catch (err) {
-            console.error('error - get updateSvm from python - error');
-            console.error(err);
-        }
-    }
-});
+app.post('/api/v1/trainSvm', trainSvm);
+app.post('/api/v1/stopSvm', stopSvm);
 
 // set different image path for prod/dev mode
 let imgPath = '';
