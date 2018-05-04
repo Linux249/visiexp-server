@@ -69,7 +69,7 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             data = json.dumps(data).encode()
             self.wfile.write(data)  #body zurueckschicken
 
-        if(self.path == "/trainsvm"):
+        if(self.path == "/trainSvm"):
             print("post /trainsvm")
             ### POST Request Header ###
             self.send_response(200)
