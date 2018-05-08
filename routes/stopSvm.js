@@ -11,12 +11,12 @@ export default async (req, res) => {
             const data = await fetch('http://localhost:8000/stopSvm', {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
-            }).then(response => response.json());
+            }).then(response => response.text());
             const diff = process.hrtime(time);
             res.send(data);
-            console.log(`get updateSvm from python took ${diff[0] + diff[1] / 1e9} seconds`);
+            console.log(`stopSvm from python took ${diff[0] + diff[1] / 1e9} seconds`);
         } catch (err) {
-            console.error('error - get updateSvm from python - error');
+            console.error('error - stopSvm python error');
             console.error(err);
         }
     }
