@@ -9,14 +9,13 @@ import exampleNodes from './mock/graph_6000';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
-import trainSvm from './routes/trainSvm'
-import stopSvm from './routes/stopSvm'
+import trainSvm from './routes/trainSvm';
+import stopSvm from './routes/stopSvm';
 import buildTripel from './util/buildTripels';
 
 const express = require('express');
 
-const path = require('path');
-//const cookieParser = require('cookie-parser');
+// const path = require('path');
 const socket_io = require('socket.io');
 const fs = require('fs');
 // required for file serving
@@ -89,7 +88,7 @@ if (process.env.NODE_ENV === 'development') {
     imgPath = '/export/home/asanakoy/workspace/wikiart/images/';
 }
 
-if (!fs.existsSync(imgPath)) new Error(`IMAGE PATH NOT EXISTS - ${imgPath}`);
+if (!fs.existsSync(imgPath)) throw Error(`IMAGE PATH NOT EXISTS - ${imgPath}`);
 
 io.sockets.on('connection', (socket) => {
     console.log('A user connected: ', socket.id);
@@ -155,7 +154,7 @@ io.sockets.on('connection', (socket) => {
 
 
         if (process.env.NODE_ENV === 'development') {
-            const mockDataLength = 50//Object.keys(exampleNodes).length;
+            const mockDataLength = 50;// Object.keys(exampleNodes).length;
 
             const count = mockDataLength;
             console.log(`nodes generated from mock #: ${count}`);
@@ -219,8 +218,8 @@ io.sockets.on('connection', (socket) => {
         const hcCluster = clusterfck.hcluster(points);
         console.log('finish hccluster');
 
-        const zoomStages = 20
-        const nodesPerStage = Math.round(nodeDataLength/zoomStages)
+        const zoomStages = 20;
+        const nodesPerStage = Math.round(nodeDataLength / zoomStages);
         for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
             hcCluster.clusters(i).forEach((cluster, i) => {
                 const agentId = cluster[0].id;
@@ -229,7 +228,7 @@ io.sockets.on('connection', (socket) => {
                 // console.log(`${i}. first items has id: ${clust[0].id}`)
                 // process.stdout.write("Downloading " + data.length + " bytes\r");
             });
-            console.log("Building " + i + " clusters finished");
+            console.log(`Building ${i} clusters finished`);
             // process.stdout.write("Building " + i + " clusters finished");
             // process.stdout.write('\x1b[0G')
             // process.stdout.write('\x1b[0G')
@@ -291,7 +290,7 @@ io.sockets.on('connection', (socket) => {
                         node.buffer = iconsFileHash[node.name];
                     } else {
                         const file = await readFile(iconPath);
-                        //console.log(file);
+                        // console.log(file);
                         // let buffer = file//.toString('base64');
                         const buffer = await sharp(file)
                             .resize(50, 50)
