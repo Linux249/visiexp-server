@@ -81,10 +81,10 @@ app.use('/', express.static('public'));
 app.post('/api/v1/trainSvm', trainSvm);
 app.post('/api/v1/stopSvm', stopSvm);
 app.use('/api', express.static('images'));
-/*app.get('/images/!*', (req, res) => {
+/* app.get('/images/!*', (req, res) => {
     console.log(req.path)
     res.send()
-})*/
+}) */
 
 // set different image path for prod/dev mode
 let imgPath = '';
@@ -161,7 +161,7 @@ io.sockets.on('connection', (socket) => {
 
 
         if (process.env.NODE_ENV === 'development') {
-            const mockDataLength = 5 //Object.keys(exampleNodes).length;
+            const mockDataLength = Object.keys(exampleNodes).length;
 
             console.log(`nodes generated from mock #: ${mockDataLength}`);
 
@@ -291,27 +291,54 @@ io.sockets.on('connection', (socket) => {
 
                 const iconPath = `${imgPath}${node.name}.jpg`;
 
+                node.pics = {};
+
                 try {
                     if (iconsFileHash[node.name]) {
-                        node.buffer = iconsFileHash[node.name];
+                        // node.buffer = iconsFileHash[node.name].buffer;
+                        node.pics = iconsFileHash[node.name].pics;
                     } else {
                         const file = await readFile(iconPath);
                         // console.log(file);
                         // let buffer = file//.toString('base64');
-                        const buffer = await sharp(file)
-                            .resize(50, 50)
-                            .max()
-                            .toFormat('jpg')
-                            .toBuffer();
-                        node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
-                        node.url = '/images_3000/' + node.name + '.jpg'
-                        iconsFileHash[node.name] = node.buffer;
+                        // const buffer = await sharp(file)
+                        //     .resize(50, 50)
+                        //     .max()
+                        //     .toFormat('jpg')
+                        //     .toBuffer();
+                        // node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
+                        node.url = `/images_3000/${node.name}.jpg`;
+                        iconsFileHash[node.name] = {};
+                        // iconsFileHash[node.name].buffer = node.buffer;
+
+
+                        const arr = [
+                            10, // pixel
+                            20,
+                            30,
+                            40,
+                            50,
+                            60,
+                            70,
+                            80,
+                            90,
+                            100,
+                        ];
+
+                        await Promise.all(arr.map(async (size) => {
+                            const buffer = await sharp(file)
+                                .resize(size, size)
+                                .max()
+                                .toFormat('jpg')
+                                .toBuffer();
+                            node.pics[size] = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
+                        }));
+
+                        iconsFileHash[node.name].pics = node.pics
                     }
 
-                    socket.compress(false).emit('node', node, (nodeId) => {
-                        // console.log("nodecount callback")
-                        // console.log(what)
-                    });
+                    socket.compress(false).emit('node', node);
+                    //if(!node.pics) console.log("HJEQWERIHWQR")
 
                     if ((i + 1) % 100 === 0) {
                         console.log(`node is send: ${node.name} #${node.index}`);
@@ -322,7 +349,7 @@ io.sockets.on('connection', (socket) => {
                     console.error(err);
                 }
             })).then(() => {
-            console.log(`all ${Object.keys(nodes).length} nodes send`);
+            console.log(`all ${nodeDataLength} nodes send`);
             // console.log(a)
             socket.emit('allNodesUpdated');
 
