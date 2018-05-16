@@ -62,6 +62,7 @@ const imagesFileHash = {};
 
 let nodesStore = {};
 
+let clusterStore = null;
 
 /* app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false })) */
@@ -74,10 +75,16 @@ app.use(express.urlencoded({ extended: false }));
 // console.log(process.env.NODE_ENV === 'development')
 
 app.use('/', express.static('public'));
+
 // app.use('/api/v1/users', users)
 
 app.post('/api/v1/trainSvm', trainSvm);
 app.post('/api/v1/stopSvm', stopSvm);
+app.use('/api', express.static('images'));
+/*app.get('/images/!*', (req, res) => {
+    console.log(req.path)
+    res.send()
+})*/
 
 // set different image path for prod/dev mode
 let imgPath = '';
@@ -154,13 +161,12 @@ io.sockets.on('connection', (socket) => {
 
 
         if (process.env.NODE_ENV === 'development') {
-            const mockDataLength = 50;// Object.keys(exampleNodes).length;
+            const mockDataLength = 5 //Object.keys(exampleNodes).length;
 
-            const count = mockDataLength;
-            console.log(`nodes generated from mock #: ${count}`);
+            console.log(`nodes generated from mock #: ${mockDataLength}`);
 
             // generate dummy nodes
-            for (let n = 0; n < count; n += 1) {
+            for (let n = 0; n < mockDataLength; n += 1) {
                 const i = n % mockDataLength;
                 nodes[n] = exampleNodes[i];
             }
@@ -194,50 +200,50 @@ io.sockets.on('connection', (socket) => {
         // console.log("this nodes are stored")
         // console.log(nodesStore)
 
-        // add default cluster value (max cluster/zooming)
-        Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
+        if (process.env.NODE_ENV === 'development' && clusterStore) {
+            nodes = clusterStore;
+        } else {
+            // add default cluster value (max cluster/zooming)
+            Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
 
-        // starting the clustering
-        console.log('start clustering');
-        const timeCluster = process.hrtime();
-        const points = Object.values(nodes)
-            .map((n, i) => {
-                const point = [n.x, n.y]; // array with properties is ugly!
-                point.id = i;
-                point.x = n.x;
-                point.y = n.y;
-                return point;
-            });
+            // starting the clustering
+            console.log('start clustering');
+            const timeCluster = process.hrtime();
+            const points = Object.values(nodes)
+                .map((n, i) => {
+                    const point = [n.x, n.y]; // array with properties is ugly!
+                    point.id = i;
+                    point.x = n.x;
+                    point.y = n.y;
+                    return point;
+                });
 
-        // const kdtree = kdbush(points, n => n.x, n => n.y)
-        // console.log("finish kdtree")
+            // const kdtree = kdbush(points, n => n.x, n => n.y)
+            // console.log("finish kdtree")
 
-        // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
-        // console.log(smallBox)
-        // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
-        const hcCluster = clusterfck.hcluster(points);
-        console.log('finish hccluster');
+            // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
+            // console.log(smallBox)
+            // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
+            const hcCluster = clusterfck.hcluster(points);
+            console.log('finish hccluster');
 
-        const zoomStages = 20;
-        const nodesPerStage = Math.round(nodeDataLength / zoomStages);
-        for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
-            hcCluster.clusters(i).forEach((cluster, i) => {
-                const agentId = cluster[0].id;
-                // the user can change the amount of clusters
-                if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
-                // console.log(`${i}. first items has id: ${clust[0].id}`)
-                // process.stdout.write("Downloading " + data.length + " bytes\r");
-            });
-            console.log(`Building ${i} clusters finished`);
-            // process.stdout.write("Building " + i + " clusters finished");
-            // process.stdout.write('\x1b[0G')
-            // process.stdout.write('\x1b[0G')
+            const zoomStages = 20;
+            const nodesPerStage = Math.round(nodeDataLength / zoomStages) || 1; // small #nodes can result to 0
+            for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
+                hcCluster.clusters(i).forEach((cluster, i) => {
+                    const agentId = cluster[0].id;
+                    // the user can change the amount of clusters
+                    if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
+                    // console.log(`${i}. first items has id: ${clust[0].id}`)
+                });
+                console.log(`Building ${i} clusters finished`);
+            }
+            console.log('finish clusters');
+
+            const diffCluster = process.hrtime(timeCluster);
+            console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
+            clusterStore = nodes;
         }
-        console.log('finish clusters');
-
-        const diffCluster = process.hrtime(timeCluster);
-        console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
-
         // saving used colorKeys
         const colorKeyHash = {};
 
@@ -298,6 +304,7 @@ io.sockets.on('connection', (socket) => {
                             .toFormat('jpg')
                             .toBuffer();
                         node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
+                        node.url = '/images_3000/' + node.name + '.jpg'
                         iconsFileHash[node.name] = node.buffer;
                     }
 
