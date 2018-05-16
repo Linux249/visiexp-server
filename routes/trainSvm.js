@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 export default async (req, res) => {
     console.log(req.path);
     if (process.env.NODE_ENV === 'development') {
-        res.send({ p: [2, 4], n: [10, 20, 23] });
+        res.send({ p: [2, 4], n: [10, 20, 23], t: [1,2,3] });
     } else {
         console.log('get updateSvm from python');
 
