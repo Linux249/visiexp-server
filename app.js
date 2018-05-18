@@ -194,6 +194,7 @@ io.sockets.on('connection', (socket) => {
         }
 
         const nodeDataLength = Object.keys(nodes).length;
+        socket.emit('totalNodesCount', nodeDataLength)
 
         // store data data for comparing later
         nodesStore = nodes;
@@ -250,6 +251,8 @@ io.sockets.on('connection', (socket) => {
         // saving used colors for labels
         const colorHash = {};
 
+        const timeStartSendNodes = process.hrtime();
+
         // doing everything for each node and send it back
         Promise.all(Object.values(nodes)
             .map(async (node, i) => {
@@ -292,11 +295,14 @@ io.sockets.on('connection', (socket) => {
                 const iconPath = `${imgPath}${node.name}.jpg`;
 
                 node.pics = {};
+                node.cached = false     // this is interesting while performance messearuing
+                node.url = `/images_3000/${node.name}.jpg`;
 
                 try {
                     if (iconsFileHash[node.name]) {
                         // node.buffer = iconsFileHash[node.name].buffer;
-                        node.pics = iconsFileHash[node.name].pics;
+                        node.pics = iconsFileHash[node.name];
+                        nodes.cached = true;
                     } else {
                         const file = await readFile(iconPath);
                         // console.log(file);
@@ -307,8 +313,8 @@ io.sockets.on('connection', (socket) => {
                         //     .toFormat('jpg')
                         //     .toBuffer();
                         // node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
-                        node.url = `/images_3000/${node.name}.jpg`;
-                        iconsFileHash[node.name] = {};
+
+                        // iconsFileHash[node.name] = {};
                         // iconsFileHash[node.name].buffer = node.buffer;
 
 
@@ -329,29 +335,34 @@ io.sockets.on('connection', (socket) => {
                             const buffer = await sharp(file)
                                 .resize(size, size)
                                 .max()
-                                .toFormat('jpg')
-                                .toBuffer();
-                            node.pics[size] = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
+                                .overlayWith(
+                                    new Buffer([0, 0, 0, 0]),
+                                    { tile: true, raw: { width: 1, height: 1, channels: 4 } }
+                                ).raw()
+                                .toBuffer({ resolveWithObject: true });
+                            node.pics[size] = buffer // `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
                         }));
 
-                        iconsFileHash[node.name].pics = node.pics
+                        iconsFileHash[node.name] = node.pics
                     }
 
                     socket.compress(false).emit('node', node);
                     //if(!node.pics) console.log("HJEQWERIHWQR")
 
                     if ((i + 1) % 100 === 0) {
-                        console.log(`node is send: ${node.name} #${node.index}`);
-                        socket.compress(false).emit('nodesCount', node.index);
+                        const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+                        console.log(`node is send: ${node.name} #${node.index} after: ${diffStartSendNodes[0] + diffStartSendNodes[1] / 1e9}s`);
+                        // socket.compress(false).emit('nodesCount', node.index);
                     }
                 } catch (err) {
                     console.log('Node was not send cause of missing image - how to handle?');
                     console.error(err);
                 }
             })).then(() => {
-            console.log(`all ${nodeDataLength} nodes send`);
+            const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+            console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + diffStartSendNodes[1] / 1e9}s`);
             // console.log(a)
-            socket.emit('allNodesUpdated');
+            socket.emit('allNodesSend');
 
             // socket.emit('updateKdtree', kdtree)
 
