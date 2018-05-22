@@ -2,7 +2,8 @@
   "extends": "airbnb-base",
 
   "rules": {
-    "indent": ["error", 4]
+    "indent": ["error", 4],
+    "no-param-reassign": ["error", { "props": true }]
   },
   "env": {
     "node": true

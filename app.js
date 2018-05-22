@@ -9,13 +9,13 @@ import exampleNodes from './mock/graph_6000';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
-
+import trainSvm from './routes/trainSvm';
+import stopSvm from './routes/stopSvm';
 import buildTripel from './util/buildTripels';
 
 const express = require('express');
 
-const path = require('path');
-const cookieParser = require('cookie-parser');
+// const path = require('path');
 const socket_io = require('socket.io');
 const fs = require('fs');
 // required for file serving
@@ -62,6 +62,7 @@ const imagesFileHash = {};
 
 let nodesStore = {};
 
+let clusterStore = null;
 
 /* app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false })) */
@@ -74,31 +75,16 @@ app.use(express.urlencoded({ extended: false }));
 // console.log(process.env.NODE_ENV === 'development')
 
 app.use('/', express.static('public'));
+
 // app.use('/api/v1/users', users)
 
-app.post('/api/v1/updateSvm', async (req, res) => {
-    console.log(req.path);
-    if (process.env.NODE_ENV === 'development') {
-        res.send({ p: [2, 4], n: [10, 20, 23] });
-    } else {
-        console.log('get updateSvm from python');
-
-        try {
-            const time = process.hrtime();
-            const data = await fetch('http://localhost:8000/svm', {
-                method: 'POST',
-                header: {'Content-type': 'application/json'},
-                body: JSON.stringify(req.body),
-            }).then(response => response.json());
-            const diff = process.hrtime(time);
-            res.send(data)
-            console.log(`get updateSvm from python took ${diff[0] + diff[1] / 1e9} seconds`);
-        } catch (err) {
-            console.error('error - get updateSvm from python - error');
-            console.error(err);
-        }
-    }
-});
+app.post('/api/v1/trainSvm', trainSvm);
+app.post('/api/v1/stopSvm', stopSvm);
+app.use('/api', express.static('images'));
+/* app.get('/images/!*', (req, res) => {
+    console.log(req.path)
+    res.send()
+}) */
 
 // set different image path for prod/dev mode
 let imgPath = '';
@@ -109,7 +95,7 @@ if (process.env.NODE_ENV === 'development') {
     imgPath = '/export/home/asanakoy/workspace/wikiart/images/';
 }
 
-if (!fs.existsSync(imgPath)) new Error(`IMAGE PATH NOT EXISTS - ${imgPath}`);
+if (!fs.existsSync(imgPath)) throw Error(`IMAGE PATH NOT EXISTS - ${imgPath}`);
 
 io.sockets.on('connection', (socket) => {
     console.log('A user connected: ', socket.id);
@@ -175,13 +161,12 @@ io.sockets.on('connection', (socket) => {
 
 
         if (process.env.NODE_ENV === 'development') {
-            const mockDataLength = 50//Object.keys(exampleNodes).length;
+            const mockDataLength = Object.keys(exampleNodes).length;
 
-            const count = mockDataLength;
-            console.log(`nodes generated from mock #: ${count}`);
+            console.log(`nodes generated from mock #: ${mockDataLength}`);
 
             // generate dummy nodes
-            for (let n = 0; n < count; n += 1) {
+            for (let n = 0; n < mockDataLength; n += 1) {
                 const i = n % mockDataLength;
                 nodes[n] = exampleNodes[i];
             }
@@ -209,61 +194,64 @@ io.sockets.on('connection', (socket) => {
         }
 
         const nodeDataLength = Object.keys(nodes).length;
+        socket.emit('totalNodesCount', nodeDataLength)
 
         // store data data for comparing later
         nodesStore = nodes;
         // console.log("this nodes are stored")
         // console.log(nodesStore)
 
-        // add default cluster value (max cluster/zooming)
-        Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
+        if (process.env.NODE_ENV === 'development' && clusterStore) {
+            nodes = clusterStore;
+        } else {
+            // add default cluster value (max cluster/zooming)
+            Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
 
-        // starting the clustering
-        console.log('start clustering');
-        const timeCluster = process.hrtime();
-        const points = Object.values(nodes)
-            .map((n, i) => {
-                const point = [n.x, n.y]; // array with properties is ugly!
-                point.id = i;
-                point.x = n.x;
-                point.y = n.y;
-                return point;
-            });
+            // starting the clustering
+            console.log('start clustering');
+            const timeCluster = process.hrtime();
+            const points = Object.values(nodes)
+                .map((n, i) => {
+                    const point = [n.x, n.y]; // array with properties is ugly!
+                    point.id = i;
+                    point.x = n.x;
+                    point.y = n.y;
+                    return point;
+                });
 
-        // const kdtree = kdbush(points, n => n.x, n => n.y)
-        // console.log("finish kdtree")
+            // const kdtree = kdbush(points, n => n.x, n => n.y)
+            // console.log("finish kdtree")
 
-        // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
-        // console.log(smallBox)
-        // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
-        const hcCluster = clusterfck.hcluster(points);
-        console.log('finish hccluster');
+            // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
+            // console.log(smallBox)
+            // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
+            const hcCluster = clusterfck.hcluster(points);
+            console.log('finish hccluster');
 
-        const zoomStages = 20
-        const nodesPerStage = Math.round(nodeDataLength/zoomStages)
-        for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
-            hcCluster.clusters(i).forEach((cluster, i) => {
-                const agentId = cluster[0].id;
-                // the user can change the amount of clusters
-                if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
-                // console.log(`${i}. first items has id: ${clust[0].id}`)
-                // process.stdout.write("Downloading " + data.length + " bytes\r");
-            });
-            console.log("Building " + i + " clusters finished");
-            // process.stdout.write("Building " + i + " clusters finished");
-            // process.stdout.write('\x1b[0G')
-            // process.stdout.write('\x1b[0G')
+            const zoomStages = 20;
+            const nodesPerStage = Math.round(nodeDataLength / zoomStages) || 1; // small #nodes can result to 0
+            for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
+                hcCluster.clusters(i).forEach((cluster, i) => {
+                    const agentId = cluster[0].id;
+                    // the user can change the amount of clusters
+                    if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
+                    // console.log(`${i}. first items has id: ${clust[0].id}`)
+                });
+                console.log(`Building ${i} clusters finished`);
+            }
+            console.log('finish clusters');
+
+            const diffCluster = process.hrtime(timeCluster);
+            console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
+            clusterStore = nodes;
         }
-        console.log('finish clusters');
-
-        const diffCluster = process.hrtime(timeCluster);
-        console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
-
         // saving used colorKeys
         const colorKeyHash = {};
 
         // saving used colors for labels
         const colorHash = {};
+
+        const timeStartSendNodes = process.hrtime();
 
         // doing everything for each node and send it back
         Promise.all(Object.values(nodes)
@@ -306,39 +294,75 @@ io.sockets.on('connection', (socket) => {
 
                 const iconPath = `${imgPath}${node.name}.jpg`;
 
+                node.pics = {};
+                node.cached = false     // this is interesting while performance messearuing
+                node.url = `/images_3000/${node.name}.jpg`;
+
                 try {
                     if (iconsFileHash[node.name]) {
-                        node.buffer = iconsFileHash[node.name];
+                        // node.buffer = iconsFileHash[node.name].buffer;
+                        node.pics = iconsFileHash[node.name];
+                        nodes.cached = true;
                     } else {
                         const file = await readFile(iconPath);
-                        //console.log(file);
+                        // console.log(file);
                         // let buffer = file//.toString('base64');
-                        const buffer = await sharp(file)
-                            .resize(50, 50)
-                            .max()
-                            .toFormat('jpg')
-                            .toBuffer();
-                        node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
-                        iconsFileHash[node.name] = node.buffer;
+                        // const buffer = await sharp(file)
+                        //     .resize(50, 50)
+                        //     .max()
+                        //     .toFormat('jpg')
+                        //     .toBuffer();
+                        // node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
+
+                        // iconsFileHash[node.name] = {};
+                        // iconsFileHash[node.name].buffer = node.buffer;
+
+
+                        const arr = [
+                            10, // pixel
+                            20,
+                            30,
+                            40,
+                            50,
+                            60,
+                            70,
+                            80,
+                            90,
+                            100,
+                        ];
+
+                        await Promise.all(arr.map(async (size) => {
+                            const buffer = await sharp(file)
+                                .resize(size, size)
+                                .max()
+                                .overlayWith(
+                                    new Buffer([0, 0, 0, 0]),
+                                    { tile: true, raw: { width: 1, height: 1, channels: 4 } }
+                                ).raw()
+                                .toBuffer({ resolveWithObject: true });
+                            node.pics[size] = buffer // `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
+                        }));
+
+                        iconsFileHash[node.name] = node.pics
                     }
 
-                    socket.compress(false).emit('node', node, (nodeId) => {
-                        // console.log("nodecount callback")
-                        // console.log(what)
-                    });
+                    socket.compress(false).emit('node', node);
+                    //if(!node.pics) console.log("HJEQWERIHWQR")
 
                     if ((i + 1) % 100 === 0) {
-                        console.log(`node is send: ${node.name} #${node.index}`);
-                        socket.compress(false).emit('nodesCount', node.index);
+                        const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+                        console.log(`node is send: ${node.name} #${node.index} after: ${diffStartSendNodes[0] + diffStartSendNodes[1] / 1e9}s`);
+                        // socket.compress(false).emit('nodesCount', node.index);
                     }
                 } catch (err) {
                     console.log('Node was not send cause of missing image - how to handle?');
                     console.error(err);
                 }
             })).then(() => {
-            console.log(`all ${Object.keys(nodes).length} nodes send`);
+            const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+            console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + diffStartSendNodes[1] / 1e9}s`);
             // console.log(a)
-            socket.emit('allNodesUpdated');
+            socket.emit('allNodesSend');
 
             // socket.emit('updateKdtree', kdtree)
 
