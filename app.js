@@ -13,6 +13,9 @@ import trainSvm from './routes/trainSvm';
 import stopSvm from './routes/stopSvm';
 import buildTripel from './util/buildTripels';
 
+// var os = require('os');
+//
+// console.log(os.cpus());
 const express = require('express');
 
 // const path = require('path');
@@ -56,9 +59,11 @@ const colorTable = {
 const io = socket_io({ pingTimeout: 120000, pingInterval: 30000 });
 app.io = io;
 
-const iconsFileHash = {};
+const scaledPicsHash = {};      // scaled images in new archetecture 2
 
-const imagesFileHash = {};
+const stringImgHash = {};       // normal (50,50) images in old architecture
+
+const largeFileHash = {};       // the detailed images witch are loaded if needen
 
 let nodesStore = {};
 
@@ -90,7 +95,8 @@ app.use('/api', express.static('images'));
 let imgPath = '';
 
 if (process.env.NODE_ENV === 'development') {
-    imgPath = `${__dirname}/images/images_3000/`;
+    // imgPath = `${__dirname}/images/images_3000/`;
+    imgPath = `/export/home/kschwarz/Documents/Data/CUB_200_2011/images_nofolders/`;
 } else {
     imgPath = '/export/home/asanakoy/workspace/wikiart/images/';
 }
@@ -108,13 +114,13 @@ io.sockets.on('connection', (socket) => {
         if (name) {
             try {
                 let buffer;
-                if (imagesFileHash[name]) {
-                    buffer = imagesFileHash[name];
+                if (largeFileHash[name]) {
+                    buffer = largeFileHash[name];
                 } else {
                     const imagePath = `${imgPath}${name}.jpg`;
                     const file = await readFile(imagePath);
                     buffer = file.toString('base64');
-                    imagesFileHash[name] = buffer;
+                    largeFileHash[name] = buffer;
                 }
                 socket.emit('receiveImage', {
                     name,
@@ -161,7 +167,7 @@ io.sockets.on('connection', (socket) => {
 
 
         if (process.env.NODE_ENV === 'development') {
-            const mockDataLength = Object.keys(exampleNodes).length;
+            const mockDataLength = 50 //Object.keys(exampleNodes).length;
 
             console.log(`nodes generated from mock #: ${mockDataLength}`);
 
@@ -201,9 +207,9 @@ io.sockets.on('connection', (socket) => {
         // console.log("this nodes are stored")
         // console.log(nodesStore)
 
-        if (process.env.NODE_ENV === 'development' && clusterStore) {
-            nodes = clusterStore;
-        } else {
+        // if (process.env.NODE_ENV === 'development' && clusterStore) {
+        //     nodes = clusterStore;
+        // } else {
             // add default cluster value (max cluster/zooming)
             Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
 
@@ -243,8 +249,8 @@ io.sockets.on('connection', (socket) => {
 
             const diffCluster = process.hrtime(timeCluster);
             console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
-            clusterStore = nodes;
-        }
+            // clusterStore = nodes;
+        // }
         // saving used colorKeys
         const colorKeyHash = {};
 
@@ -257,6 +263,8 @@ io.sockets.on('connection', (socket) => {
         Promise.all(Object.values(nodes)
             .map(async (node, i) => {
                 // that this is not inside !!! DONT FORGET THIS
+                // console.time('map' + i)
+                // console.log("start")
                 node.index = i;
                 node.positives = [];
                 node.negatives = [];
@@ -289,6 +297,7 @@ io.sockets.on('connection', (socket) => {
                     for (let i = 1; i <= n; i++) node.labels.push(`label_${i}`);
                 }
 
+                // check all labels for a list of all labels in UI
                 node.labels.forEach(label => (labels.indexOf(label) === -1) && labels.push(label));
 
 
@@ -299,23 +308,21 @@ io.sockets.on('connection', (socket) => {
                 node.url = `/images_3000/${node.name}.jpg`;
 
                 try {
-                    if (iconsFileHash[node.name]) {
+                    if (scaledPicsHash[node.name] && stringImgHash[node.name]) {
                         // node.buffer = iconsFileHash[node.name].buffer;
-                        node.pics = iconsFileHash[node.name];
+                        node.pics = scaledPicsHash[node.name];
+                        node.buffer = stringImgHash[node.name];
                         nodes.cached = true;
                     } else {
                         const file = await readFile(iconPath);
                         // console.log(file);
-                        // let buffer = file//.toString('base64');
-                        // const buffer = await sharp(file)
-                        //     .resize(50, 50)
-                        //     .max()
-                        //     .toFormat('jpg')
-                        //     .toBuffer();
-                        // node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
-
-                        // iconsFileHash[node.name] = {};
-                        // iconsFileHash[node.name].buffer = node.buffer;
+                        const buffer = await sharp(file)
+                            .resize(50, 50)
+                            .max()
+                            .toFormat('jpg')
+                            .toBuffer();
+                        node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`;
+                        stringImgHash[node.name] = node.buffer; // save for faster reload TODO test with lots + large image
 
 
                         const arr = [
@@ -330,9 +337,10 @@ io.sockets.on('connection', (socket) => {
                             90,
                             100,
                         ];
+                        // new architecture 2
 
                         await Promise.all(arr.map(async (size) => {
-                            const buffer = await sharp(file)
+                            node.pics[size] = await sharp(file)
                                 .resize(size, size)
                                 .max()
                                 .overlayWith(
@@ -340,13 +348,23 @@ io.sockets.on('connection', (socket) => {
                                     { tile: true, raw: { width: 1, height: 1, channels: 4 } }
                                 ).raw()
                                 .toBuffer({ resolveWithObject: true });
-                            node.pics[size] = buffer // `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
                         }));
+                        scaledPicsHash[node.name] = node.pics
 
-                        iconsFileHash[node.name] = node.pics
-                    }
+                        // new archetecture 1
+                        /*await Promise.all(arr.map(async (size) => {
+                            const buffer = await sharp(file)
+                                .resize(size, size)
+                                .max()
+                                .toFormat('jpg')
+                                .toBuffer();
+                            node.pics[size] = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
+                        }));*/
+
+                        }
 
                     socket.compress(false).emit('node', node);
+                    // console.timeEnd('map' + i)
                     //if(!node.pics) console.log("HJEQWERIHWQR")
 
                     if ((i + 1) % 100 === 0) {
@@ -357,6 +375,7 @@ io.sockets.on('connection', (socket) => {
                 } catch (err) {
                     console.log('Node was not send cause of missing image - how to handle?');
                     console.error(err);
+                    console.log(node.index)
                 }
             })).then(() => {
             const diffStartSendNodes = process.hrtime(timeStartSendNodes);
