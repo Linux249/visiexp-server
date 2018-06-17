@@ -4,15 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./bin/www",
-    "debug": "cross-env NODE_ENV=development nodemon --exec babel-node %NODE_DEBUG_OPTION% -- ./bin/www",
+    "debug": "cross-env NODE_ENV=development babel-node %NODE_DEBUG_OPTION% -- ./bin/www",
     "cluster": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./performance/clustering",
     "clusterdebug": "cross-env NODE_ENV=development nodemon --exec babel-node %NODE_DEBUG_OPTION% -- ./performance/clustering",
     "profiling": "cross-env NODE_ENV=development babel-node --prof ./bin/www",
-    "build": "babel bin/www -o ./dist/server.js",
+    "build": "cross-env NODE_ENV=production babel bin/www -s -D -d dist",
     "start": "cross-env NODE_ENV=production nodemon --exec babel-node -- ./bin/www",
     "dashboard": "cross-env NODE_ENV=development nodemon --exec 'nodejs-dashboard babel-node' -- ./bin/www"
   },
   "dependencies": {
+    "@stdlib/stdlib": "0.0.40",
     "express": "~4.16.0",
     "kdbush": "^1.0.1",
     "morgan": "^1.9.0",

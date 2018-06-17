@@ -5,27 +5,27 @@ import sharp from 'sharp';
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
 // import exampleNodes from './mock/exampleNodes';
-import exampleNodes from './mock/graph_6000';
+import exampleNodes from './mock/2582_sub_wikiarts';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
 import trainSvm from './routes/trainSvm';
 import stopSvm from './routes/stopSvm';
 import buildTripel from './util/buildTripels';
-
-const mockDataLength = 500 //Object.keys(exampleNodes).length;
-// var os = require('os');
-//
-// console.log(os.cpus());
 const express = require('express');
+const fs = require('fs');
+
+const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
+
+const mockDataLength = 100 //Object.keys(exampleNodes).length;
+
 
 // const path = require('path');
 const socket_io = require('socket.io');
-const fs = require('fs');
 // required for file serving
 const app = express();
 
-const kdbush = require('kdbush');
+// const kdbush = require('kdbush');
 
 const clusterfck = require('tayden-clusterfck');
 
@@ -72,11 +72,11 @@ const imgSizes = [
 const io = socket_io({ pingTimeout: 1200000, pingInterval: 300000 });
 app.io = io;
 
-const scaledPicsHash = {};      // scaled images in new archetecture 2
+const scaledPicsHash = {}; // scaled images in new archetecture 2
 
 // const stringImgHash = {};       // normal (50,50) images in old architecture
 
-const largeFileHash = {};       // the detailed images witch are loaded if needen
+const largeFileHash = {}; // the detailed images witch are loaded if needen
 
 let nodesStore = {};
 
@@ -87,24 +87,25 @@ let nodesStore = {};
 let imgPath = '';
 
 if (process.env.NODE_ENV === 'development') {
-    // imgPath = `${__dirname}/images/images_3000/`;
-    imgPath = `/export/home/kschwarz/Documents/Data/CUB_200_2011/images_nofolders/`;
+    imgPath = `${__dirname}/images/2582_sub_wikiarts/`;
+    // imgPath = `/export/home/kschwarz/Documents/Data/CUB_200_2011/images_nofolders/`;
 } else {
     imgPath = '/export/home/asanakoy/workspace/wikiart/images/';
 }
 
 if (process.env.NODE_ENV === 'development') {
-
     const timeFillImgDataCach = process.hrtime();
 
-   // fill scaledPicsHash
+    // fill scaledPicsHash
 
-    console.time("fillImgDataCach")
+    console.time('fillImgDataCach');
+    console.log('fillImgDataCach of ' + mockDataLength + ' files');
+
     // generate dummy nodes
     for (let n = 0; n < mockDataLength; n += 1) {
         const i = n % mockDataLength;
         const node = exampleNodes[i];
-        const pics = {}
+        const pics = {};
         const iconPath = `${imgPath}${node.name}.jpg`;
         Promise.all(imgSizes.map(async (size) => {
             // const file = await readFile(iconPath);
@@ -113,19 +114,20 @@ if (process.env.NODE_ENV === 'development') {
                 .max()
                 .overlayWith(
                     Buffer.alloc(4),
-                    { tile: true, raw: { width: 1, height: 1, channels: 4 } }
-                ).raw()
+                    { tile: true, raw: { width: 1, height: 1, channels: 4 } },
+                )
+                .raw()
                 .toBuffer({ resolveWithObject: true });
         })).then(() => {
-            if(!(n % 100)) {
+            if (!(n % 100)) {
                 const diffFillImgDataCach = process.hrtime(timeFillImgDataCach);
                 console.log(`${n}/${mockDataLength} pics cached took: ${diffFillImgDataCach[0] + diffFillImgDataCach[1] / 1e9}s`);
             }
-            scaledPicsHash[node.name] = pics
-            if(n + 1 === mockDataLength) console.log("fillImgDataCach end")
+            scaledPicsHash[node.name] = pics;
+            if (n + 1 === mockDataLength) console.log('fillImgDataCach end');
         });
     }
-    console.log("Done filling image data  to cach")
+    console.log('Done filling image data  to cach');
 }
 
 /* app.use(bodyParser.json())
@@ -250,7 +252,8 @@ io.sockets.on('connection', (socket) => {
         }
 
         const nodeDataLength = Object.keys(nodes).length;
-        socket.emit('totalNodesCount', nodeDataLength)
+        socket.emit('totalNodesCount', nodeDataLength);
+
 
         // store data data for comparing later
         nodesStore = nodes;
@@ -260,20 +263,20 @@ io.sockets.on('connection', (socket) => {
         // if (process.env.NODE_ENV === 'development' && clusterStore) {
         //     nodes = clusterStore;
         // } else {
-            // add default cluster value (max cluster/zooming)
-            Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
+        // add default cluster value (max cluster/zooming)
+        Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
 
-            // starting the clustering
-            console.log('start clustering');
-            const timeCluster = process.hrtime();
-            const points = Object.values(nodes)
-                .map((n, i) => {
-                    const point = [n.x, n.y]; // array with properties is ugly!
-                    point.id = i;
-                    point.x = n.x;
-                    point.y = n.y;
-                    return point;
-                });
+        // starting the clustering
+        console.log('start clustering');
+        const timeCluster = process.hrtime();
+        const points = Object.values(nodes)
+            .map((n, i) => {
+                const point = [n.x, n.y]; // array with properties is ugly!
+                point.id = i;
+                point.x = n.x;
+                point.y = n.y;
+                return point;
+            });
 
             // const kdtree = kdbush(points, n => n.x, n => n.y)
             // console.log("finish kdtree")
@@ -281,26 +284,57 @@ io.sockets.on('connection', (socket) => {
             // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
             // console.log(smallBox)
             // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
-            const hcCluster = clusterfck.hcluster(points);
-            console.log('finish hccluster');
+        const hcCluster = clusterfck.hcluster(points);
+        console.log('finish hccluster');
 
-            const zoomStages = 20;
-            const nodesPerStage = Math.round(nodeDataLength / zoomStages) || 1; // small #nodes can result to 0
-            for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
-                hcCluster.clusters(i).forEach((cluster, i) => {
-                    const agentId = cluster[0].id;
-                    // the user can change the amount of clusters
-                    if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
-                    // console.log(`${i}. first items has id: ${clust[0].id}`)
-                });
-                console.log(`Building ${i} clusters finished`);
-            }
-            console.log('finish clusters');
+        const zoomStages = 20;
+        const nodesPerStage = Math.round(nodeDataLength / zoomStages) || 1; // small #nodes can result to 0
+        for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
+            hcCluster.clusters(i).forEach((cluster, i) => {
+                const agentId = cluster[0].id;
+                // the user can change the amount of clusters
+                if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
+                // console.log(`${i}. first items has id: ${clust[0].id}`)
+            });
+            console.log(`Building ${i} clusters finished`);
+        }
+        console.log('finish clusters');
 
-            const diffCluster = process.hrtime(timeCluster);
-            console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
-            // clusterStore = nodes;
+        const diffCluster = process.hrtime(timeCluster);
+        console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
+        // clusterStore = nodes;
         // }
+
+
+
+        // calc kernel density estimation
+        const timeKde = process.hrtime();
+
+        const x = []
+        const y = []
+        Object.values(nodes).forEach(node => {
+            x.push(node.x)
+            y.push(node.y)
+        })
+
+        const out = kde2d(x, y, {
+            'xMin': -20,
+            'xMax': 20,
+            'yMin': -20,
+            'yMax': 20,
+            // 'h': [ 0.01, 255 ], // bandwith - schätze damit kann man die range der dichte angeben
+            // 'n': 5 // default 25 - was ist das
+        })
+        console.log(out)
+        console.log(out.z)
+
+
+        const diffKde = process.hrtime(timeKde);
+        console.log(`end clustering: ${diffKde[0] + diffKde[1] / 1e9} seconds`);
+
+
+
+
         // saving used colorKeys
         const colorKeyHash = {};
 
@@ -308,7 +342,6 @@ io.sockets.on('connection', (socket) => {
         const colorHash = {};
 
         const timeStartSendNodes = process.hrtime();
-
 
         // doing everything for each node and send it back
         Promise.all(Object.values(nodes)
@@ -319,6 +352,9 @@ io.sockets.on('connection', (socket) => {
                 node.index = i;
                 node.positives = [];
                 node.negatives = [];
+
+                // catch if there is no rank
+                if(!node.rank && node.rank !== 0) node.rank = -1
 
                 if (!node.cluster) node.cluster = nodeDataLength;
 
@@ -355,7 +391,7 @@ io.sockets.on('connection', (socket) => {
                 const iconPath = `${imgPath}${node.name}.jpg`;
 
                 node.pics = {};
-                node.cached = false     // this is interesting while performance messearuing
+                node.cached = false; // this is interesting while performance messearuing
                 node.url = `/images_3000/${node.name}.jpg`;
 
                 try {
@@ -374,7 +410,7 @@ io.sockets.on('connection', (socket) => {
                         //     .toBuffer();
                         // node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`;
                         // stringImgHash[node.name] = node.buffer; // save for faster reload TODO test with lots + large image
-                        
+
                         // new architecture 2
 
                         await Promise.all(imgSizes.map(async (size) => {
@@ -383,27 +419,27 @@ io.sockets.on('connection', (socket) => {
                                 .max()
                                 .overlayWith(
                                     Buffer.alloc(4),
-                                    { tile: true, raw: { width: 1, height: 1, channels: 4 } }
-                                ).raw()
+                                    { tile: true, raw: { width: 1, height: 1, channels: 4 } },
+                                )
+                                .raw()
                                 .toBuffer({ resolveWithObject: true });
                         }));
-                        scaledPicsHash[node.name] = node.pics
+                        scaledPicsHash[node.name] = node.pics;
 
                         // new archetecture 1
-                        /*await Promise.all(arr.map(async (size) => {
+                        /* await Promise.all(arr.map(async (size) => {
                             const buffer = await sharp(file)
                                 .resize(size, size)
                                 .max()
                                 .toFormat('jpg')
                                 .toBuffer();
                             node.pics[size] = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
-                        }));*/
-
-                        }
+                        })); */
+                    }
 
                     socket.compress(false).emit('node', node);
                     // console.timeEnd('map' + i)
-                    //if(!node.pics) console.log("HJEQWERIHWQR")
+                    // if(!node.pics) console.log("HJEQWERIHWQR")
 
                     if ((i + 1) % 100 === 0) {
                         const diffStartSendNodes = process.hrtime(timeStartSendNodes);
@@ -413,7 +449,7 @@ io.sockets.on('connection', (socket) => {
                 } catch (err) {
                     console.log('Node was not send cause of missing image - how to handle?');
                     console.error(err);
-                    console.log(node.index)
+                    console.log(node.index);
                 }
             })).then(() => {
             const diffStartSendNodes = process.hrtime(timeStartSendNodes);
