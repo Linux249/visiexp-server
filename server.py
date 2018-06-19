@@ -99,21 +99,12 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
 
-            # get body from request
-            #content_len = int(self.headers['Content-Length'])
-            #body = self.rfile.read(content_len)
-
-            # convert body to list
-            #data = json.loads(str(body).decode('utf-8'))  # python 2
-            #data = json.loads(str(body, encoding='utf-8'))      # python 3
-            #print(data)
-
             # Katjas code goes here
-            p, n = katja_function(data.p, data.n)
+            group = katja_function(data.p, data.n)
 
             # make json
-            #data = json.dumps({p: p, n: n}).encode()
-            self.wfile.write("stopped Svm")  #body zurueckschicken
+            data = json.dumps(group).encode()
+            self.wfile.write(group)  #body zurueckschicken
 
 
         return
