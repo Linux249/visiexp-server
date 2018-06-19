@@ -18,7 +18,7 @@ const fs = require('fs');
 
 const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
-const mockDataLength = 100; // Object.keys(exampleNodes).length;
+const mockDataLength = 200 // Object.keys(exampleNodes).length;
 
 
 // const path = require('path');
@@ -195,7 +195,7 @@ io.sockets.on('connection', (socket) => {
         // console.log(data)
 
         // first time data is empty (the client should send a empty object {})
-        let updatedNodes = data; // || {}
+        let updatedNodes = data.nodes; // || {}
         // /if(typeof updatedNodes !== 'object') updatedNodes = JSON.parse(updatedNodes)
         // updatedNodes = JSON.parse(updatedNodes)
 
@@ -210,7 +210,7 @@ io.sockets.on('connection', (socket) => {
         // build tripel from data
         console.log('buildTripel');
         const tripel = buildTripel(updatedNodes);
-        console.log({ tripel });
+        //console.log({ tripel });
         if (tripel) console.log(tripel);
 
 
