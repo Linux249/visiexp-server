@@ -12,12 +12,13 @@ import { getRandomColor } from './util/getRandomColor';
 import trainSvm from './routes/trainSvm';
 import stopSvm from './routes/stopSvm';
 import buildTripel from './util/buildTripels';
+
 const express = require('express');
 const fs = require('fs');
 
 const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
-const mockDataLength = 100 //Object.keys(exampleNodes).length;
+const mockDataLength = 100; // Object.keys(exampleNodes).length;
 
 
 // const path = require('path');
@@ -99,7 +100,7 @@ if (process.env.NODE_ENV === 'development') {
     // fill scaledPicsHash
 
     console.time('fillImgDataCach');
-    console.log('fillImgDataCach of ' + mockDataLength + ' files');
+    console.log(`fillImgDataCach of ${mockDataLength} files`);
 
     // generate dummy nodes
     for (let n = 0; n < mockDataLength; n += 1) {
@@ -202,7 +203,9 @@ io.sockets.on('connection', (socket) => {
         let nodes = {};
 
         // labels are scanned on serverside
-        const labels = [];
+        const labels = {};
+
+        let categorys = [];
 
         // build tripel from data
         console.log('buildTripel');
@@ -228,6 +231,9 @@ io.sockets.on('connection', (socket) => {
                 const i = n % mockDataLength;
                 nodes[n] = exampleNodes[i];
             }
+
+            // dummy categorys
+            categorys = ['kat1', 'kat2', 'kat3'];
         } else {
             console.log('get nodes from python');
 
@@ -242,7 +248,9 @@ io.sockets.on('connection', (socket) => {
                     }),
                 });
                 // there are only nodes comming back from here
-                nodes = await res.json();
+                const data = await res.json();
+                nodes = data.nodes;
+                categorys = data.categorys;
                 const diff2 = process.hrtime(time2);
                 console.log(`getNodesFromPython took ${diff2[0] + diff2[1] / 1e9} seconds`);
             } catch (err) {
@@ -250,6 +258,9 @@ io.sockets.on('connection', (socket) => {
                 console.error(err);
             }
         }
+
+        // generate labels structure
+        categorys.forEach((kat, i) => labels[i] = { name: kat, labels: [] });
 
         const nodeDataLength = Object.keys(nodes).length;
         socket.emit('totalNodesCount', nodeDataLength);
@@ -306,39 +317,36 @@ io.sockets.on('connection', (socket) => {
         // }
 
 
-
         // calc kernel density estimation
         const timeKde = process.hrtime();
 
-        const x = []
-        const y = []
-        Object.values(nodes).forEach(node => {
-            x.push(node.x)
-            y.push(node.y)
-        })
+        const x = [];
+        const y = [];
+        Object.values(nodes).forEach((node) => {
+            x.push(node.x);
+            y.push(node.y);
+        });
 
         const out = kde2d(x, y, {
-            'xMin': -20,
-            'xMax': 20,
-            'yMin': -20,
-            'yMax': 20,
+            xMin: -20,
+            xMax: 20,
+            yMin: -20,
+            yMax: 20,
             // 'h': [ 0.01, 255 ], // bandwith - schätze damit kann man die range der dichte angeben
             // 'n': 5 // default 25 - was ist das
-        })
-        console.log(out)
-        console.log(out.z)
+        });
+        // console.log(out)
+        // console.log(out.z)
 
 
         const diffKde = process.hrtime(timeKde);
         console.log(`end clustering: ${diffKde[0] + diffKde[1] / 1e9} seconds`);
 
 
-
-
         // saving used colorKeys
         const colorKeyHash = {};
 
-        // saving used colors for labels
+        // saving used colors for label
         const colorHash = {};
 
         const timeStartSendNodes = process.hrtime();
@@ -354,7 +362,7 @@ io.sockets.on('connection', (socket) => {
                 node.negatives = [];
 
                 // catch if there is no rank
-                if(!node.rank && node.rank !== 0) node.rank = -1
+                if (!node.rank && node.rank !== 0) node.rank = -1;
 
                 if (!node.cluster) node.cluster = nodeDataLength;
 
@@ -379,13 +387,13 @@ io.sockets.on('connection', (socket) => {
 
                 // labels
                 if (process.env.NODE_ENV === 'development') {
-                    const n = node.index % 5;
+                    const n = categorys.length;
                     node.labels = [];
-                    for (let i = 1; i <= n; i++) node.labels.push(`label_${i}`);
+                    for (let i = 0; i < n; i++) node.labels.push(Math.random() >= 0.5 ? `${categorys[i]}_label_${i}` : null);
                 }
 
                 // check all labels for a list of all labels in UI
-                node.labels.forEach(label => (labels.indexOf(label) === -1) && labels.push(label));
+                node.labels.forEach((label, i) => label && (labels[i].labels.indexOf(label) === -1) && labels[i].labels.push(label));
 
 
                 const iconPath = `${imgPath}${node.name}.jpg`;
