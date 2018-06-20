@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 export default async (req, res) => {
     console.log(req.path);
     if (process.env.NODE_ENV === 'development') {
-        res.json([1,2,3]);
+        res.json({group: [2,5,8]});
     } else {
         console.log('send stopSvm to python');
         try {
