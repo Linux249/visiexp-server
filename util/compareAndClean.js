@@ -20,7 +20,7 @@ export function compareAndClean(oldNodes, newNodes){
 
     let nodes = {}
     let maxLabels = 0
-    Object.keys(newNodes).forEach(node => node.labels.length > maxLabels ? maxLabels = node.labels.length : null)
+    Object.values(newNodes).forEach(node => node.labels.length > maxLabels ? maxLabels = node.labels.length : null)
 
     Object.keys(newNodes).forEach(i => {
         nodes[i] = {}
