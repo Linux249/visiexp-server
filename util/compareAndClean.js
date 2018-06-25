@@ -19,6 +19,8 @@ export function compareAndClean(oldNodes, newNodes){
     // console.log(newNodes)
 
     let nodes = {}
+    let maxLabels = 0
+    Object.keys(newNodes).forEach(node => node.labels.length > maxLabels ? maxLabels = node.labels.length : null)
 
     Object.keys(newNodes).forEach(i => {
         nodes[i] = {}
@@ -36,6 +38,9 @@ export function compareAndClean(oldNodes, newNodes){
         nodes[i].label = newNodes[i].label
 
         nodes[i].labels = newNodes[i].labels
+        while(nodes[i].labels.length < maxLabels) {
+            nodes[i].labels.push(null)
+        }
 
         if(Object.keys(oldNodes).length) {
             nodes[i].mPosition = compareXY(oldNodes[i], newNodes[i])
