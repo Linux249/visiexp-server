@@ -35,6 +35,8 @@ export function compareAndClean(oldNodes, newNodes){
 
         nodes[i].label = newNodes[i].label
 
+        nodes[i].labels = newNodes[i].labels
+
         if(Object.keys(oldNodes).length) {
             nodes[i].mPosition = compareXY(oldNodes[i], newNodes[i])
             nodes[i].mLinks = compareLinks(oldNodes[i], newNodes[i])
