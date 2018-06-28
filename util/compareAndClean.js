@@ -1,63 +1,62 @@
 
 const compareXY = (oldNode, newNode) => {
-    if(oldNode.x !== newNode._x) return true
-    if(oldNode.y !== newNode._y) return true
-    return false
-}
+    if (oldNode.x !== newNode._x) return true;
+    if (oldNode.y !== newNode._y) return true;
+    return false;
+};
 
 const compareLinks = (oldNode, newNode) => {
-    const oldLinksString = JSON.stringify(oldNode.links)
-    const newLinksString = JSON.stringify(newNode.links)
-    if(oldLinksString !== newLinksString) return true
-    return false
-}
+    const oldLinksString = JSON.stringify(oldNode.links);
+    const newLinksString = JSON.stringify(newNode.links);
+    if (oldLinksString !== newLinksString) return true;
+    return false;
+};
 
-export function compareAndClean(oldNodes, newNodes){
+export function compareAndClean(oldNodes, newNodes) {
     // console.log("stored data")
     // console.log(oldNodes)
     // console.log("new data to compare and clean")
     // console.log(newNodes)
 
-    let nodes = {}
-    let maxLabels = 0
-    Object.values(newNodes).forEach(node => node.labels.length > maxLabels ? maxLabels = node.labels.length : null)
+    const nodes = {};
+    let maxLabels = 0;
+    Object.values(newNodes).forEach(node => (node.labels.length > maxLabels ? maxLabels = node.labels.length : null));
 
-    Object.keys(newNodes).forEach(i => {
-        nodes[i] = {}
+    Object.keys(newNodes).forEach((i) => {
+        nodes[i] = {};
         // console.log(i)
         // console.log(nodes[i])
         // console.log(newNodes[i])
-        nodes[i].index = newNodes[i].index
-        nodes[i].name = newNodes[i].name
+        nodes[i].index = newNodes[i].index;
+        nodes[i].name = newNodes[i].name;
 
-        nodes[i].x = newNodes[i]._x
-        nodes[i].y = newNodes[i]._y
+        nodes[i].x = newNodes[i]._x;
+        nodes[i].y = newNodes[i]._y;
 
-        nodes[i].links = newNodes[i].links
+        nodes[i].links = newNodes[i].links;
 
-        nodes[i].label = newNodes[i].label
+        nodes[i].label = newNodes[i].label;
 
-        nodes[i].labels = newNodes[i].labels
-        while(nodes[i].labels.length < maxLabels) {
-            nodes[i].labels.push(null)
+        nodes[i].labels = newNodes[i].labels;
+        while (nodes[i].labels.length < maxLabels) {
+            nodes[i].labels.push(null);
         }
 
-        if(Object.keys(oldNodes).length) {
-            nodes[i].mPosition = compareXY(oldNodes[i], newNodes[i])
-            nodes[i].mLinks = compareLinks(oldNodes[i], newNodes[i])
+        if (Object.keys(oldNodes).length) {
+            nodes[i].mPosition = compareXY(oldNodes[i], newNodes[i]);
+            nodes[i].mLinks = compareLinks(oldNodes[i], newNodes[i]);
 
-            if(nodes[i].mLinks === true) {
-                //console.log("node.mLinks = true")
-            } else if(nodes[i].mLinks === false) {
-                //console.log("nodes[i].mLinks === false")
+            if (nodes[i].mLinks === true) {
+                // console.log("node.mLinks = true")
+            } else if (nodes[i].mLinks === false) {
+                // console.log("nodes[i].mLinks === false")
             }
-            //console.log(nodes[i])
+            // console.log(nodes[i])
         }
+    });
 
-    })
 
-
-    return nodes
+    return nodes;
 
     /*
     const oldNodesKeys = Object.keys(oldNodes)
@@ -86,5 +85,5 @@ export function compareAndClean(oldNodes, newNodes){
         if(oldLinksString !== newLinksString) newNode.mLinks = true
     })
 
-    return newNodes*/
+    return newNodes */
 }
