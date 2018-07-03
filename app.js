@@ -11,6 +11,7 @@ import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
 import trainSvm from './routes/trainSvm';
 import stopSvm from './routes/stopSvm';
+import pythonRoute from './routes/python';
 import buildTripel from './util/buildTripels';
 
 const express = require('express');
@@ -144,9 +145,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/', express.static('public'));
 
 // app.use('/api/v1/users', users)
-
+// TODO add python in route name and change frontend usage
 app.post('/api/v1/trainSvm', trainSvm);
 app.post('/api/v1/stopSvm', stopSvm);
+app.use('/api/v1/', pythonRoute)
 app.use('/api', express.static('images'));
 /* app.get('/images/!*', (req, res) => {
     console.log(req.path)
