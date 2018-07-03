@@ -94,26 +94,49 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
 
         if(self.path == "/stopSvm"):
             print("post /stopSvm")
-                ### POST Request Header ###
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
+            ### POST Request Header ###
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
 
-                # get body from request
-                #content_len = int(self.headers['Content-Length'])
-                #body = self.rfile.read(content_len)
+            # get body from request
+            #content_len = int(self.headers['Content-Length'])
+            #body = self.rfile.read(content_len)
 
-                # convert body to list
-                #data = json.loads(str(body).decode('utf-8'))  # python 2
-                #data = json.loads(str(body, encoding='utf-8'))      # python 3
-                #print(data)
+            # convert body to list
+            #data = json.loads(str(body).decode('utf-8'))  # python 2
+            #data = json.loads(str(body, encoding='utf-8'))      # python 3
+            #print(data)
 
-                # Katjas code goes here
-                p, n = katja_function(data.p, data.n)
+            # Katjas code goes here
+            p, n = katja_function(data.p, data.n)
 
-                # make json
-                #data = json.dumps({p: p, n: n}).encode()
-                self.wfile.write("stopped Svm")  #body zurueckschicken
+            # make json
+            #data = json.dumps({p: p, n: n}).encode()
+            self.wfile.write("stopped Svm")  #body zurueckschicken
+
+        if(self.path == "/updateLabels"):
+            print("post /updateLabels")
+            ### POST Request Header ###
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+
+            # get body from request
+            #content_len = int(self.headers['Content-Length'])
+            #body = self.rfile.read(content_len)
+
+            # convert body to list
+            #data = json.loads(str(body).decode('utf-8'))  # python 2
+            #data = json.loads(str(body, encoding='utf-8'))      # python 3
+            #print(data)
+
+            # Katjas code goes here
+            katja_function(data.p, data.n)
+
+            # make json
+            #data = json.dumps({}).encode()
+            self.wfile.write(data)  #body zurueckschicken
 
 
         return
