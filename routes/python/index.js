@@ -1,10 +1,14 @@
 import { Router } from 'express';
 import fetch from "node-fetch";
+import { compareAndClean } from '../../util/compareAndClean';
 
 const router = Router();
 
 router.post('/updateLabels', async (req, res) => {
     console.log('updateLabels');
+    const nodes = compareAndClean({}, req.body.nodes)
+    console.log(nodes)
+
     if (process.env.NODE_ENV === 'development') {
         res.status = 200
         res.send();
@@ -15,7 +19,7 @@ router.post('/updateLabels', async (req, res) => {
             const data = await fetch('http://localhost:8000/updateLabels', {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
-                body: JSON.stringify(req.body),
+                body: JSON.stringify({nodes}),
             }).then(response => response.json());
             const diff = process.hrtime(time);
             res.send();
