@@ -9,7 +9,7 @@ router.post('/updateLabels', async (req, res) => {
     console.log(req.path);
     if (process.env.NODE_ENV === 'development') {
         res.status = 200
-        res.json();
+        res.send();
     } else {
         console.log('send updateLabels to python');
         try {
@@ -19,7 +19,7 @@ router.post('/updateLabels', async (req, res) => {
                 header: { 'Content-type': 'application/json' },
             }).then(response => response.json());
             const diff = process.hrtime(time);
-            res.json(data);
+            res.send();
             console.log(`updateLabels from python took ${diff[0] + diff[1] / 1e9} seconds`);
         } catch (err) {
             console.error('error - updateLabels python error');
