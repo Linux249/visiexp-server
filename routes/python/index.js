@@ -4,19 +4,20 @@ import fetch from "node-fetch";
 const router = Router();
 
 router.post('/updateLabels', async (req, res) => {
-    console.log('updateLabels -route');
-    
-    console.log(req.path);
+    console.log('updateLabels');
     if (process.env.NODE_ENV === 'development') {
         res.status = 200
         res.send();
     } else {
         console.log('send updateLabels to python');
+        const body = req.body
+        console.log(body)
         try {
             const time = process.hrtime();
             const data = await fetch('http://localhost:8000/updateLabels', {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
+                body
             }).then(response => response.json());
             const diff = process.hrtime(time);
             res.send();
