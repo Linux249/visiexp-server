@@ -19,7 +19,7 @@ const fs = require('fs');
 
 const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
-const mockDataLength = 200 // Object.keys(exampleNodes).length;
+const mockDataLength = 700 // Object.keys(exampleNodes).length;
 
 
 // const path = require('path');
@@ -135,8 +135,8 @@ if (process.env.NODE_ENV === 'development') {
 /* app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false })) */
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({limit: '5mb'}));
+app.use(express.urlencoded({ extended: false, limit: '5mb' }));
 // app.use(cookieParser())
 
 

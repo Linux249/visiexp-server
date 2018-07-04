@@ -10,14 +10,12 @@ router.post('/updateLabels', async (req, res) => {
         res.send();
     } else {
         console.log('send updateLabels to python');
-        const body = req.body
-        console.log(body)
         try {
             const time = process.hrtime();
             const data = await fetch('http://localhost:8000/updateLabels', {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
-                body
+                body: JSON.stringify(req.body),
             }).then(response => response.json());
             const diff = process.hrtime(time);
             res.send();
