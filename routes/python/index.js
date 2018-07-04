@@ -9,7 +9,7 @@ router.post('/updateLabels', async (req, res) => {
     console.log(req.path);
     if (process.env.NODE_ENV === 'development') {
         res.status = 200
-        res.json()
+        res.json();
     } else {
         console.log('send updateLabels to python');
         try {
