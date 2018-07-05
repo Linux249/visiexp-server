@@ -30,8 +30,8 @@ export function compareAndClean(oldNodes, newNodes) {
         nodes[i].index = newNodes[i].index;
         nodes[i].name = newNodes[i].name;
 
-        nodes[i].x = newNodes[i]._x;
-        nodes[i].y = newNodes[i]._y;
+        nodes[i].x = newNodes[i].x;
+        nodes[i].y = newNodes[i].y;
 
         nodes[i].links = newNodes[i].links;
 
