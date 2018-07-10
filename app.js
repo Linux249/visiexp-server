@@ -13,13 +13,14 @@ import trainSvm from './routes/trainSvm';
 import stopSvm from './routes/stopSvm';
 import pythonRoute from './routes/python';
 import buildTripel from './util/buildTripels';
+//import resizePics from './util/resizePics';
 
 const express = require('express');
 const fs = require('fs');
 
 const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
-const mockDataLength = 700 // Object.keys(exampleNodes).length;
+const mockDataLength = 10 //Object.keys(exampleNodes).length;
 
 
 // const path = require('path');
@@ -97,6 +98,7 @@ if (process.env.NODE_ENV === 'development') {
 
 if (process.env.NODE_ENV === 'development') {
     const timeFillImgDataCach = process.hrtime();
+    //resizePics(imgPath, imgSizes, exampleNodes)
 
     // fill scaledPicsHash
 
@@ -108,10 +110,14 @@ if (process.env.NODE_ENV === 'development') {
         const i = n % mockDataLength;
         const node = exampleNodes[i];
         const pics = {};
-        const iconPath = `${imgPath}${node.name}.jpg`;
+
+        const path = `${imgPath}${node.name}.jpg`;
+
+        const pic = sharp(path)
+
         Promise.all(imgSizes.map(async (size) => {
             // const file = await readFile(iconPath);
-            pics[size] = await sharp(iconPath)
+            pics[size] = await pic
                 .resize(size, size)
                 .max()
                 .overlayWith(
