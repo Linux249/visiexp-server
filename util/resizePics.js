@@ -17,7 +17,7 @@ const resizePics = async (imgPath, imgSizes, nodes) => {
 
         const pic = sharp(path);
         return Promise.all(imgSizes.map(size => {
-            const outPath = `${imgPath}${size}/${node.name}.jpg`
+            const outPath = `${imgPath}${size}/${node.name}.png`
             return pic.resize(size, size)
                 .max()
                 .overlayWith(

@@ -13,14 +13,14 @@ import trainSvm from './routes/trainSvm';
 import stopSvm from './routes/stopSvm';
 import pythonRoute from './routes/python';
 import buildTripel from './util/buildTripels';
-//import resizePics from './util/resizePics';
+import resizePics from './util/resizePics';
 
 const express = require('express');
 const fs = require('fs');
 
 const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
-const mockDataLength = 10 //Object.keys(exampleNodes).length;
+const mockDataLength = Object.keys(exampleNodes).length;
 
 
 // const path = require('path');
@@ -98,7 +98,7 @@ if (process.env.NODE_ENV === 'development') {
 
 if (process.env.NODE_ENV === 'development') {
     const timeFillImgDataCach = process.hrtime();
-    //resizePics(imgPath, imgSizes, exampleNodes)
+    // resizePics(imgPath, imgSizes, exampleNodes)
 
     // fill scaledPicsHash
 
@@ -110,22 +110,14 @@ if (process.env.NODE_ENV === 'development') {
         const i = n % mockDataLength;
         const node = exampleNodes[i];
         const pics = {};
+        // TODO prüfen ob sich bilder auch als raw() abspeichern lassen
+        Promise.all(imgSizes.map((size) => {
+            const path = `${imgPath}${size}/${node.name}.png`
 
-        const path = `${imgPath}${node.name}.jpg`;
-
-        const pic = sharp(path)
-
-        Promise.all(imgSizes.map(async (size) => {
-            // const file = await readFile(iconPath);
-            pics[size] = await pic
-                .resize(size, size)
-                .max()
-                .overlayWith(
-                    Buffer.alloc(4),
-                    { tile: true, raw: { width: 1, height: 1, channels: 4 } },
-                )
+            return sharp(path)
                 .raw()
-                .toBuffer({ resolveWithObject: true });
+                .toBuffer({ resolveWithObject: true })
+                .then(pic => pics[size] = pic);
         })).then(() => {
             if (!(n % 100)) {
                 const diffFillImgDataCach = process.hrtime(timeFillImgDataCach);
@@ -134,14 +126,37 @@ if (process.env.NODE_ENV === 'development') {
             scaledPicsHash[node.name] = pics;
             if (n + 1 === mockDataLength) console.log('fillImgDataCach end');
         });
+
+        //  }));
+
+        // const path = `${imgPath}${node.name}.jpg`;
+        // const pic = sharp(path);
+        // Promise.all(imgSizes.map(async (size) => {
+        //     // const file = await readFile(iconPath);
+        //     pics[size] = await pic
+        //         .resize(size, size)
+        //         .max()
+        //         .overlayWith(
+        //             Buffer.alloc(4),
+        //             { tile: true, raw: { width: 1, height: 1, channels: 4 } },
+        //         )
+        //         .raw()
+        //         .toBuffer({ resolveWithObject: true });
+        // })).then(() => {
+        //     if (!(n % 100)) {
+        //         const diffFillImgDataCach = process.hrtime(timeFillImgDataCach);
+        //         console.log(`${n}/${mockDataLength} pics cached took: ${diffFillImgDataCach[0] + diffFillImgDataCach[1] / 1e9}s`);
+        //     }
+        //     scaledPicsHash[node.name] = pics;
+        //     if (n + 1 === mockDataLength) console.log('fillImgDataCach end');
+        // });
     }
-    console.log('Done filling image data  to cach');
 }
 
 /* app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false })) */
 
-app.use(express.json({limit: '5mb'}));
+app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: false, limit: '5mb' }));
 // app.use(cookieParser())
 
@@ -154,7 +169,7 @@ app.use('/', express.static('public'));
 // TODO add python in route name and change frontend usage
 app.post('/api/v1/trainSvm', trainSvm);
 app.post('/api/v1/stopSvm', stopSvm);
-app.use('/api/v1/', pythonRoute)
+app.use('/api/v1/', pythonRoute);
 app.use('/api', express.static('images'));
 /* app.get('/images/!*', (req, res) => {
     console.log(req.path)
@@ -218,7 +233,7 @@ io.sockets.on('connection', (socket) => {
         // build tripel from data
         console.log('buildTripel');
         const tripel = buildTripel(updatedNodes);
-        //console.log({ tripel });
+        // console.log({ tripel });
         if (tripel) console.log(tripel);
 
 
