@@ -69,6 +69,11 @@ const imgSizes = [
     80,
     90,
     100,
+    110,
+    120,
+    130,
+    140,
+    150
 ];
 
 // Socket.io
@@ -98,7 +103,7 @@ if (process.env.NODE_ENV === 'development') {
 
 if (process.env.NODE_ENV === 'development') {
     const timeFillImgDataCach = process.hrtime();
-    // resizePics(imgPath, imgSizes, exampleNodes)
+    //resizePics(imgPath, [110, 120, 130, 140, 150], exampleNodes)
 
     // fill scaledPicsHash
 
