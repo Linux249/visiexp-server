@@ -13,14 +13,13 @@ import trainSvm from './routes/trainSvm';
 import stopSvm from './routes/stopSvm';
 import pythonRoute from './routes/python';
 import buildTripel from './util/buildTripels';
-import resizePics from './util/resizePics';
 
 const express = require('express');
 const fs = require('fs');
 
 const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
-const mockDataLength = Object.keys(exampleNodes).length;
+const mockDataLength =  Object.keys(exampleNodes).length;
 
 
 // const path = require('path');

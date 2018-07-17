@@ -1,3 +1,4 @@
+import data from '../mock/2582_sub_wikiarts';
 import sharp from 'sharp';
 import fs from 'fs';
 
@@ -34,3 +35,10 @@ const resizePics = async (imgPath, imgSizes, nodes) => {
 
 
 export default resizePics;
+
+const path = `${__dirname}/images/2582_sub_wikiarts/`
+
+
+const sizes = []
+
+resizePics(path, sizes, data)
