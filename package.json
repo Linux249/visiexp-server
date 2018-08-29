@@ -17,19 +17,19 @@
     "express": "~4.16.0",
     "kdbush": "^1.0.1",
     "morgan": "^1.9.0",
-    "node-fetch": "^2.1.2",
-    "sharp": "^0.20.2",
+    "node-fetch": "^2.2.0",
+    "sharp": "^0.20.7",
     "socket.io": "^2.1.0",
     "tayden-clusterfck": "^0.7.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "cross-env": "^5.1.4",
+    "babel-preset-env": "^1.7.0",
+    "cross-env": "^5.2.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.11.0",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
-    "nodemon": "^1.17.4"
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "nodemon": "^1.18.3"
   }
 }
