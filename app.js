@@ -19,7 +19,7 @@ const fs = require('fs');
 
 const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
-const mockDataLength =  Object.keys(exampleNodes).length;
+const mockDataLength = Object.keys(exampleNodes).length;
 
 
 // const path = require('path');
@@ -72,7 +72,7 @@ const imgSizes = [
     120,
     130,
     140,
-    150
+    150,
 ];
 
 // Socket.io
@@ -102,7 +102,7 @@ if (process.env.NODE_ENV === 'development') {
 
 if (process.env.NODE_ENV === 'development') {
     const timeFillImgDataCach = process.hrtime();
-    //resizePics(imgPath, [110, 120, 130, 140, 150], exampleNodes)
+    // resizePics(imgPath, [110, 120, 130, 140, 150], exampleNodes)
 
     // fill scaledPicsHash
 
@@ -116,7 +116,7 @@ if (process.env.NODE_ENV === 'development') {
         const pics = {};
         // TODO prüfen ob sich bilder auch als raw() abspeichern lassen
         Promise.all(imgSizes.map((size) => {
-            const path = `${imgPath}${size}/${node.name}.png`
+            const path = `${imgPath}${size}/${node.name}.png`;
 
             return sharp(path)
                 .raw()
@@ -186,6 +186,8 @@ if (!fs.existsSync(imgPath)) throw Error(`IMAGE PATH NOT EXISTS - ${imgPath}`);
 io.sockets.on('connection', (socket) => {
     console.log('A user connected: ', socket.id);
     console.log('# sockets connected', io.engine.clientsCount);
+
+
 
     socket.on('requestImage', async (data) => {
         // console.log("requestImage")
