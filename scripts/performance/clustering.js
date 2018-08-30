@@ -2,7 +2,7 @@
 
 const kdbush = require('kdbush');
 const clusterfck = require('tayden-clusterfck');
-import nodes from '../mock/graph_6000';
+import nodes from '../../mock/graph_6000';
 
 
 const nodesLength = Object.keys(nodes).length;

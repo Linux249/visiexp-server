@@ -1,17 +1,16 @@
-
 import fetch from 'node-fetch';
 import { promisify } from 'util';
 import sharp from 'sharp';
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
 // import exampleNodes from './mock/exampleNodes';
-import exampleNodes from './mock/2582_sub_wikiarts';
+import exampleNodes from '../mock/2582_sub_wikiarts';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
 import trainSvm from './routes/trainSvm';
 import stopSvm from './routes/stopSvm';
-import pythonRoute from './routes/python';
+import pythonRoute from './routes/python/index';
 import buildTripel from './util/buildTripels';
 
 const express = require('express');
@@ -19,7 +18,7 @@ const fs = require('fs');
 
 const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
-const mockDataLength = Object.keys(exampleNodes).length;
+const mockDataLength = 50 //Object.keys(exampleNodes).length;
 
 
 // const path = require('path');
@@ -94,7 +93,7 @@ let nodesStore = {};
 let imgPath = '';
 
 if (process.env.NODE_ENV === 'development') {
-    imgPath = `${__dirname}/images/2582_sub_wikiarts/`;
+    imgPath = `${__dirname}/../images/2582_sub_wikiarts/`;
     // imgPath = `/export/home/kschwarz/Documents/Data/CUB_200_2011/images_nofolders/`;
 } else {
     imgPath = '/export/home/asanakoy/workspace/wikiart/images/';

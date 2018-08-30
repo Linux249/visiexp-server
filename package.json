@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./bin/www",
+    "dev": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./src",
     "debug": "cross-env NODE_ENV=development babel-node %NODE_DEBUG_OPTION% -- ./bin/www",
     "cluster": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./performance/clustering",
     "clusterdebug": "cross-env NODE_ENV=development nodemon --exec babel-node %NODE_DEBUG_OPTION% -- ./performance/clustering",

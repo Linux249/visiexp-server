@@ -1,4 +1,4 @@
-import data from '../mock/2582_sub_wikiarts';
+import data from '../../mock/2582_sub_wikiarts';
 import sharp from 'sharp';
 import fs from 'fs';
 
