@@ -21,7 +21,7 @@ StartTime = time.time()
 def update_embedding_handler(socket_id):
     print('action ! -> time : {:.1f}s'.format(time.time()-StartTime))
     nodes = []
-    for x in range(0, 2400):
+    for x in range(0, 49):
         nodes.append({'id': x, 'x': round(uniform(0, 25), 2), 'y': round(uniform(0, 25))})
 
     headers = {'content-type': 'application/json'}
