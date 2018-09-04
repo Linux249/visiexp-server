@@ -6,6 +6,7 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
     console.log('resizePics');
     console.time('resizePics');
 
+    if(!fs.existsSync(imgPath)) return console.log(new Error('Pfad zu Bilder in resizePics ungültig'))
     // check all dirs or create
     imgSizes.forEach((size) => {
         const dir = `${imgPath}${size}/`;
@@ -64,7 +65,7 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
 
 export default resizePics;
 
-const path = `C:/Users/libor/bachelor-node/images/images_3000/`;
+const path = `C:/Users/libor/bachelor-node/images/images_30030/`;
 console.log(path)
 const sizes = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150]
 
