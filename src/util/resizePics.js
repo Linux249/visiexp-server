@@ -2,21 +2,50 @@ import data from '../../mock/2582_sub_wikiarts';
 import sharp from 'sharp';
 import fs from 'fs';
 
-const resizePics = async (imgPath, imgSizes, nodes) => {
+const resizePics = async (imgPath, imgSizes, nodes = []) => {
     console.log('resizePics');
     console.time('resizePics');
 
     // check all dirs or create
     imgSizes.forEach((size) => {
         const dir = `${imgPath}${size}/`;
+        console.log(dir)
         if (!fs.existsSync(dir)) fs.mkdirSync(dir);
     });
-    const results = await Promise.all(Object.values(nodes).map((node) => {
-        const path = `${imgPath}${node.name}.jpg`;
+    // no nodes delivered - take all from folder
+    if(!nodes.length) {
+        console.log("no nodes")
+        console.log(imgPath)
+        await fs.readdir(imgPath, (err, files) => {
+            if(err) console.error(err)
+
+            files.forEach(node => {
+                const path = `${imgPath}${node}`;
+                console.log(path)
+                const pic = sharp(path);
+                return Promise.all(imgSizes.map((size) => {
+                    const outPath = `${imgPath}${size}/${node.split('.')[0]}.png`;
+                    return pic.resize(size, size)
+                        .max()
+                        .overlayWith(
+                            Buffer.alloc(4),
+                            { tile: true, raw: { width: 1, height: 1, channels: 4 } },
+                        )
+                        // .raw()
+                        // .toBuffer({ resolveWithObject: true })
+                        .toFile(outPath);
+                }));
+            });
+            console.timeEnd('resizePics');
+        })
+    }
+
+    /*const results = await Promise.all(nodes.map((node) => {
+        const path = `${imgPath}${node}`;
 
         const pic = sharp(path);
         return Promise.all(imgSizes.map((size) => {
-            const outPath = `${imgPath}${size}/${node.name}.png`;
+            const outPath = `${imgPath}${size}/${node.split('.')[0]}.png`;
             return pic.resize(size, size)
                 .max()
                 .overlayWith(
@@ -29,16 +58,14 @@ const resizePics = async (imgPath, imgSizes, nodes) => {
         }));
     }));
     // results = await Promise.all(results)
-    console.log(results[100]);
-    console.timeEnd('resizePics');
+    console.log(results[100]);*/
 };
 
 
 export default resizePics;
 
-const path = `${__dirname}/images/2582_sub_wikiarts/`
+const path = `C:/Users/libor/bachelor-node/images/images_3000/`;
+console.log(path)
+const sizes = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150]
 
-
-const sizes = []
-
-resizePics(path, sizes, data)
+resizePics(path, sizes)

@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./src",
-    "debug": "cross-env NODE_ENV=development babel-node %NODE_DEBUG_OPTION% -- ./bin/www",
+    "debug": "cross-env NODE_ENV=development babel-node %NODE_DEBUG_OPTION% -- ./src",
     "cluster": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./performance/clustering",
     "clusterdebug": "cross-env NODE_ENV=development nodemon --exec babel-node %NODE_DEBUG_OPTION% -- ./performance/clustering",
-    "profiling": "cross-env NODE_ENV=development babel-node --prof ./bin/www",
-    "build": "cross-env NODE_ENV=production babel bin/www -s -D -d dist",
+    "profiling": "cross-env NODE_ENV=development babel-node --prof ./src",
+    "build": "cross-env NODE_ENV=production babel src -s -D -d dist",
     "start": "cross-env NODE_ENV=production nodemon --exec babel-node -- ./src",
-    "dashboard": "cross-env NODE_ENV=development nodemon --exec 'nodejs-dashboard babel-node' -- ./bin/www"
+    "dashboard": "cross-env NODE_ENV=development nodemon --exec 'nodejs-dashboard babel-node' -- ./src",
+    "resize": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./src/util/resizePics.js"
   },
   "dependencies": {
     "@stdlib/stdlib": "0.0.40",
