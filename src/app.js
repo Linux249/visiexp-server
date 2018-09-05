@@ -278,7 +278,7 @@ io.sockets.on('connection', (socket) => {
                 // there are only nodes comming back from here
                 const data = await res.json();
                 nodes = data.nodes;
-                categorys = data.categorys;
+                categorys = data.categories;
                 const diff2 = process.hrtime(time2);
                 console.log(`getNodesFromPython took ${diff2[0] + diff2[1] / 1e9} seconds`);
             } catch (err) {
