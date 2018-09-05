@@ -1,19 +1,18 @@
 import fetch from 'node-fetch';
-import {promisify} from 'util';
+import { promisify } from 'util';
 import sharp from 'sharp';
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
 // import exampleNodes from './mock/exampleNodes';
 import exampleNodes from '../mock/2582_sub_wikiarts';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
-import {compareAndClean} from './util/compareAndClean';
-import {getRandomColor} from './util/getRandomColor';
-import trainSvm from './routes/trainSvm';
-import stopSvm from './routes/stopSvm';
+import { compareAndClean } from './util/compareAndClean';
+import { getRandomColor } from './util/getRandomColor';
 import pythonRoute from './routes/python/index';
+import svmRoute from './routes/svm';
 import buildTripel from './util/buildTripels';
-import {colorTable} from "./config/colors";
-import {imgSizes} from "./config/imgSizes";
+import { colorTable } from './config/colors';
+import { imgSizes } from './config/imgSizes';
 
 const express = require('express');
 const fs = require('fs');
@@ -140,9 +139,8 @@ app.use('/', express.static('public'));
 
 // app.use('/api/v1/users', users)
 // TODO add python in route name and change frontend usage
-app.post('/api/v1/trainSvm', trainSvm);
-app.post('/api/v1/stopSvm', stopSvm);
 app.use('/api/v1/', pythonRoute);
+app.use('/api/v1/svm/', svmRoute);
 app.use('/api', express.static('images'));
 /* app.get('/images/!*', (req, res) => {
     console.log(req.path)
@@ -391,7 +389,7 @@ io.sockets.on('connection', (socket) => {
             // check all labels for a list of all labels in UI
             node.labels.forEach((label, i) => {
                 if (label && (!labels[i].labels.some(e => e.name === label))) {
-                    labels[i].labels.push({ name: label, show: true, color: [0, 0, 140] })
+                    labels[i].labels.push({ name: label, show: true, color: [0, 0, 140] });
                 }
             });
 
