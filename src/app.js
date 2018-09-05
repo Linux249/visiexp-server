@@ -18,7 +18,7 @@ const fs = require('fs');
 
 const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
-const mockDataLength = 50 //Object.keys(exampleNodes).length;
+const mockDataLength = 50; // Object.keys(exampleNodes).length;
 
 
 // const path = require('path');
@@ -185,7 +185,6 @@ if (!fs.existsSync(imgPath)) throw Error(`IMAGE PATH NOT EXISTS - ${imgPath}`);
 io.sockets.on('connection', (socket) => {
     console.log('A user connected: ', socket.id);
     console.log('# sockets connected', io.engine.clientsCount);
-
 
 
     socket.on('requestImage', async (data) => {
@@ -423,6 +422,9 @@ io.sockets.on('connection', (socket) => {
                 // check all labels for a list of all labels in UI
                 node.labels.forEach((label, i) => label && (labels[i].labels.indexOf(label) === -1) && labels[i].labels.push(label));
 
+                // TODO das muss noch implementiert werden
+                if (!node.clique) node.clique = [1, 2, 3];
+                if (!node.rank) node.rank = 0.5;
 
                 const iconPath = `${imgPath}${node.name}.jpg`;
 
