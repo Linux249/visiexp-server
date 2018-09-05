@@ -1,17 +1,19 @@
 import fetch from 'node-fetch';
-import { promisify } from 'util';
+import {promisify} from 'util';
 import sharp from 'sharp';
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
 // import exampleNodes from './mock/exampleNodes';
 import exampleNodes from '../mock/2582_sub_wikiarts';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
-import { compareAndClean } from './util/compareAndClean';
-import { getRandomColor } from './util/getRandomColor';
+import {compareAndClean} from './util/compareAndClean';
+import {getRandomColor} from './util/getRandomColor';
 import trainSvm from './routes/trainSvm';
 import stopSvm from './routes/stopSvm';
 import pythonRoute from './routes/python/index';
 import buildTripel from './util/buildTripels';
+import {colorTable} from "./config/colors";
+import {imgSizes} from "./config/imgSizes";
 
 const express = require('express');
 const fs = require('fs');
@@ -41,38 +43,6 @@ const readFile = path =>
         });
     });
 
-
-const colorTable = {
-    0: '#e23511',
-    1: '#1212d3',
-    2: '#00cf09',
-    3: '#9111ff',
-    4: '#ff00c0',
-    5: '#04fff0',
-    6: '#ff8685',
-    9: '#7cff6d',
-    10: '#fffe6f',
-    11: '#ff6af1',
-    12: '#85feff',
-};
-
-const imgSizes = [
-    10, // pixel
-    20,
-    30,
-    40,
-    50,
-    60,
-    70,
-    80,
-    90,
-    100,
-    110,
-    120,
-    130,
-    140,
-    150,
-];
 
 // Socket.io
 const io = socket_io({ pingTimeout: 1200000, pingInterval: 300000 });
@@ -287,7 +257,7 @@ io.sockets.on('connection', (socket) => {
         }
 
         // generate labels structure
-        categorys.forEach((kat, i) => labels[i] = { name: kat, labels: [] });
+        categorys.forEach((kat, i) => labels[i] = { name: kat, labels: [], show: true });
 
         const nodeDataLength = Object.keys(nodes).length;
         socket.emit('totalNodesCount', nodeDataLength);
@@ -379,93 +349,96 @@ io.sockets.on('connection', (socket) => {
         const timeStartSendNodes = process.hrtime();
 
         // doing everything for each node and send it back
-        Promise.all(Object.values(nodes)
-            .map(async (node, i) => {
-                // that this is not inside !!! DONT FORGET THIS
-                // console.time('map' + i)
-                // console.log("start")
-                node.index = i;
-                node.positives = [];
-                node.negatives = [];
+        Promise.all(Object.values(nodes).map(async (node, index) => {
+            // that this is not inside !!! DONT FORGET THIS
+            // console.time('map' + i)
+            // console.log("start")
+            node.index = index;
+            node.positives = [];
+            node.negatives = [];
 
-                // catch if there is no rank
-                if (!node.rank && node.rank !== 0) node.rank = -1;
+            // catch if there is no rank
+            if (!node.rank && node.rank !== 0) node.rank = -1;
 
-                if (!node.cluster) node.cluster = nodeDataLength;
+            if (!node.cluster) node.cluster = nodeDataLength;
 
-                // setting color based on label
-                if (colorHash[node.label]) {
-                    node.color = colorHash[node.label];
+            // setting color based on label
+            if (colorHash[node.label]) {
+                node.color = colorHash[node.label];
+            } else {
+                const index = Object.keys(colorHash).length;
+                colorHash[node.label] = colorTable[index];
+                node.color = colorHash[node.label];
+            }
+
+            // get a unique color for each node as a key
+            while (true) {
+                const colorKey = getRandomColor();
+                if (!colorKeyHash[colorKey]) {
+                    node.colorKey = colorKey;
+                    colorKeyHash[colorKey] = node;
+                    break;
+                }
+            }
+
+            // labels
+            if (process.env.NODE_ENV === 'development') {
+                const n = categorys.length;
+                node.labels = [];
+                for (let i = 0; i < n; i++) node.labels.push(Math.random() >= 0.5 ? `${categorys[i]}_label_${i}` : null);
+            }
+
+            // check all labels for a list of all labels in UI
+            node.labels.forEach((label, i) => {
+                if (label && (!labels[i].labels.some(e => e.name === label))) {
+                    labels[i].labels.push({ name: label, show: true, color: [0, 0, 140] })
+                }
+            });
+
+            // TODO das muss noch implementiert werden
+            if (!node.clique) node.clique = [1, 2, 3];
+            if (!node.rank) node.rank = 0.5;
+
+            const iconPath = `${imgPath}${node.name}.jpg`;
+
+            node.pics = {};
+            node.cached = false; // this is interesting while performance messearuing
+            node.url = `/images_3000/${node.name}.jpg`;
+
+            try {
+                if (scaledPicsHash[node.name]) {
+                    // node.buffer = iconsFileHash[node.name].buffer;
+                    node.pics = scaledPicsHash[node.name];
+                    // node.buffer = stringImgHash[node.name];
+                    nodes.cached = true;
                 } else {
-                    const index = Object.keys(colorHash).length;
-                    colorHash[node.label] = colorTable[index];
-                    node.color = colorHash[node.label];
-                }
+                    // const file = await readFile(iconPath);
+                    // console.log(file);
+                    // const buffer = await sharp(file)
+                    //     .resize(50, 50)
+                    //     .max()
+                    //     .toFormat('jpg')
+                    //     .toBuffer();
+                    // node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`;
+                    // stringImgHash[node.name] = node.buffer; // save for faster reload TODO test with lots + large image
 
-                // get a unique color for each node as a key
-                while (true) {
-                    const colorKey = getRandomColor();
-                    if (!colorKeyHash[colorKey]) {
-                        node.colorKey = colorKey;
-                        colorKeyHash[colorKey] = node;
-                        break;
-                    }
-                }
+                    // new architecture 2
 
-                // labels
-                if (process.env.NODE_ENV === 'development') {
-                    const n = categorys.length;
-                    node.labels = [];
-                    for (let i = 0; i < n; i++) node.labels.push(Math.random() >= 0.5 ? `${categorys[i]}_label_${i}` : null);
-                }
+                    await Promise.all(imgSizes.map(async (size) => {
+                        node.pics[size] = await sharp(iconPath)
+                            .resize(size, size)
+                            .max()
+                            .overlayWith(
+                                Buffer.alloc(4),
+                                { tile: true, raw: { width: 1, height: 1, channels: 4 } },
+                            )
+                            .raw()
+                            .toBuffer({ resolveWithObject: true });
+                    }));
+                    scaledPicsHash[node.name] = node.pics;
 
-                // check all labels for a list of all labels in UI
-                node.labels.forEach((label, i) => label && (labels[i].labels.indexOf(label) === -1) && labels[i].labels.push(label));
-
-                // TODO das muss noch implementiert werden
-                if (!node.clique) node.clique = [1, 2, 3];
-                if (!node.rank) node.rank = 0.5;
-
-                const iconPath = `${imgPath}${node.name}.jpg`;
-
-                node.pics = {};
-                node.cached = false; // this is interesting while performance messearuing
-                node.url = `/images_3000/${node.name}.jpg`;
-
-                try {
-                    if (scaledPicsHash[node.name]) {
-                        // node.buffer = iconsFileHash[node.name].buffer;
-                        node.pics = scaledPicsHash[node.name];
-                        // node.buffer = stringImgHash[node.name];
-                        nodes.cached = true;
-                    } else {
-                        // const file = await readFile(iconPath);
-                        // console.log(file);
-                        // const buffer = await sharp(file)
-                        //     .resize(50, 50)
-                        //     .max()
-                        //     .toFormat('jpg')
-                        //     .toBuffer();
-                        // node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`;
-                        // stringImgHash[node.name] = node.buffer; // save for faster reload TODO test with lots + large image
-
-                        // new architecture 2
-
-                        await Promise.all(imgSizes.map(async (size) => {
-                            node.pics[size] = await sharp(iconPath)
-                                .resize(size, size)
-                                .max()
-                                .overlayWith(
-                                    Buffer.alloc(4),
-                                    { tile: true, raw: { width: 1, height: 1, channels: 4 } },
-                                )
-                                .raw()
-                                .toBuffer({ resolveWithObject: true });
-                        }));
-                        scaledPicsHash[node.name] = node.pics;
-
-                        // new archetecture 1
-                        /* await Promise.all(arr.map(async (size) => {
+                    // new archetecture 1
+                    /* await Promise.all(arr.map(async (size) => {
                             const buffer = await sharp(file)
                                 .resize(size, size)
                                 .max()
@@ -473,23 +446,23 @@ io.sockets.on('connection', (socket) => {
                                 .toBuffer();
                             node.pics[size] = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
                         })); */
-                    }
-
-                    socket.compress(false).emit('node', node);
-                    // console.timeEnd('map' + i)
-                    // if(!node.pics) console.log("HJEQWERIHWQR")
-
-                    if ((i + 1) % 100 === 0) {
-                        const diffStartSendNodes = process.hrtime(timeStartSendNodes);
-                        console.log(`node is send: ${node.name} #${node.index} after: ${diffStartSendNodes[0] + diffStartSendNodes[1] / 1e9}s`);
-                        // socket.compress(false).emit('nodesCount', node.index);
-                    }
-                } catch (err) {
-                    console.log('Node was not send cause of missing image - how to handle?');
-                    console.error(err);
-                    console.log(node.index);
                 }
-            })).then(() => {
+
+                socket.compress(false).emit('node', node);
+                // console.timeEnd('map' + i)
+                // if(!node.pics) console.log("HJEQWERIHWQR")
+
+                if ((index + 1) % 100 === 0) {
+                    const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+                    console.log(`node is send: ${node.name} #${node.index} after: ${diffStartSendNodes[0] + diffStartSendNodes[1] / 1e9}s`);
+                    // socket.compress(false).emit('nodesCount', node.index);
+                }
+            } catch (err) {
+                console.log('Node was not send cause of missing image - how to handle?');
+                console.error(err);
+                console.log(node.index);
+            }
+        })).then(() => {
             const diffStartSendNodes = process.hrtime(timeStartSendNodes);
             console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + diffStartSendNodes[1] / 1e9}s`);
             // console.log(a)

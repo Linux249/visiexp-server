@@ -19,7 +19,7 @@
     "kdbush": "^1.0.1",
     "morgan": "^1.9.0",
     "node-fetch": "^2.2.0",
-    "sharp": "^0.20.7",
+    "sharp": "^0.20.8",
     "socket.io": "^2.1.0",
     "tayden-clusterfck": "^0.7.0"
   },
@@ -31,6 +31,6 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
-    "nodemon": "^1.18.3"
+    "nodemon": "^1.18.4"
   }
 }
