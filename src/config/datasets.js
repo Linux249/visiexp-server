@@ -6,6 +6,7 @@
 
 const devDataSets = [
     {
+        id: '001',
         name: 'test-1 - 2582_sub_wikiarts',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         pathToImgs: `${__dirname}/../../images/2582_sub_wikiarts/`,
@@ -14,6 +15,7 @@ const devDataSets = [
 
     },
     {
+        id: '002',
         name: 'test-2',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         pathToImgs: `${__dirname}/../../images/images_3000/`,
@@ -21,6 +23,7 @@ const devDataSets = [
         count: 100,
     },
     {
+        id: '003',
         name: 'test-3',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         pathToImgs: `${__dirname}/../../images/2582_sub_wikiarts/`,
@@ -34,9 +37,9 @@ const prodDataSet = [
     {
         name: 'Katjs datensatz',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
-        pathToImgs: `Kompletter pfad zu Bildern`,
+        pathToImgs: 'Kompletter pfad zu Bildern',
     },
-]
+];
 
 export const dataSet = process.env.NODE_ENV === 'production' ? prodDataSet : devDataSets;
 
