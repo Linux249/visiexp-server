@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { promisify } from 'util';
 import sharp from 'sharp';
+import morgan from 'morgan'
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
 // import exampleNodes from './mock/exampleNodes';
@@ -13,6 +14,8 @@ import svmRoute from './routes/svm';
 import buildTripel from './util/buildTripels';
 import { colorTable } from './config/colors';
 import { imgSizes } from './config/imgSizes';
+// import { dataSet } from './config/datasets';
+import dataset from './routes/dataset';
 
 const express = require('express');
 const fs = require('fs');
@@ -130,7 +133,7 @@ app.use(bodyParser.urlencoded({ extended: false })) */
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: false, limit: '5mb' }));
-// app.use(cookieParser())
+app.use(morgan('dev'))
 
 
 // console.log(process.env.NODE_ENV === 'development')
@@ -141,6 +144,7 @@ app.use('/', express.static('public'));
 // TODO add python in route name and change frontend usage
 app.use('/api/v1/', pythonRoute);
 app.use('/api/v1/svm/', svmRoute);
+app.use('/api/v1/dataset/', dataset);
 app.use('/api', express.static('images'));
 /* app.get('/images/!*', (req, res) => {
     console.log(req.path)

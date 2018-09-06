@@ -3,7 +3,11 @@ import exampleNodes from '../mock/2582_sub_wikiarts';
 
 
 export default function () {
-    const data = Object.values(exampleNodes).map(node => ({ id: node.index, x: node.x, y: node.y }));
+    const nodes = {}
+
+    Object.values(exampleNodes).map(node => {
+        nodes[node.index] = { index: node.index, x: node.x, y: node.y }
+    });
     console.log(data)
 
     const file = JSON.stringify(data)
