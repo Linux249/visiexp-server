@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { promisify } from 'util';
 import sharp from 'sharp';
-import morgan from 'morgan'
+import morgan from 'morgan';
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
 // import exampleNodes from './mock/exampleNodes';
@@ -133,7 +133,7 @@ app.use(bodyParser.urlencoded({ extended: false })) */
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: false, limit: '5mb' }));
-app.use(morgan('dev'))
+app.use(morgan('dev'));
 
 
 // console.log(process.env.NODE_ENV === 'development')
@@ -151,7 +151,7 @@ app.use('/api', express.static('images'));
     res.send()
 }) */
 
-/// catch 404 and forward to error handler
+// / catch 404 and forward to error handler
 app.use((req, res, next) => {
     const err = new Error('URL Not Found');
     err.status = 404;
@@ -160,10 +160,12 @@ app.use((req, res, next) => {
 
 app.use((err, req, res) => {
     res.status(err.status || 500);
-    res.json({'errors': {
+    res.json({
+        errors: {
             message: err.message,
-            error: {}
-        }});
+            error: {},
+        },
+    });
 });
 
 if (!fs.existsSync(imgPath)) throw Error(`IMAGE PATH NOT EXISTS - ${imgPath}`);
@@ -252,7 +254,7 @@ io.sockets.on('connection', (socket) => {
 
             try {
                 const time2 = process.hrtime();
-                const res = await fetch('http://localhost:8000/nodes', {
+                const res = await fetch(`http://${pythonRoute}:8000/nodes`, {
                     method: 'POST',
                     header: { 'Content-type': 'application/json' },
                     body: JSON.stringify({
