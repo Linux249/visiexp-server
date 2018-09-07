@@ -153,7 +153,7 @@ app.use('/api', express.static('images'));
 
 /// catch 404 and forward to error handler
 app.use((req, res, next) => {
-    var err = new Error('Not Found');
+    const err = new Error('URL Not Found');
     err.status = 404;
     next(err);
 });

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import fetch from 'node-fetch';
 import { compareAndClean } from '../../util/compareAndClean';
+import { pythonApi } from '../../config/env';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.post('/updateLabels', async (req, res) => {
         console.log('send updateLabels to python');
         try {
             const time = process.hrtime();
-            const data = await fetch('http://localhost:8000/updateLabels', {
+            const data = await fetch(`http://${pythonApi}:8000/updateLabels`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({ nodes }),
@@ -41,11 +42,11 @@ router.post('/updateEmbedding', async (req, res, next) => {
 
     console.log({ body });
 
-    const socket = req.app.io.sockets.sockets[socket_id]
-    if (!socket) return next(new Error('No socket with ID: ' + socket_id + ' found')); // TODO maybe deliver error to frontend
-    socket.emit('updateEmbedding', body)
-    //console.log(body.io.sockets);
-    //socket.emit('updateEmbedding', body);
+    const socket = req.app.io.sockets.sockets[socket_id];
+    if (!socket) return next(new Error(`No socket with ID: ${socket_id} found`)); // TODO maybe deliver error to frontend
+    socket.emit('updateEmbedding', body);
+    // console.log(body.io.sockets);
+    // socket.emit('updateEmbedding', body);
 
     res.send();
 });
@@ -63,7 +64,7 @@ router.post('/startUpdateEmbedding', async (req, res, next) => {
 
     try {
         const time = process.hrtime();
-        const data = await fetch('http://localhost:8000/startUpdateEmbedding', {
+        const data = await fetch(`http://${pythonApi}:8000/startUpdateEmbedding`, {
             method: 'POST',
             header: { 'Content-type': 'application/json' },
             body: JSON.stringify(body),
@@ -92,7 +93,7 @@ router.post('/stopUpdateEmbedding', async (req, res, next) => {
 
     try {
         const time = process.hrtime();
-        const data = await fetch('http://localhost:8000/stopUpdateEmbedding', {
+        const data = await fetch(`http://${pythonApi}:8000/stopUpdateEmbedding`, {
             method: 'POST',
             header: { 'Content-type': 'application/json' },
             body: JSON.stringify(body),

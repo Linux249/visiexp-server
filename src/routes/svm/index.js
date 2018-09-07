@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import fetch from 'node-fetch';
+import { pythonApi } from '../../config/env';
 
 const router = Router();
 
@@ -13,7 +14,7 @@ router.post('/train', async (req, res) => {
 
         try {
             const time = process.hrtime();
-            const data = await fetch('http://localhost:8000/trainSvm', {
+            const data = await fetch(`http://${pythonApi}:8000/trainSvm`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify(req.body),
@@ -37,7 +38,7 @@ router.post('/stop', async (req, res) => {
         console.log('send stopSvm to python');
         try {
             const time = process.hrtime();
-            const data = await fetch('http://localhost:8000/stopSvm', {
+            const data = await fetch(`http://${pythonApi}:8000/stopSvm`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
             }).then(response => response.json());

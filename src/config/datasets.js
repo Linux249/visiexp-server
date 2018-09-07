@@ -17,7 +17,7 @@ const devDataSets = [
     {
         id: '002',
         name: 'test-2',
-        description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
+        description: 'this contains X Nodes, \n Y datas, Z cliques, \n K ranks',
         pathToImgs: `${__dirname}/../../images/images_3000/`,
         mockDataFile: '',
         count: 100,
@@ -25,7 +25,7 @@ const devDataSets = [
     {
         id: '003',
         name: 'test-3',
-        description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
+        description: 'this contains Xqwewqewqeqweqwewqeqwewqeqweqwewqe Nodes, Y datas, Z cliques, K ranks',
         pathToImgs: `${__dirname}/../../images/2582_sub_wikiarts/`,
         mockDataFile: '',
     },

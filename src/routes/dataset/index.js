@@ -6,7 +6,7 @@ const router = Router();
 
 // POST - /api/v1/svm/train
 router.get('/all', async (req, res) => {
-    const datasets = dataSet.map(({ id, name, description }) => ({ id, name, description }));
+    const datasets = dataSet.map(({ id, name, description, count }) => ({ id, name, description, count }));
     res.json(datasets);
 });
 
