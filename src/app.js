@@ -16,6 +16,7 @@ import { colorTable } from './config/colors';
 import { imgSizes } from './config/imgSizes';
 // import { dataSet } from './config/datasets';
 import dataset from './routes/dataset';
+import {pythonApi} from "./config/env";
 
 const express = require('express');
 const fs = require('fs');
@@ -254,7 +255,7 @@ io.sockets.on('connection', (socket) => {
 
             try {
                 const time2 = process.hrtime();
-                const res = await fetch(`http://${pythonRoute}:8000/nodes`, {
+                const res = await fetch(`http://${pythonApi}:8000/nodes`, {
                     method: 'POST',
                     header: { 'Content-type': 'application/json' },
                     body: JSON.stringify({
