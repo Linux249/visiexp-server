@@ -44,11 +44,10 @@ router.post('/updateEmbedding', async (req, res, next) => {
 
     const socket = req.app.io.sockets.sockets[socket_id];
     if (!socket) return next(new Error(`No socket with ID: ${socket_id} found`)); // TODO maybe deliver error to frontend
-    socket.emit('updateEmbedding', body);
-    // console.log(body.io.sockets);
-    // socket.emit('updateEmbedding', body);
-
-    res.send();
+    socket.emit('updateEmbedding', body, (confirm) => {
+        console.log(confirm);
+        res.json(confirm);
+    });
 });
 
 
