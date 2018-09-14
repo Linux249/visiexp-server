@@ -333,31 +333,33 @@ io.sockets.on('connection', (socket) => {
         // }
 
 
-        // calc kernel density estimation
-        const timeKde = process.hrtime();
+        /*
+       // calc kernel density estimation
+       const timeKde = process.hrtime();
 
-        const x = [];
-        const y = [];
-        Object.values(nodes).forEach((node) => {
-            x.push(node.x);
-            y.push(node.y);
-        });
 
-        const out = kde2d(x, y, {
-            xMin: -20,
-            xMax: 20,
-            yMin: -20,
-            yMax: 20,
-            // 'h': [ 0.01, 255 ], // bandwith - schätze damit kann man die range der dichte angeben
-            // 'n': 5 // default 25 - was ist das
-        });
+       const x = [];
+       const y = [];
+       Object.values(nodes).forEach((node) => {
+           x.push(node.x);
+           y.push(node.y);
+       });
+
+       const out = kde2d(x, y, {
+           xMin: -20,
+           xMax: 20,
+           yMin: -20,
+           yMax: 20,
+           // 'h': [ 0.01, 255 ], // bandwith - schätze damit kann man die range der dichte angeben
+           // 'n': 5 // default 25 - was ist das
+       });
         // console.log(out)
         // console.log(out.z)
 
 
         const diffKde = process.hrtime(timeKde);
-        console.log(`end clustering: ${diffKde[0] + diffKde[1] / 1e9} seconds`);
-
+        console.log(`end kde: ${diffKde[0] + diffKde[1] / 1e9} seconds`);
+        */
 
         // saving used colorKeys
         const colorKeyHash = {};
