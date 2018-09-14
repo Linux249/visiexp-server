@@ -2,6 +2,7 @@ import { Router } from 'express';
 import fetch from 'node-fetch';
 import { compareAndClean } from '../../util/compareAndClean';
 import { pythonApi } from '../../config/env';
+import buildLabels from '../../util/buildLabels';
 
 const router = Router();
 
@@ -40,10 +41,11 @@ router.post('/updateEmbedding', async (req, res, next) => {
 
     if (!socket_id) return next(new Error('No socket connection'));
 
-    console.log({ body });
-
+    let labels;
+    if (body.categories) labels = buildLabels(body.categories, body.nodes);
     const socket = req.app.io.sockets.sockets[socket_id];
     if (!socket) return next(new Error(`No socket with ID: ${socket_id} found`)); // TODO maybe deliver error to frontend
+    if (labels) socket.emit('updateLabels', labels);
     socket.emit('updateEmbedding', body, (confirm) => {
         console.log(confirm);
         res.json(confirm);

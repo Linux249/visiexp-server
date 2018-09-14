@@ -17,6 +17,7 @@ import { imgSizes } from './config/imgSizes';
 // import { dataSet } from './config/datasets';
 import dataset from './routes/dataset';
 import {pythonApi} from "./config/env";
+import buildLabels from "./util/buildLabels";
 
 const express = require('express');
 const fs = require('fs');
@@ -217,11 +218,7 @@ io.sockets.on('connection', (socket) => {
 
         // the nodes object for mutating data before sending
         let nodes = {};
-
-        // labels are scanned on serverside
-        const labels = {};
-
-        let categorys = [];
+        let categories = [];
 
         // build tripel from data
         console.log('buildTripel');
@@ -249,7 +246,7 @@ io.sockets.on('connection', (socket) => {
             }
 
             // dummy categorys
-            categorys = ['kat1', 'kat2', 'kat3'];
+            categories = ['kat1', 'kat2', 'kat3'];
         } else {
             console.log('get nodes from python');
 
@@ -266,7 +263,7 @@ io.sockets.on('connection', (socket) => {
                 // there are only nodes comming back from here
                 const data = await res.json();
                 nodes = data.nodes;
-                categorys = data.categories;
+                categories = data.categories;
                 const diff2 = process.hrtime(time2);
                 console.log(`getNodesFromPython took ${diff2[0] + diff2[1] / 1e9} seconds`);
             } catch (err) {
@@ -275,11 +272,22 @@ io.sockets.on('connection', (socket) => {
             }
         }
 
-        // generate labels structure
-        categorys.forEach((kat, i) => labels[i] = { name: kat, labels: [], show: true });
 
         const nodeDataLength = Object.keys(nodes).length;
         socket.emit('totalNodesCount', nodeDataLength);
+
+        // labels
+        if (process.env.NODE_ENV === 'development') {
+            const n = categories.length;
+            Object.values(nodes).forEach(node => {
+                node.labels = [];
+                for (let i = 0; i < n; i++) node.labels.push(Math.random() >= 0.5 ? `${categories[i]}_label_${i}` : null);
+            });
+        }
+
+
+        // build labels - labels are scanned on serverside
+        const labels = buildLabels(categories, nodes);
 
 
         // store data data for comparing later
@@ -402,19 +410,8 @@ io.sockets.on('connection', (socket) => {
                 }
             }
 
-            // labels
-            if (process.env.NODE_ENV === 'development') {
-                const n = categorys.length;
-                node.labels = [];
-                for (let i = 0; i < n; i++) node.labels.push(Math.random() >= 0.5 ? `${categorys[i]}_label_${i}` : null);
-            }
 
-            // check all labels for a list of all labels in UI
-            node.labels.forEach((label, i) => {
-                if (label && (!labels[i].labels.some(e => e.name === label))) {
-                    labels[i].labels.push({ name: label, show: true, color: [0, 0, 140] });
-                }
-            });
+
 
             // TODO das muss noch implementiert werden
             if (!node.clique) node.clique = [1, 2, 3];
