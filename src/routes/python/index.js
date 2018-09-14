@@ -60,7 +60,6 @@ router.post('/startUpdateEmbedding', async (req, resres, next) => {
     console.log("hostname: " + req.hostname)
     console.log("ip: " + req.ip)
     console.log("ips: " + req.ips)
-
     const { body } = req;
     console.log({ body });
     const { socketId, nodes } = body;
