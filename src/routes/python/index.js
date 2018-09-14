@@ -51,15 +51,15 @@ router.post('/updateEmbedding', async (req, res, next) => {
 });
 
 
-router.post('/startUpdateEmbedding', async (req, resres, next) => {
+router.post('/startUpdateEmbedding', async (req, res, next) => {
     console.log('POST /startUpdateEmbedding');
-    console.log("origin: " + req.origin)
-    console.log("header.origin: " + req.headers.origin)
-    console.log("socket.remoteAddress: " + req.socket.remoteAddress)
-    console.log("host: " + req.host)
-    console.log("hostname: " + req.hostname)
-    console.log("ip: " + req.ip)
-    console.log("ips: " + req.ips)
+    console.log(`origin: ${req.origin}`);
+    console.log(`header.origin: ${req.headers.origin}`);
+    console.log(`socket.remoteAddress: ${req.socket.remoteAddress}`);
+    console.log(`host: ${req.host}`);
+    console.log(`hostname: ${req.hostname}`);
+    console.log(`ip: ${req.ip}`);
+    console.log(`ips: ${req.ips}`);
     const { body } = req;
     console.log({ body });
     const { socketId, nodes } = body;
@@ -75,7 +75,7 @@ router.post('/startUpdateEmbedding', async (req, resres, next) => {
             body: JSON.stringify(body),
         }).then(response => response.text());
         const diff = process.hrtime(time);
-        //console.log(data);
+        // console.log(data);
         res.send(data);
         console.log(`startUpdateEmbedding from python took ${diff[0] + diff[1] / 1e9} seconds`);
     } catch (err) {
