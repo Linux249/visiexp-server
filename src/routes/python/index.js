@@ -67,7 +67,6 @@ router.post('/startUpdateEmbedding', async (req, resres, next) => {
     // console.log(app)
     if (!socketId) return next(new Error('No Client ID delivered'));
 
-
     try {
         const time = process.hrtime();
         const data = await fetch(`http://${pythonApi}:8000/startUpdateEmbedding`, {
