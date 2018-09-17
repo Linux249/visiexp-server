@@ -63,11 +63,12 @@ router.post('/startUpdateEmbedding', async (req, res, next) => {
     console.log(`ip: ${req.ip}`);
     console.log(`ips: ${req.ips}`);
     const { body } = req;
-    //console.log({ body });
+    // console.log({ body });
     const { socketId, nodes } = body;
     console.log({ socketId });
     // console.log(app)
     if (!socketId) return next(new Error('No Client ID delivered'));
+    res.send();
 
     try {
         const time = process.hrtime();
@@ -78,14 +79,14 @@ router.post('/startUpdateEmbedding', async (req, res, next) => {
         }).then(response => response.text());
         const diff = process.hrtime(time);
         // console.log(data);
-        res.send(data);
+        // res.send(data);
         console.log(`startUpdateEmbedding from python took ${diff[0] + diff[1] / 1e9} seconds`);
     } catch (err) {
         console.error('error - startUpdateEmbedding python error');
         console.error(err);
     }
 
-    res.send();
+
 });
 
 router.post('/stopUpdateEmbedding', async (req, res, next) => {
