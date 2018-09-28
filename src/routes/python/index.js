@@ -111,15 +111,31 @@ router.post('/stopUpdateEmbedding', async (req, res, next) => {
 
 router.post('/getGroupNeighbours', async (req, res, next) => {
     console.log('POST /getGroupNeighbours');
-    const { body } = req;
-    console.log({ body });
-    const { neighbours, group } = body;
-    console.log({ neighbours, group });
-    // console.log(app)
+    console.log(req.body);
+    const { neighbours, removedNeighbours, threshold } = req.body;
+    const body = {
+        threshold,
+        positives: req.body.group,
+    };
+
+    if (neighbours) {
+        Object.keys(neighbours).forEach(key => neighbours[key] < threshold && body.positives.push(+key));
+    }
+
+    if (removedNeighbours) {
+        body.negatives = [];
+        Object.keys(removedNeighbours).forEach(key => removedNeighbours[key] < threshold && body.negatives.push(+key));
+    }
+    console.log({body})
 
     if (process.env.NODE_ENV === 'development') {
         res.status = 200;
-        res.send({ group: [1, 4, 5], neighbours: { 3: 0.2, 5: 0.5, 10: 0.1, 12: 0.01} });
+        res.send({
+            group: [1, 4, 5],
+            neighbours: {
+                3: 0.2, 5: 0.5, 10: 0.1, 12: 0.01,
+            },
+        });
     } else {
         try {
             const time = process.hrtime();
