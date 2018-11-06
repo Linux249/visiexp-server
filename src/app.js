@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
-import { promisify } from 'util';
 import sharp from 'sharp';
 import morgan from 'morgan';
+import cors from 'cors';
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
 // import exampleNodes from './mock/exampleNodes';
@@ -16,19 +16,20 @@ import { colorTable } from './config/colors';
 import { imgSizes } from './config/imgSizes';
 // import { dataSet } from './config/datasets';
 import dataset from './routes/dataset';
-import {pythonApi} from "./config/env";
-import buildLabels from "./util/buildLabels";
+import { pythonApi } from './config/env';
+import { buildLabels } from './util/buildLabels';
+
 
 const express = require('express');
 const fs = require('fs');
 
-//const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
+// const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
 const mockDataLength = 50; // Object.keys(exampleNodes).length;
 
 
 // const path = require('path');
-const socket_io = require('socket.io');
+const socketIo = require('socket.io');
 // required for file serving
 const app = express();
 
@@ -49,7 +50,7 @@ const readFile = path =>
 
 
 // Socket.io
-const io = socket_io({ pingTimeout: 1200000, pingInterval: 300000 });
+const io = socketIo({ pingTimeout: 1200000, pingInterval: 300000 });
 app.io = io;
 
 const scaledPicsHash = {}; // scaled images in new archetecture 2
@@ -136,6 +137,7 @@ app.use(bodyParser.urlencoded({ extended: false })) */
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: false, limit: '5mb' }));
 app.use(morgan('dev'));
+app.use(cors());
 
 
 // console.log(process.env.NODE_ENV === 'development')
@@ -279,7 +281,7 @@ io.sockets.on('connection', (socket) => {
         // labels
         if (process.env.NODE_ENV === 'development') {
             const n = categories.length;
-            Object.values(nodes).forEach(node => {
+            Object.values(nodes).forEach((node) => {
                 node.labels = [];
                 for (let i = 0; i < n; i++) node.labels.push(Math.random() >= 0.5 ? `${categories[i]}_label_${i}` : null);
             });
@@ -409,8 +411,6 @@ io.sockets.on('connection', (socket) => {
                     break;
                 }
             }
-
-
 
 
             // TODO das muss noch implementiert werden

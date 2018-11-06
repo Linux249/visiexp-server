@@ -15,13 +15,14 @@
   },
   "dependencies": {
     "@stdlib/stdlib": "0.0.40",
-    "express": "~4.16.0",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
     "kdbush": "^1.0.1",
-    "node-fetch": "^2.2.0",
+    "morgan": "^1.9.1",
+    "node-fetch": "^2.2.1",
     "sharp": "^0.20.8",
     "socket.io": "^2.1.0",
-    "tayden-clusterfck": "^0.7.0",
-    "morgan": "^1.9.0"
+    "tayden-clusterfck": "^0.7.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -30,7 +31,7 @@
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jsx-a11y": "^6.1.1",
-    "nodemon": "^1.18.4"
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "nodemon": "^1.18.6"
   }
 }
