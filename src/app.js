@@ -16,7 +16,7 @@ import { colorTable } from './config/colors';
 import { imgSizes } from './config/imgSizes';
 // import { dataSet } from './config/datasets';
 import dataset from './routes/dataset';
-import { pythonApi } from './config/env';
+import {mockDataLength, pythonApi} from './config/env';
 import { buildLabels } from './util/buildLabels';
 
 
@@ -24,9 +24,6 @@ const express = require('express');
 const fs = require('fs');
 
 // const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
-
-const mockDataLength = 50; // Object.keys(exampleNodes).length;
-
 
 // const path = require('path');
 const socketIo = require('socket.io');

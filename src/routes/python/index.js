@@ -126,14 +126,21 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
         body.negatives = [];
         Object.keys(removedNeighbours).forEach(key => removedNeighbours[key] < threshold && body.negatives.push(+key));
     }
-    console.log({body})
+    console.log({ body });
 
     if (process.env.NODE_ENV === 'development') {
         res.status = 200;
+
         res.send({
-            group: [1, 4, 5],
+            group: req.body.group,
             neighbours: {
-                3: 0.2, 5: 0.5, 10: 0.1, 12: 0.01,
+                3: 0.2,
+                5: 0.5,
+                10: 0.1,
+                13: 0.01,
+                15: 0.5,
+                16: 0.01,
+                25: 0.5,
             },
         });
     } else {
