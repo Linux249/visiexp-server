@@ -16,7 +16,7 @@ import { colorTable } from './config/colors';
 import { imgSizes } from './config/imgSizes';
 // import { dataSet } from './config/datasets';
 import dataset from './routes/dataset';
-import {mockDataLength, pythonApi} from './config/env';
+import { mockDataLength, pythonApi } from './config/env';
 import { buildLabels } from './util/buildLabels';
 
 
@@ -179,7 +179,7 @@ io.sockets.on('connection', (socket) => {
     socket.on('requestImage', async (data) => {
         // console.log("requestImage")
         // console.log(data.name)
-        const name = data.name;
+        const { name } = data;
         if (name) {
             try {
                 let buffer;
@@ -206,6 +206,63 @@ io.sockets.on('connection', (socket) => {
     });
 
     socket.on('updateNodes', async (data) => {
+        console.log('updateNodes');
+        // console.log(data);
+
+        let updatedNodes = {};
+
+        // HINT The data should never by empty - inital nodes comes from getNodes
+        const { nodes } = data;
+        // categories can but don't have to change
+        let categories;
+
+        if (process.env.NODE_ENV === 'development') {
+            // TODO generate random x, y for new nodes
+            const l = Object.keys(nodes).length;
+            Object.keys(nodes).forEach((i) => {
+                const node = nodes[i];
+                if (i > 0 && i < l - 1) {
+                    node.x += Math.random() >= 0.5 ? node.x * 0.1 : -node.x * 0.1;
+                    node.y += Math.random() >= 0.5 ? node.y * 0.1 : -node.y * 0.1;
+                }
+                updatedNodes[i] = node;
+            });
+            // just test if categories change will happen correctly
+            categories = ['kat1', 'kat2', 'kat3'];
+        } else {
+            try {
+                const time2 = process.hrtime();
+                const res = await fetch(`http://${pythonApi}:8000/nodes`, {
+                    method: 'POST',
+                    header: { 'Content-type': 'application/json' },
+                    body: JSON.stringify({ nodes }),
+                });
+                // there are only nodes comming back from here
+                const result = await res.json();
+                updatedNodes = result.nodes;
+                // TODO build
+                categories = data.categories;
+                const diff2 = process.hrtime(time2);
+                console.log(`getNodesFromPython took ${diff2[0] + diff2[1] / 1e9} seconds`);
+            } catch (err) {
+                console.error('error - get nodes from python - error');
+                console.error(err);
+            }
+        }
+
+        // build labels - labels are scanned on serverside
+        const labels = categories ? buildLabels(categories, nodes) : undefined;
+
+        // if new categories comes from server than send new labels back
+        // TODO NAMING categories suits mutch bedder maybe?
+        if (labels) socket.emit('updateLabels', labels);
+
+        socket.emit('updateEmbedding', { nodes: updatedNodes }, (confirm) => {
+            console.log(confirm);
+        });
+    });
+
+    socket.on('getNodes', async (data) => {
         console.log('updateNodes from client');
         // console.log(typeof data)
         // console.log(data)

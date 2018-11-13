@@ -34,20 +34,19 @@ router.post('/updateLabels', async (req, res, next) => {
     }
 });
 
-// POST TODO URL
+// This is right now just for the python backend to get data back to UI without request
 router.post('/updateEmbedding', async (req, res, next) => {
     console.log('POST /updateEmbedding');
-    const { body } = req;
-    const { socket_id } = body;
+    // TODO the dev should get insight what body is transporting
+    const { categories, nodes, socket_id } = req.body;
 
     if (!socket_id) return next(new Error('No socket connection'));
 
-    let labels;
-    if (body.categories) labels = buildLabels(body.categories, body.nodes);
+    const labels = categories ? buildLabels(categories, nodes) : undefined;
     const socket = req.app.io.sockets.sockets[socket_id];
     if (!socket) return next(new Error(`No socket with ID: ${socket_id} found`)); // TODO maybe deliver error to frontend
     if (labels) socket.emit('updateLabels', labels);
-    socket.emit('updateEmbedding', body, (confirm) => {
+    socket.emit('updateEmbedding', { nodes }, (confirm) => {
         console.log(confirm);
         res.json(confirm);
     });
