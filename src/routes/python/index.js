@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import fetch from 'node-fetch';
 import { compareAndClean } from '../../util/compareAndClean';
-import { pythonApi } from '../../config/env';
+import { pythonApi, mockDataLength } from '../../config/env';
 import buildLabels from '../../util/buildLabels';
+import {getRandomUnusedId} from "../../util/getRandomUnusedId";
 
 const router = Router();
 
@@ -65,7 +66,7 @@ router.post('/startUpdateEmbedding', async (req, res, next) => {
 
     try {
         const time = process.hrtime();
-        const data = await fetch(`http://${pythonApi}:8000/startUpdateEmbedding`, {
+        await fetch(`http://${pythonApi}:8000/startUpdateEmbedding`, {
             method: 'POST',
             header: { 'Content-type': 'application/json' },
             body: JSON.stringify(body),
@@ -130,17 +131,16 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
     if (process.env.NODE_ENV === 'development') {
         res.status = 200;
 
+        const dumyNeighbours = {};
+
+        for (let n = 0; n < 5; n += 1) {
+            const id = getRandomUnusedId(mockDataLength, body.positives);
+            dumyNeighbours[id] = Math.random() >= 0.5 ? 0.1 : 0.3;
+        }
+
         res.send({
-            group: req.body.group,
-            neighbours: {
-                3: 0.2,
-                5: 0.5,
-                10: 0.1,
-                13: 0.01,
-                15: 0.5,
-                16: 0.01,
-                25: 0.5,
-            },
+            group: body.positives,
+            neighbours: dumyNeighbours,
         });
     } else {
         try {
