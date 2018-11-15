@@ -1,38 +1,34 @@
+import fs from 'fs';
 import fetch from 'node-fetch';
 import sharp from 'sharp';
 import morgan from 'morgan';
 import cors from 'cors';
-// import graphMock from './mock/graphSmall'
-// import exampleGraph from './mock/example_graph'
-// import exampleNodes from './mock/exampleNodes';
+import express from 'express';
+import socketIo from 'socket.io';
+import clusterfck from 'tayden-clusterfck';
 import exampleNodes from '../mock/2582_sub_wikiarts';
-// import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
 import pythonRoute from './routes/python/index';
 import svmRoute from './routes/svm';
-import buildTripel from './util/buildTripels';
 import { colorTable } from './config/colors';
 import { imgSizes } from './config/imgSizes';
-// import { dataSet } from './config/datasets';
 import dataset from './routes/dataset';
 import { mockDataLength, pythonApi } from './config/env';
 import { buildLabels } from './util/buildLabels';
-
-
-const express = require('express');
-const fs = require('fs');
-
+// import graphMock from './mock/graphSmall'
+// import exampleGraph from './mock/example_graph'
+// import exampleNodes from './mock/exampleNodes';
+// import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
+// import buildTripel from './util/buildTripels';
+// import { dataSet } from './config/datasets';
+// import kdbush from 'kdbush';
 // const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 
 // const path = require('path');
-const socketIo = require('socket.io');
 // required for file serving
 const app = express();
 
-// const kdbush = require('kdbush');
-
-const clusterfck = require('tayden-clusterfck');
 
 const readFile = path =>
     new Promise((res, rej) => {
@@ -56,7 +52,7 @@ const scaledPicsHash = {}; // scaled images in new archetecture 2
 
 const largeFileHash = {}; // the detailed images witch are loaded if needen
 
-let nodesStore = {};
+// let nodesStore = {};
 
 // let clusterStore = null;
 
@@ -277,15 +273,15 @@ io.sockets.on('connection', (socket) => {
         let categories = [];
 
         // build tripel from data
-        console.log('buildTripel');
-        const tripel = buildTripel(updatedNodes);
+        // console.log('buildTripel');
+        // const tripel = buildTripel(updatedNodes);
         // console.log({ tripel });
-        if (tripel) console.log(tripel);
+        // if (tripel) console.log(tripel);
 
 
         // before they should be cleaned and compared with maybe old data
         const time = process.hrtime();
-        updatedNodes = compareAndClean(nodesStore, updatedNodes);
+        updatedNodes = compareAndClean({}, updatedNodes);
         const diff = process.hrtime(time);
         console.log(`CopareAndClean took ${diff[0] + diff[1] / 1e9} seconds`);
 
@@ -313,7 +309,7 @@ io.sockets.on('connection', (socket) => {
                     header: { 'Content-type': 'application/json' },
                     body: JSON.stringify({
                         nodes: updatedNodes,
-                        tripel,
+                        // tripel,
                     }),
                 });
                 // there are only nodes comming back from here
@@ -347,13 +343,10 @@ io.sockets.on('connection', (socket) => {
 
 
         // store data data for comparing later
-        nodesStore = nodes;
+        // nodesStore = nodes;
         // console.log("this nodes are stored")
         // console.log(nodesStore)
 
-        // if (process.env.NODE_ENV === 'development' && clusterStore) {
-        //     nodes = clusterStore;
-        // } else {
         // add default cluster value (max cluster/zooming)
         Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
 
@@ -369,8 +362,8 @@ io.sockets.on('connection', (socket) => {
                 return point;
             });
 
-            // const kdtree = kdbush(points, n => n.x, n => n.y)
-            // console.log("finish kdtree")
+        //const kdtree = kdbush(points, n => n.x, n => n.y)
+        //console.log("finish kdtree")
 
             // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
             // console.log(smallBox)
@@ -380,12 +373,12 @@ io.sockets.on('connection', (socket) => {
 
         const zoomStages = 20;
         const nodesPerStage = Math.round(nodeDataLength / zoomStages) || 1; // small #nodes can result to 0
+        // loop trough the zoomstages
         for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
-            hcCluster.clusters(i).forEach((cluster, i) => {
-                const agentId = cluster[0].id;
-                // the user can change the amount of clusters
+            hcCluster.clusters(i).forEach((cluster) => {
+                // TODO why the first one? this is realy bad!
+                const agentId = cluster[0].id; // first value in cluster is represent
                 if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
-                // console.log(`${i}. first items has id: ${clust[0].id}`)
             });
             console.log(`Building ${i} clusters finished`);
         }
@@ -395,6 +388,29 @@ io.sockets.on('connection', (socket) => {
         console.log(`end clustering: ${diffCluster[0] + diffCluster[1] / 1e9} seconds`);
         // clusterStore = nodes;
         // }
+
+        /*
+            CLUSTERING - kmeans performance test
+         */
+        const points2 = Object.values(nodes)
+            .map((n, i) => {
+                const point = [n.x, n.y]; // array with properties is ugly!
+                return point;
+            });
+
+        console.log('start clustering kmeans');
+        console.time('cluster kmeans')
+        const timeCluster2 = process.hrtime();
+
+
+
+        const cluster2 = clusterfck.kmeans(points2, 20);
+
+
+
+        const diffCluster2 = process.hrtime(timeCluster2);
+        console.timeEnd('cluster kmeans')
+        console.log(`end clustering kmeans: ${diffCluster2[0] + (diffCluster2[1] / 1e9)} seconds`);
 
 
         /*
