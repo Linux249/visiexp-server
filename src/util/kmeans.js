@@ -66,41 +66,53 @@ export function kmeans(
         distance = distances[distance];
     }
 
+    const count = points.length;
+
+    // array of k (random!) centroids
     const centroids = randomCentroids(points, k);
+    // holds the assigned centroids to each point
     const assignment = new Array(points.length);
+    // holds the k clusters
     const clusters = new Array(k);
 
+    // iteration counter
     let iterations = 0;
     let movement = true;
     while (movement) {
         // update point-to-centroid assignments
-        for (var i = 0; i < points.length; i++) {
+        for (let i = 0; i < count; i++) {
             assignment[i] = closestCentroid(points[i], centroids, distance);
         }
 
         // update location of each centroid
         movement = false;
+        // loop through every centroid j
         for (let j = 0; j < k; j++) {
+            // find every point assigned to centroid j
             const assigned = [];
-            for (var i = 0; i < assignment.length; i++) {
+            for (let i = 0; i < count; i++) {
                 if (assignment[i] == j) {
                     assigned.push(points[i]);
                 }
             }
 
+            // if nothing was assigned continue with next centroid
             if (!assigned.length) {
                 continue;
             }
             const centroid = centroids[j];
             const newCentroid = new Array(centroid.length);
 
+            // loop through the dimension
             for (let g = 0; g < centroid.length; g++) {
                 let sum = 0;
-                for (var i = 0; i < assigned.length; i++) {
+                // loop through all to j assigned points
+                for (let i = 0; i < assigned.length; i++) {
                     sum += assigned[i][g];
                 }
                 newCentroid[g] = sum / assigned.length;
 
+                // repeat while the centroid changed
                 if (newCentroid[g] != centroid[g]) {
                     movement = true;
                 }
