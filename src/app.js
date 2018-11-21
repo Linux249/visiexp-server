@@ -374,7 +374,7 @@ io.sockets.on('connection', (socket) => {
         const zoomStages = 20;
         const nodesPerStage = Math.round(nodeDataLength / zoomStages) || 1; // small #nodes can result to 0
         // loop trough the zoomstages
-        for (let i = 1; i <= nodeDataLength; i += nodesPerStage) {
+        for (let i = nodesPerStage; i <= nodeDataLength; i += nodesPerStage) {
             hcCluster.clusters(i).forEach((cluster) => {
                 // TODO why the first one? this is realy bad!
                 const agentId = cluster[0].id; // first value in cluster is represent

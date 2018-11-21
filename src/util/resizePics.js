@@ -1,4 +1,4 @@
-import data from '../../mock/2582_sub_wikiarts';
+// import data from '../../mock/2582_sub_wikiarts';
 import sharp from 'sharp';
 import fs from 'fs';
 
@@ -18,14 +18,15 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
         console.log('no nodes');
         console.log(imgPath);
         await fs.readdir(imgPath, (err, files) => {
-            if (err) console.error(err);
+            if (err) return new Error(err);
 
-            files.forEach((node) => {
-                const path = `${imgPath}${node}`;
-                console.log(path);
+            files.forEach((file) => {
+                // check if file is a folder (10, 20, ...)
+                if (!Number.isNaN(+file)) return;
+                const path = `${imgPath}${file}`;
                 const pic = sharp(path);
                 return Promise.all(imgSizes.map((size) => {
-                    const outPath = `${imgPath}${size}/${node.split('.')[0]}.png`;
+                    const outPath = `${imgPath}${size}/${file.split('.')[0]}.png`;
                     return pic.resize(size, size)
                         .max()
                         .overlayWith(
@@ -34,7 +35,11 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
                         )
                         // .raw()
                         // .toBuffer({ resolveWithObject: true })
-                        .toFile(outPath);
+                        .toFile(outPath)
+                        .catch((e) => {
+                            console.error(e);
+                            console.log({ file, path, outPath });
+                        });
                 }));
             });
             console.timeEnd('resizePics');
