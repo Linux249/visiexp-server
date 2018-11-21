@@ -88,7 +88,11 @@ if (process.env.NODE_ENV === 'development') {
             return sharp(path)
                 .raw()
                 .toBuffer({ resolveWithObject: true })
-                .then(pic => pics[size] = pic);
+                .then(pic => pics[size] = pic)
+                .catch(e => {
+                    console.error(e)
+                    console.log({path})
+                });
         })).then(() => {
             if (!(n % 100)) {
                 const diffFillImgDataCach = process.hrtime(timeFillImgDataCach);

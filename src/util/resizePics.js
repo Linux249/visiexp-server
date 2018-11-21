@@ -17,15 +17,18 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
     if (!nodes.length) {
         console.log('no nodes');
         console.log(imgPath);
-        await fs.readdir(imgPath, (err, files) => {
+        fs.readdir(imgPath, async (err, files) => {
             if (err) return new Error(err);
 
-            files.forEach((file) => {
+            // map through files
+            await Promise.all(files.map((file) => {
                 // check if file is a folder (10, 20, ...)
-                if (!Number.isNaN(+file)) return;
+                if (!Number.isNaN(+file)) return null;
                 const path = `${imgPath}${file}`;
+                console.log(path)
                 const pic = sharp(path);
-                return Promise.all(imgSizes.map((size) => {
+                // map through image sizes
+                return imgSizes.map((size) => {
                     const outPath = `${imgPath}${size}/${file.split('.')[0]}.png`;
                     return pic.resize(size, size)
                         .max()
@@ -33,15 +36,14 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
                             Buffer.alloc(4),
                             { tile: true, raw: { width: 1, height: 1, channels: 4 } },
                         )
-                        // .raw()
-                        // .toBuffer({ resolveWithObject: true })
                         .toFile(outPath)
+                        .then(_ => console.log('saved: ' + outPath))
                         .catch((e) => {
                             console.error(e);
                             console.log({ file, path, outPath });
                         });
-                }));
-            });
+                });
+            }));
             console.timeEnd('resizePics');
         });
     }
