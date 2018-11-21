@@ -5,3 +5,10 @@
 # * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
 # * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
 
+// GET ALL USER IN DB
+GET http://localhost:3000/api/v1/dataset/all
+###
+
+// GET ALL USER IN DB
+GET http://localhost:3000/api/2582_sub_wikiarts/10/albert-bierstadt_a-river-estuary.jpg
+###

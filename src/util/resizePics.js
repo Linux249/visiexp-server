@@ -65,7 +65,7 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
 
 export default resizePics;
 
-const path = 'C:/Users/libor/bachelor-node/images/images_30030/';
+const path = 'C:/Users/libor/bachelor-node/images/2582_sub_wikiarts/';
 console.log(path);
 const sizes = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
 
