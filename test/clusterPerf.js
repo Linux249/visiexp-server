@@ -35,8 +35,9 @@ const points = Object.values(nodes)
 // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
 // console.log(smallBox)
 // console.log('finish kdtree');
-
+console.time('hccluster')
 const hcCluster = clusterfck.hcluster(points);
+console.timeEnd('hccluster')
 // const hcCluster2 = clusterfck.hcluster(points);
 // const hcCluster1 = clusterfck.hcluster(points);
 

@@ -11,8 +11,9 @@
     "build": "cross-env NODE_ENV=production babel src -s -D -d dist",
     "start": "cross-env NODE_ENV=production nodemon --exec babel-node -- ./src",
     "dashboard": "cross-env NODE_ENV=development nodemon --exec 'nodejs-dashboard babel-node' -- ./src",
-    "resize": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./src/util/resizePics.js",
-    "perf:cluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/clusterPerf.js"
+    "resize": "cross-env NODE_ENV=development babel-node -- ./src/util/resizePics.js",
+    "perf:cluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/clusterPerf.js",
+    "perf:supercluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/supercluster.js"
   },
   "dependencies": {
     "@stdlib/stdlib": "0.0.40",
@@ -23,6 +24,7 @@
     "node-fetch": "^2.2.1",
     "sharp": "^0.20.8",
     "socket.io": "^2.1.0",
+    "supercluster": "^4.1.1",
     "tayden-clusterfck": "^0.7.0"
   },
   "devDependencies": {
