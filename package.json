@@ -11,7 +11,7 @@
     "build": "cross-env NODE_ENV=production babel src -s -D -d dist",
     "start": "cross-env NODE_ENV=production nodemon --exec babel-node -- ./src",
     "dashboard": "cross-env NODE_ENV=development nodemon --exec 'nodejs-dashboard babel-node' -- ./src",
-    "resize": "cross-env NODE_ENV=development babel-node -- ./src/util/resizePics.js",
+    "resize": "babel-node -- ./src/util/resizePics.js",
     "perf:cluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/clusterPerf.js",
     "perf:supercluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/supercluster.js"
   },

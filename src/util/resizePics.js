@@ -24,12 +24,14 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
             await Promise.all(files.map((file) => {
                 // check if file is a folder (10, 20, ...)
                 if (!Number.isNaN(+file)) return null;
+
                 const path = `${imgPath}${file}`;
-                console.log(path)
+                // if file exists return
                 const pic = sharp(path);
                 // map through image sizes
                 return imgSizes.map((size) => {
                     const outPath = `${imgPath}${size}/${file.split('.')[0]}.png`;
+                    if(fs.existsSync(outPath)) return null
                     return pic.resize(size, size)
                         .max()
                         .overlayWith(
@@ -75,5 +77,4 @@ export default resizePics;
 const path = 'C:/Users/libor/bachelor-node/images/2582_sub_wikiarts/';
 console.log(path);
 const sizes = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
-
 resizePics(path, sizes);

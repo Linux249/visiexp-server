@@ -459,8 +459,8 @@ io.sockets.on('connection', (socket) => {
             // console.time('map' + i)
             // console.log("start")
             node.index = index;
-            node.positives = [];
-            node.negatives = [];
+            // node.positives = [];
+            // node.negatives = [];
 
             // catch if there is no rank
             if (!node.rank && node.rank !== 0) node.rank = -1;
