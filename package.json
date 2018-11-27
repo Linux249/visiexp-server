@@ -16,7 +16,6 @@
     "perf:supercluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/supercluster.js"
   },
   "dependencies": {
-    "@stdlib/stdlib": "0.0.40",
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "kdbush": "^1.0.1",

@@ -21,7 +21,7 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
             if (err) return new Error(err);
 
             // map through files
-            await Promise.all(files.map((file) => {
+            await Promise.all(files.map((file, i) => {
                 // check if file is a folder (10, 20, ...)
                 if (!Number.isNaN(+file)) return null;
 
@@ -39,7 +39,9 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
                             { tile: true, raw: { width: 1, height: 1, channels: 4 } },
                         )
                         .toFile(outPath)
-                        .then(_ => console.log('saved: ' + outPath))
+                        .then(_ => {
+                            if(i && !(i % 100)) console.log('saved: '+ i +' - ' + outPath )
+                        })
                         .catch((e) => {
                             console.error(e);
                             console.log({ file, path, outPath });
