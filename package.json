@@ -22,7 +22,7 @@
     "morgan": "^1.9.1",
     "node-fetch": "^2.3.0",
     "sharp": "^0.20.8",
-    "socket.io": "^2.1.0",
+    "socket.io": "^2.2.0",
     "supercluster": "^4.1.1",
     "tayden-clusterfck": "^0.7.0"
   },
@@ -34,6 +34,6 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
-    "nodemon": "^1.18.7"
+    "nodemon": "^1.18.9"
   }
 }
