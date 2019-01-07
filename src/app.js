@@ -6,7 +6,6 @@ import cors from 'cors';
 import express from 'express';
 import socketIo from 'socket.io';
 import clusterfck from 'tayden-clusterfck';
-import exampleNodes from '../mock/2582_sub_wikiarts';
 import { compareAndClean } from './util/compareAndClean';
 import { getRandomColor } from './util/getRandomColor';
 import pythonRoute from './routes/python/index';
@@ -24,6 +23,7 @@ import { buildLabels } from './util/buildLabels';
 // import { dataSet } from './config/datasets';
 // import kdbush from 'kdbush';
 // const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
+const exampleNodes = (process.env.NODE_ENV === 'development') ? require('../mock/2582_sub_wikiarts').default : {};
 
 // const path = require('path');
 // required for file serving
@@ -75,6 +75,7 @@ if (process.env.NODE_ENV === 'development') {
 
     console.time('fillImgDataCach');
     console.log(`fillImgDataCach of ${mockDataLength} files`);
+    console.log(exampleNodes)
 
     // generate dummy nodes
     for (let n = 0; n < mockDataLength; n += 1) {
