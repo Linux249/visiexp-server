@@ -116,6 +116,7 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
     const body = {
         threshold,
         positives: req.body.group,
+        groupId: req.body.groupId,
     };
 
     if (neighbours) {
