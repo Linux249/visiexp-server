@@ -124,7 +124,7 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
 
     if (removedNeighbours) {
         body.negatives = [];
-        Object.keys(removedNeighbours).forEach(key => removedNeighbours[key] < threshold && body.negatives.push(+key));
+        Object.keys(removedNeighbours).forEach(key => body.negatives.push(+key));
     }
     console.log({ body });
 

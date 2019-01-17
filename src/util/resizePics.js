@@ -1,12 +1,13 @@
 // import data from '../../mock/2582_sub_wikiarts';
 import sharp from 'sharp';
 import fs from 'fs';
+import { imgSizes as sizes } from '../config/imgSizes';
 
 const resizePics = async (imgPath, imgSizes, nodes = []) => {
     console.log('resizePics');
     console.time('resizePics');
 
-    if (!fs.existsSync(imgPath)) return console.log(new Error('Pfad zu Bilder in resizePics ungültig'));
+    if (!fs.existsSync(imgPath)) return new Error('Pfad zu Bilder in resizePics ungültig');
     // check all dirs or create
     imgSizes.forEach((size) => {
         const dir = `${imgPath}${size}/`;
@@ -31,7 +32,8 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
                 // map through image sizes
                 return imgSizes.map((size) => {
                     const outPath = `${imgPath}${size}/${file.split('.')[0]}.png`;
-                    if(fs.existsSync(outPath)) return null
+                    if (fs.existsSync(outPath)) return null;
+                    // todo chekc sharp newest version, issue #1153 seems to add a new method for alpha
                     return pic.resize(size, size)
                         .max()
                         .overlayWith(
@@ -39,8 +41,8 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
                             { tile: true, raw: { width: 1, height: 1, channels: 4 } },
                         )
                         .toFile(outPath)
-                        .then(_ => {
-                            if(i && !(i % 100)) console.log('saved: '+ i +' - ' + outPath )
+                        .then((_) => {
+                            if (i && !(i % 100)) console.log(`saved: ${i} - ${outPath}`);
                         })
                         .catch((e) => {
                             console.error(e);
@@ -51,26 +53,6 @@ const resizePics = async (imgPath, imgSizes, nodes = []) => {
             console.timeEnd('resizePics');
         });
     }
-
-    /* const results = await Promise.all(nodes.map((node) => {
-        const path = `${imgPath}${node}`;
-
-        const pic = sharp(path);
-        return Promise.all(imgSizes.map((size) => {
-            const outPath = `${imgPath}${size}/${node.split('.')[0]}.png`;
-            return pic.resize(size, size)
-                .max()
-                .overlayWith(
-                    Buffer.alloc(4),
-                    { tile: true, raw: { width: 1, height: 1, channels: 4 } },
-                )
-                // .raw()
-                // .toBuffer({ resolveWithObject: true })
-                .toFile(outPath);
-        }));
-    }));
-    // results = await Promise.all(results)
-    console.log(results[100]); */
 };
 
 
@@ -78,5 +60,9 @@ export default resizePics;
 
 const path = 'C:/Users/libor/bachelor-node/images/2582_sub_wikiarts/';
 console.log(path);
-const sizes = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
-resizePics(path, sizes);
+resizePics(path, sizes).then((e) => {
+    console.log('Finished: all images resized');
+}).catch((err) => {
+    console.error('Error: resizePics not finished');
+    console.error(err);
+});
