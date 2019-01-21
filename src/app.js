@@ -1,4 +1,6 @@
 import fs from 'fs';
+import { promises as fsP } from 'fs';
+import path from 'path';
 import fetch from 'node-fetch';
 import sharp from 'sharp';
 import morgan from 'morgan';
@@ -20,7 +22,7 @@ import { buildLabels } from './util/buildLabels';
 // import exampleNodes from './mock/exampleNodes';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 // import buildTripel from './util/buildTripels';
-// import { dataSet } from './config/datasets';
+import { dataSet } from './config/datasets';
 // import kdbush from 'kdbush';
 // const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 const exampleNodes = (process.env.NODE_ENV === 'development') ? require('../mock/2582_sub_wikiarts').default : {};
@@ -41,6 +43,43 @@ const readFile = path =>
         });
     });
 
+
+// TODO: Read dataset and check if all images are created corectly - otherwise stop app and tell user to resize pics
+// TODO resize will work off all datasets
+// loop through each dataset and check
+// 1. folder structure is similar to imageSizes
+/*console.log('Check if all images are available for each dataset');
+dataSet.map(async (set) => {
+    try {
+        // test if folder path exists
+        // set.imgPath
+        // Error: Path in dataset incorrect
+
+        // count all images in main dir
+        const files = await fsP.readdir(set.imgPath);
+        const imgCount = files.length - imgSizes.length;
+        console.log(`Path: ${set.imgPath} #${imgCount}`);
+
+        // check all subdir
+        imgSizes.map(async (size) => {
+            try {
+                const subDir = path.join(set.imgPath, size.toString());
+                const subDirFiles = await fsP.readdir(subDir);
+                const subDirCount = subDirFiles.length - imgSizes.length;
+                console.log(`Path: ${subDir} #${subDirCount}`);
+            } catch (e) {
+                console.error(e);
+                console.error("Fehler beim Starten der Anwendung: bitte Bildpfad überprüfen oder 'npm run resize' ausführen");
+                process.exit(0)
+            }
+            // test if subDir exists
+        });
+    } catch (e) {
+        console.error(e);
+        console.error("Fehler beim Starten der Anwendung: bitte Bildpfad überprüfen oder 'npm run resize' ausführen");
+        process.exit(0)
+    }
+});*/
 
 // Socket.io
 const io = socketIo({ pingTimeout: 1200000, pingInterval: 300000 });
@@ -75,7 +114,7 @@ if (process.env.NODE_ENV === 'development') {
 
     console.time('fillImgDataCach');
     console.log(`fillImgDataCach of ${mockDataLength} files`);
-    console.log(exampleNodes)
+    // console.log(exampleNodes);
 
     // generate dummy nodes
     for (let n = 0; n < mockDataLength; n += 1) {
@@ -90,9 +129,9 @@ if (process.env.NODE_ENV === 'development') {
                 .raw()
                 .toBuffer({ resolveWithObject: true })
                 .then(pic => pics[size] = pic)
-                .catch(e => {
-                    console.error(e)
-                    console.log({path})
+                .catch((e) => {
+                    console.error(e);
+                    console.log({ path });
                 });
         })).then(() => {
             if (!(n % 100)) {
@@ -367,8 +406,8 @@ io.sockets.on('connection', (socket) => {
                 return point;
             });
 
-        //const kdtree = kdbush(points, n => n.x, n => n.y)
-        //console.log("finish kdtree")
+        // const kdtree = kdbush(points, n => n.x, n => n.y)
+        // console.log("finish kdtree")
 
             // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
             // console.log(smallBox)
@@ -404,17 +443,15 @@ io.sockets.on('connection', (socket) => {
             });
 
         console.log('start clustering kmeans');
-        console.time('cluster kmeans')
+        console.time('cluster kmeans');
         const timeCluster2 = process.hrtime();
-
 
 
         const cluster2 = clusterfck.kmeans(points2, 20);
 
 
-
         const diffCluster2 = process.hrtime(timeCluster2);
-        console.timeEnd('cluster kmeans')
+        console.timeEnd('cluster kmeans');
         console.log(`end clustering kmeans: ${diffCluster2[0] + (diffCluster2[1] / 1e9)} seconds`);
 
 

@@ -2,63 +2,65 @@
 import sharp from 'sharp';
 import fs from 'fs';
 import { imgSizes as sizes } from '../config/imgSizes';
+import {dataSet} from "../config/datasets";
 
-const resizePics = async (imgPath, imgSizes, nodes = []) => {
+const resizePics = async (imgPath, imgSizes) => {
     console.log('resizePics');
     console.time('resizePics');
 
+    // check the hole path
     if (!fs.existsSync(imgPath)) return new Error('Pfad zu Bilder in resizePics ungültig');
-    // check all dirs or create
+    // create all dirs
     imgSizes.forEach((size) => {
         const dir = `${imgPath}${size}/`;
         console.log(dir);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+        else console.warn('dir allready exists - what to do now is not implemented');
     });
-    // no nodes delivered - take all from folder
-    if (!nodes.length) {
-        console.log('no nodes');
-        console.log(imgPath);
-        fs.readdir(imgPath, async (err, files) => {
-            if (err) return new Error(err);
 
-            // map through files
-            await Promise.all(files.map((file, i) => {
-                // check if file is a folder (10, 20, ...)
-                if (!Number.isNaN(+file)) return null;
+    console.log('no nodes');
+    console.log(imgPath);
+    await fs.readdir(imgPath, async (err, files) => {
+        if (err) return new Error(err);
 
-                const path = `${imgPath}${file}`;
+        // map through files
+        await Promise.all(files.map((file, i) => {
+            // check if file is a folder (10, 20, ...)
+            if (imgSizes.includes(+file)) return null;
+            // path to load img
+            const sourceImagePath = `${imgPath}${file}`;
+
+            const pic = sharp(sourceImagePath);
+            // map through image sizes
+            return imgSizes.map((size) => {
+                const outPath = `${imgPath}${size}/${file.split('.')[0]}.png`;
                 // if file exists return
-                const pic = sharp(path);
-                // map through image sizes
-                return imgSizes.map((size) => {
-                    const outPath = `${imgPath}${size}/${file.split('.')[0]}.png`;
-                    if (fs.existsSync(outPath)) return null;
-                    // todo chekc sharp newest version, issue #1153 seems to add a new method for alpha
-                    return pic.resize(size, size)
-                        .max()
-                        .overlayWith(
-                            Buffer.alloc(4),
-                            { tile: true, raw: { width: 1, height: 1, channels: 4 } },
-                        )
-                        .toFile(outPath)
-                        .then((_) => {
-                            if (i && !(i % 100)) console.log(`saved: ${i} - ${outPath}`);
-                        })
-                        .catch((e) => {
-                            console.error(e);
-                            console.log({ file, path, outPath });
-                        });
-                });
-            }));
-            console.timeEnd('resizePics');
-        });
-    }
+                if (fs.existsSync(outPath)) return null;
+                // todo chekc sharp newest version, issue #1153 seems to add a new method for alpha
+                return pic.resize(size, size)
+                    .max()
+                    .overlayWith(
+                        Buffer.alloc(4),
+                        { tile: true, raw: { width: 1, height: 1, channels: 4 } },
+                    )
+                    .toFile(outPath)
+                    .then((_) => {
+                        if (i && !(i % 100)) console.log(`saved: ${i} - ${outPath}`);
+                    })
+                    .catch((e) => {
+                        console.error(e);
+                        console.log({ file, path: sourceImagePath, outPath });
+                    });
+            });
+        }));
+    });
+    console.timeEnd('resizePics');
 };
 
 
 export default resizePics;
 
-const path = 'C:/Users/libor/bachelor-node/images/2582_sub_wikiarts/';
+const path = 'C:/Users/libor/bachelor-node/images/2582_sub_wikiarts#90/';
 console.log(path);
 resizePics(path, sizes).then((e) => {
     console.log('Finished: all images resized');
