@@ -1,8 +1,8 @@
 import { promises as fsP } from 'fs';
-import {join as joinPath} from 'path';
+import path from 'path';
 import { Router } from 'express';
 import { dataSet } from '../../config/datasets';
-import {imgSizes} from "../../config/imgSizes";
+import { imgSizes } from '../../config/imgSizes';
 
 const router = Router();
 
@@ -13,19 +13,19 @@ router.get('/all', async (req, res) => {
     }) => ({
         id, name, description, count, dirName,
     }));
-    res.json(datasets);
+    return res.json(datasets);
 });
 
 // GET - /api/v1/dataset/:id
 router.get('/:id', async (req, res, next) => {
     const { imgPath, count } = dataSet.find(e => e.id === req.params.id);
-    console.log({ imgPath, count })
+    console.log({ imgPath, count });
     if (!imgPath || !count) return next(new Error('keine gültige id oder name'));
     // TODO hier sollen eigentlich alle Namen zurückgegeben werden
-    const p = joinPath(imgPath, '10')
-    const files = await fsP.readdir(p)
-    const imgNames = count ? files.slice(0, count) : files
-    res.json({ imgNames});
+    const p = path.join(imgPath, '10');
+    const files = await fsP.readdir(p);
+    const imgNames = count ? files.slice(0, count) : files;
+    return res.json({ imgNames });
 });
 
 

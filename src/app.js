@@ -14,8 +14,9 @@ import pythonRoute from './routes/python/index';
 import svmRoute from './routes/svm';
 import { colorTable } from './config/colors';
 import { imgSizes } from './config/imgSizes';
+import imgPath from './config/imgPath';
 import dataset from './routes/dataset';
-import { mockDataLength, pythonApi } from './config/env';
+import { mockDataLength} from './config/env';
 import { buildLabels } from './util/buildLabels';
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
@@ -23,6 +24,7 @@ import { buildLabels } from './util/buildLabels';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 // import buildTripel from './util/buildTripels';
 import { dataSet } from './config/datasets';
+import {pythonApi} from "./config/pythonApi";
 // import kdbush from 'kdbush';
 // const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 const exampleNodes = (process.env.NODE_ENV === 'development') ? require('../mock/2582_sub_wikiarts').default : {};
@@ -97,14 +99,7 @@ const largeFileHash = {}; // the detailed images witch are loaded if needen
 
 
 // set different image path for prod/dev mode
-let imgPath = '';
 
-if (process.env.NODE_ENV === 'development') {
-    imgPath = `${__dirname}/../images/2582_sub_wikiarts/`;
-    // imgPath = `/export/home/kschwarz/Documents/Data/CUB_200_2011/images_nofolders/`;
-} else {
-    imgPath = '/export/home/kschwarz/Documents/Data/Wikiart_artist49_images/';
-}
 
 if (process.env.NODE_ENV === 'development') {
     const timeFillImgDataCach = process.hrtime();
@@ -123,15 +118,15 @@ if (process.env.NODE_ENV === 'development') {
         const pics = {};
         // TODO prüfen ob sich bilder auch als raw() abspeichern lassen
         Promise.all(imgSizes.map((size) => {
-            const path = `${imgPath}${size}/${node.name}.png`;
+            const filePath = path.join(imgPath, size.toString(), `${node.name}.png`);
 
-            return sharp(path)
+            return sharp(filePath)
                 .raw()
                 .toBuffer({ resolveWithObject: true })
                 .then(pic => pics[size] = pic)
                 .catch((e) => {
                     console.error(e);
-                    console.log({ path });
+                    console.log({ filePath });
                 });
         })).then(() => {
             if (!(n % 100)) {

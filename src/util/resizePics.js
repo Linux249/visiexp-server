@@ -5,7 +5,7 @@ import { imgSizes as sizes } from '../config/imgSizes';
 import {dataSet} from "../config/datasets";
 
 const resizePics = async (imgPath, imgSizes) => {
-    console.log('resizePics');
+    console.log('start resizePics');
     console.time('resizePics');
 
     // check the hole path
@@ -18,8 +18,7 @@ const resizePics = async (imgPath, imgSizes) => {
         else console.warn('dir allready exists - what to do now is not implemented');
     });
 
-    console.log('no nodes');
-    console.log(imgPath);
+    // console.log(imgPath);
     await fs.readdir(imgPath, async (err, files) => {
         if (err) return new Error(err);
 
@@ -39,10 +38,7 @@ const resizePics = async (imgPath, imgSizes) => {
                 // todo chekc sharp newest version, issue #1153 seems to add a new method for alpha
                 return pic.resize(size, size)
                     .max()
-                    .overlayWith(
-                        Buffer.alloc(4),
-                        { tile: true, raw: { width: 1, height: 1, channels: 4 } },
-                    )
+                    .ensureAlpha() // todo test if this new function works
                     .toFile(outPath)
                     .then((_) => {
                         if (i && !(i % 100)) console.log(`saved: ${i} - ${outPath}`);

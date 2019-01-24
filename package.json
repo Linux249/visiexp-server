@@ -18,12 +18,12 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.16.4",
-    "kdbush": "^1.0.1",
+    "kdbush": "^3.0.0",
     "morgan": "^1.9.1",
     "node-fetch": "^2.3.0",
-    "sharp": "^0.20.8",
+    "sharp": "^0.21.3",
     "socket.io": "^2.2.0",
-    "supercluster": "^4.1.1",
+    "supercluster": "^6.0.1",
     "tayden-clusterfck": "^0.7.0"
   },
   "devDependencies": {
@@ -32,7 +32,7 @@
     "cross-env": "^5.2.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-import": "^2.15.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "nodemon": "^1.18.9"
   }

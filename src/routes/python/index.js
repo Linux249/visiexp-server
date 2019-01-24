@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import fetch from 'node-fetch';
 import { compareAndClean } from '../../util/compareAndClean';
-import { pythonApi, mockDataLength } from '../../config/env';
+import { mockDataLength } from '../../config/env';
 import buildLabels from '../../util/buildLabels';
 import {getRandomUnusedId} from "../../util/getRandomUnusedId";
+import {pythonApi} from "../../config/pythonApi";
 
 const router = Router();
 
