@@ -37,8 +37,8 @@ const resizePics = async (imgPath, imgSizes) => {
                 if (fs.existsSync(outPath)) return null;
                 // todo chekc sharp newest version, issue #1153 seems to add a new method for alpha
                 return pic.resize(size, size)
-                    .max()
-                    .ensureAlpha() // todo test if this new function works
+                    .resize(size, size, { fit: 'inside' })
+                    .ensureAlpha()
                     .toFile(outPath)
                     .then((_) => {
                         if (i && !(i % 100)) console.log(`saved: ${i} - ${outPath}`);

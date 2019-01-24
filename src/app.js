@@ -16,7 +16,7 @@ import { colorTable } from './config/colors';
 import { imgSizes } from './config/imgSizes';
 import imgPath from './config/imgPath';
 import dataset from './routes/dataset';
-import { mockDataLength} from './config/env';
+import { mockDataLength } from './config/env';
 import { buildLabels } from './util/buildLabels';
 // import graphMock from './mock/graphSmall'
 // import exampleGraph from './mock/example_graph'
@@ -24,7 +24,7 @@ import { buildLabels } from './util/buildLabels';
 // import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
 // import buildTripel from './util/buildTripels';
 import { dataSet } from './config/datasets';
-import {pythonApi} from "./config/pythonApi";
+import { pythonApi } from './config/pythonApi';
 // import kdbush from 'kdbush';
 // const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 const exampleNodes = (process.env.NODE_ENV === 'development') ? require('../mock/2582_sub_wikiarts').default : {};
@@ -50,7 +50,7 @@ const readFile = path =>
 // TODO resize will work off all datasets
 // loop through each dataset and check
 // 1. folder structure is similar to imageSizes
-/*console.log('Check if all images are available for each dataset');
+/* console.log('Check if all images are available for each dataset');
 dataSet.map(async (set) => {
     try {
         // test if folder path exists
@@ -81,13 +81,13 @@ dataSet.map(async (set) => {
         console.error("Fehler beim Starten der Anwendung: bitte Bildpfad überprüfen oder 'npm run resize' ausführen");
         process.exit(0)
     }
-});*/
+}); */
 
 // Socket.io
 const io = socketIo({ pingTimeout: 1200000, pingInterval: 300000 });
 app.io = io;
 
-const scaledPicsHash = {}; // scaled images in new archetecture 2
+// const scaledPicsHash = {}; // scaled images in new archetecture 2
 
 // const stringImgHash = {};       // normal (50,50) images in old architecture
 
@@ -99,69 +99,6 @@ const largeFileHash = {}; // the detailed images witch are loaded if needen
 
 
 // set different image path for prod/dev mode
-
-
-if (process.env.NODE_ENV === 'development') {
-    const timeFillImgDataCach = process.hrtime();
-    // resizePics(imgPath, [110, 120, 130, 140, 150], exampleNodes)
-
-    // fill scaledPicsHash
-
-    console.time('fillImgDataCach');
-    console.log(`fillImgDataCach of ${mockDataLength} files`);
-    // console.log(exampleNodes);
-
-    // generate dummy nodes
-    for (let n = 0; n < mockDataLength; n += 1) {
-        const i = n % mockDataLength;
-        const node = exampleNodes[i];
-        const pics = {};
-        // TODO prüfen ob sich bilder auch als raw() abspeichern lassen
-        Promise.all(imgSizes.map((size) => {
-            const filePath = path.join(imgPath, size.toString(), `${node.name}.png`);
-
-            return sharp(filePath)
-                .raw()
-                .toBuffer({ resolveWithObject: true })
-                .then(pic => pics[size] = pic)
-                .catch((e) => {
-                    console.error(e);
-                    console.log({ filePath });
-                });
-        })).then(() => {
-            if (!(n % 100)) {
-                const diffFillImgDataCach = process.hrtime(timeFillImgDataCach);
-                console.log(`${n}/${mockDataLength} pics cached took: ${diffFillImgDataCach[0] + diffFillImgDataCach[1] / 1e9}s`);
-            }
-            scaledPicsHash[node.name] = pics;
-            if (n + 1 === mockDataLength) console.log('fillImgDataCach end');
-        });
-
-        //  }));
-
-        // const path = `${imgPath}${node.name}.jpg`;
-        // const pic = sharp(path);
-        // Promise.all(imgSizes.map(async (size) => {
-        //     // const file = await readFile(iconPath);
-        //     pics[size] = await pic
-        //         .resize(size, size)
-        //         .max()
-        //         .overlayWith(
-        //             Buffer.alloc(4),
-        //             { tile: true, raw: { width: 1, height: 1, channels: 4 } },
-        //         )
-        //         .raw()
-        //         .toBuffer({ resolveWithObject: true });
-        // })).then(() => {
-        //     if (!(n % 100)) {
-        //         const diffFillImgDataCach = process.hrtime(timeFillImgDataCach);
-        //         console.log(`${n}/${mockDataLength} pics cached took: ${diffFillImgDataCach[0] + diffFillImgDataCach[1] / 1e9}s`);
-        //     }
-        //     scaledPicsHash[node.name] = pics;
-        //     if (n + 1 === mockDataLength) console.log('fillImgDataCach end');
-        // });
-    }
-}
 
 /* app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false })) */
@@ -524,46 +461,41 @@ io.sockets.on('connection', (socket) => {
             if (!node.clique) node.clique = [1, 2, 3];
             if (!node.rank) node.rank = 0.5;
 
-            const iconPath = `${imgPath}${node.name}.jpg`;
+
 
             node.pics = {};
             node.cached = false; // this is interesting while performance messearuing
             node.url = `/images_3000/${node.name}.jpg`;
 
             try {
-                if (scaledPicsHash[node.name]) {
-                    // node.buffer = iconsFileHash[node.name].buffer;
-                    node.pics = scaledPicsHash[node.name];
-                    // node.buffer = stringImgHash[node.name];
-                    nodes.cached = true;
-                } else {
-                    // const file = await readFile(iconPath);
-                    // console.log(file);
-                    // const buffer = await sharp(file)
-                    //     .resize(50, 50)
-                    //     .max()
-                    //     .toFormat('jpg')
-                    //     .toBuffer();
-                    // node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`;
-                    // stringImgHash[node.name] = node.buffer; // save for faster reload TODO test with lots + large image
+                // if (scaledPicsHash[node.name]) {
+                //     // node.buffer = iconsFileHash[node.name].buffer;
+                //     node.pics = scaledPicsHash[node.name];
+                //     // node.buffer = stringImgHash[node.name];
+                //     nodes.cached = true;
+                // } else {
+                // const file = await readFile(iconPath);
+                // console.log(file);
+                // const buffer = await sharp(file)
+                //     .resize(50, 50)
+                //     .max()
+                //     .toFormat('jpg')
+                //     .toBuffer();
+                // node.buffer = `data:image/jpg;base64,${buffer.toString('base64')}`;
+                // stringImgHash[node.name] = node.buffer; // save for faster reload TODO test with lots + large image
 
-                    // new architecture 2
+                // new architecture 2
 
-                    await Promise.all(imgSizes.map(async (size) => {
-                        node.pics[size] = await sharp(iconPath)
-                            .resize(size, size)
-                            .max()
-                            .overlayWith(
-                                Buffer.alloc(4),
-                                { tile: true, raw: { width: 1, height: 1, channels: 4 } },
-                            )
-                            .raw()
-                            .toBuffer({ resolveWithObject: true });
-                    }));
-                    scaledPicsHash[node.name] = node.pics;
+                await Promise.all(imgSizes.map(async (size) => {
+                    const filePath = path.join(imgPath, size.toString(), `${node.name}.png`);
+                    node.pics[size] = await sharp(filePath)
+                        .raw()
+                        .toBuffer({ resolveWithObject: true });
+                }));
+                // scaledPicsHash[node.name] = node.pics;
 
-                    // new archetecture 1
-                    /* await Promise.all(arr.map(async (size) => {
+                // new archetecture 1
+                /* await Promise.all(arr.map(async (size) => {
                             const buffer = await sharp(file)
                                 .resize(size, size)
                                 .max()
@@ -571,7 +503,7 @@ io.sockets.on('connection', (socket) => {
                                 .toBuffer();
                             node.pics[size] = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
                         })); */
-                }
+                // }
 
                 socket.compress(false).emit('node', node);
                 // console.timeEnd('map' + i)

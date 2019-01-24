@@ -13,7 +13,8 @@
     "dashboard": "cross-env NODE_ENV=development nodemon --exec 'nodejs-dashboard babel-node' -- ./src",
     "resize": "babel-node -- ./src/util/resizePics.js",
     "perf:cluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/clusterPerf.js",
-    "perf:supercluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/supercluster.js"
+    "perf:supercluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/supercluster.js",
+    "perf:loadVsResizeImagesPerf": "babel-node %NODE_DEBUG_OPTION% -- ./test/loadVsResizeImagesPerf.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
