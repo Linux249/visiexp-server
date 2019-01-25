@@ -117,7 +117,7 @@ app.use(cors());
 app.use('/api/v1/', pythonRoute);
 app.use('/api/v1/svm/', svmRoute);
 app.use('/api/v1/dataset/', dataset);
-app.use('/api', express.static('images'));
+// app.use('/api', express.static('images'));// todo with imgPath outside the root folder not possible
 app.use('/', express.static('public'));
 /* app.get('/images/!*', (req, res) => {
     console.log(req.path)
@@ -505,7 +505,11 @@ io.sockets.on('connection', (socket) => {
                         })); */
                 // }
 
-                socket.compress(false).emit('node', node);
+                socket
+                    // todo check if the out-command functions are necessary
+                    //.compress(false)
+                    //.binary(true)
+                    .emit('node', node);
                 // console.timeEnd('map' + i)
                 // if(!node.pics) console.log("HJEQWERIHWQR")
 
