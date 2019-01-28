@@ -1,8 +1,8 @@
-import path from 'path'
-import {promises as fsp} from 'fs'
+import path from 'path';
+import { promises as fsp } from 'fs';
 import imgPath from '../config/imgPath';
 
-export default (socket) => async (data) => {
+export default socket => async (data) => {
     // console.log("requestImage")
     // console.log(data.name)
     const { name } = data;
@@ -20,4 +20,4 @@ export default (socket) => async (data) => {
     } catch (err) {
         console.error(err);
     }
-}
+};

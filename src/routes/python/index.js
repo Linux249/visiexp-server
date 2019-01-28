@@ -48,6 +48,7 @@ router.post('/updateEmbedding', async (req, res, next) => {
     const socket = req.app.io.sockets.sockets[socket_id];
     if (!socket) return next(new Error(`No socket with ID: ${socket_id} found`)); // TODO maybe deliver error to frontend
     if (labels) socket.emit('updateLabels', labels);
+    // confirm is {stopped: true/false}for signaling if the user hast stopped
     socket.emit('updateEmbedding', { nodes }, (confirm) => {
         console.log(confirm);
         res.json(confirm);
@@ -83,6 +84,7 @@ router.post('/startUpdateEmbedding', async (req, res, next) => {
     }
 });
 
+// todo ist this necessary if the sopped state is already transmitted?
 router.post('/stopUpdateEmbedding', async (req, res, next) => {
     console.log('POST /stopUpdateEmbedding');
     const { body } = req;

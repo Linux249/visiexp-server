@@ -26,6 +26,7 @@ import { buildLabels } from './util/buildLabels';
 import { dataSet } from './config/datasets';
 import { pythonApi } from './config/pythonApi';
 import requestImage from './socket/requestImage';
+import updateEmbedding from './socket/updateEmbedding';
 // import kdbush from 'kdbush';
 // const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 const exampleNodes = (process.env.NODE_ENV === 'development') ? require('../mock/2582_sub_wikiarts').default : {};
@@ -35,6 +36,7 @@ const exampleNodes = (process.env.NODE_ENV === 'development') ? require('../mock
 const app = express();
 
 
+/*
 const readFile = path =>
     new Promise((res, rej) => {
         fs.readFile(path, (err, data) => {
@@ -45,6 +47,7 @@ const readFile = path =>
             }
         });
     });
+*/
 
 
 // TODO: Read dataset and check if all images are created corectly - otherwise stop app and tell user to resize pics
@@ -149,62 +152,7 @@ io.sockets.on('connection', (socket) => {
 
     socket.on('requestImage', requestImage(socket));
 
-    socket.on('updateNodes', async (data) => {
-        console.log('updateNodes');
-        // console.log(data);
-
-        let updatedNodes = {};
-
-        // HINT The data should never by empty - inital nodes comes from getNodes
-        const { nodes } = data;
-        // categories can but don't have to change
-        let categories;
-
-        if (process.env.NODE_ENV === 'development') {
-            // TODO generate random x, y for new nodes
-            const l = Object.keys(nodes).length;
-            Object.keys(nodes).forEach((i) => {
-                const node = nodes[i];
-                if (i > 0 && i < l - 1) {
-                    node.x += Math.random() >= 0.5 ? node.x * 0.1 : -node.x * 0.1;
-                    node.y += Math.random() >= 0.5 ? node.y * 0.1 : -node.y * 0.1;
-                }
-                updatedNodes[i] = node;
-            });
-            // just test if categories change will happen correctly
-            categories = ['kat1', 'kat2', 'kat3'];
-        } else {
-            try {
-                const time2 = process.hrtime();
-                const res = await fetch(`http://${pythonApi}:8000/nodes`, {
-                    method: 'POST',
-                    header: { 'Content-type': 'application/json' },
-                    body: JSON.stringify({ nodes }),
-                });
-                // there are only nodes comming back from here
-                const result = await res.json();
-                updatedNodes = result.nodes;
-                // TODO build
-                categories = data.categories;
-                const diff2 = process.hrtime(time2);
-                console.log(`getNodesFromPython took ${diff2[0] + diff2[1] / 1e9} seconds`);
-            } catch (err) {
-                console.error('error - get nodes from python - error');
-                console.error(err);
-            }
-        }
-
-        // build labels - labels are scanned on serverside
-        const labels = categories ? buildLabels(categories, nodes) : undefined;
-
-        // if new categories comes from server than send new labels back
-        // TODO NAMING categories suits mutch bedder maybe?
-        if (labels) socket.emit('updateLabels', labels);
-
-        socket.emit('updateEmbedding', { nodes: updatedNodes }, (confirm) => {
-            console.log(confirm);
-        });
-    });
+    socket.on('updateEmbedding', updateEmbedding(socket));
 
     socket.on('getNodes', async (data) => {
         console.log('updateNodes from client');
@@ -434,7 +382,6 @@ io.sockets.on('connection', (socket) => {
             if (!node.rank) node.rank = 0.5;
 
 
-
             node.pics = {};
             node.cached = false; // this is interesting while performance messearuing
             node.url = `/images_3000/${node.name}.jpg`;
@@ -479,8 +426,8 @@ io.sockets.on('connection', (socket) => {
 
                 socket
                     // todo check if the out-command functions are necessary
-                    //.compress(false)
-                    //.binary(true)
+                    // .compress(false)
+                    // .binary(true)
                     .emit('node', node);
                 // console.timeEnd('map' + i)
                 // if(!node.pics) console.log("HJEQWERIHWQR")
@@ -504,7 +451,7 @@ io.sockets.on('connection', (socket) => {
             // socket.emit('updateKdtree', kdtree)
 
             // sending back the labels and the colors
-            socket.emit('updateLabels', labels);
+            socket.emit('updateCategories', labels);
             console.log('color labels send');
         });
     });
