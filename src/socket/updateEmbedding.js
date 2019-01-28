@@ -47,7 +47,7 @@ export default socket => async (data) => {
     const labels = categories ? buildLabels(categories, nodes) : undefined;
 
     // if new categories comes from server than send new labels back
-    if (labels) socket.emit('updateCategories', labels);
+    if (labels) socket.emit('updateCategories', { labels });
 
     socket.emit('updateEmbedding', { nodes: newNodes });
 };

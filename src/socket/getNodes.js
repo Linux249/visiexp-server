@@ -78,7 +78,7 @@ export default socket => async (data) => {
 
 
     const nodeDataLength = Object.keys(nodes).length;
-    socket.emit('totalNodesCount', nodeDataLength);
+    socket.emit('totalNodesCount', { count: nodeDataLength });
 
     // generate dummy labels
     if (process.env.NODE_ENV === 'development') {
@@ -299,7 +299,7 @@ export default socket => async (data) => {
         // socket.emit('updateKdtree', kdtree)
 
         // sending back the labels and the colors
-        socket.emit('updateCategories', labels);
+        socket.emit('updateCategories', { labels });
         console.log('labels are send');
     });
 };

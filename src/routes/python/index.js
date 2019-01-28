@@ -47,7 +47,7 @@ router.post('/updateEmbedding', async (req, res, next) => {
     const labels = categories ? buildLabels(categories, nodes) : undefined;
     const socket = req.app.io.sockets.sockets[socket_id];
     if (!socket) return next(new Error(`No socket with ID: ${socket_id} found`)); // TODO maybe deliver error to frontend
-    if (labels) socket.emit('updateLabels', labels);
+    if (labels) socket.emit('updateCategories', { labels });
     // confirm is {stopped: true/false}for signaling if the user hast stopped
     socket.emit('updateEmbedding', { nodes }, (confirm) => {
         console.log(confirm);
