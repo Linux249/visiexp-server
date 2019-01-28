@@ -1,16 +1,12 @@
 
-const compareXY = (oldNode, newNode) => {
-    if (oldNode.x !== newNode._x) return true;
-    if (oldNode.y !== newNode._y) return true;
-    return false;
-};
+const compareXY = (oldNode, newNode) => oldNode.x !== newNode._x || oldNode.y !== newNode._y;
 
-const compareLinks = (oldNode, newNode) => {
+/* const compareLinks = (oldNode, newNode) => {
     const oldLinksString = JSON.stringify(oldNode.links);
     const newLinksString = JSON.stringify(newNode.links);
     if (oldLinksString !== newLinksString) return true;
     return false;
-};
+}; */
 
 export function compareAndClean(oldNodes, newNodes) {
     // console.log("stored data")
@@ -23,7 +19,7 @@ export function compareAndClean(oldNodes, newNodes) {
     Object.values(newNodes).forEach(node => (node.labels.length > maxLabels ? maxLabels = node.labels.length : null));
 
     Object.keys(newNodes).forEach((i) => {
-        nodes[i] = {};
+        nodes[i] = Object.create(null);
         // console.log(i)
         // console.log(nodes[i])
         // console.log(newNodes[i])
@@ -33,9 +29,9 @@ export function compareAndClean(oldNodes, newNodes) {
         nodes[i].x = newNodes[i].x;
         nodes[i].y = newNodes[i].y;
 
-        nodes[i].links = newNodes[i].links;
+        // nodes[i].links = newNodes[i].links;
 
-        nodes[i].label = newNodes[i].label;
+        // nodes[i].label = newNodes[i].label;
 
         nodes[i].labels = newNodes[i].labels;
         while (nodes[i].labels.length < maxLabels) {
@@ -44,13 +40,13 @@ export function compareAndClean(oldNodes, newNodes) {
 
         if (Object.keys(oldNodes).length) {
             nodes[i].mPosition = compareXY(oldNodes[i], newNodes[i]);
-            nodes[i].mLinks = compareLinks(oldNodes[i], newNodes[i]);
+            // nodes[i].mLinks = compareLinks(oldNodes[i], newNodes[i]);
 
-            if (nodes[i].mLinks === true) {
-                // console.log("node.mLinks = true")
-            } else if (nodes[i].mLinks === false) {
-                // console.log("nodes[i].mLinks === false")
-            }
+            // if (nodes[i].mLinks === true) {
+            // console.log("node.mLinks = true")
+            // } else if (nodes[i].mLinks === false) {
+            // console.log("nodes[i].mLinks === false")
+            // }
             // console.log(nodes[i])
         }
     });
