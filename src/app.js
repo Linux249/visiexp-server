@@ -25,6 +25,7 @@ import { buildLabels } from './util/buildLabels';
 // import buildTripel from './util/buildTripels';
 import { dataSet } from './config/datasets';
 import { pythonApi } from './config/pythonApi';
+import requestImage from './socket/requestImage';
 // import kdbush from 'kdbush';
 // const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
 const exampleNodes = (process.env.NODE_ENV === 'development') ? require('../mock/2582_sub_wikiarts').default : {};
@@ -91,8 +92,6 @@ app.io = io;
 
 // const stringImgHash = {};       // normal (50,50) images in old architecture
 
-const largeFileHash = {}; // the detailed images witch are loaded if needen
-
 // let nodesStore = {};
 
 // let clusterStore = null;
@@ -148,34 +147,7 @@ io.sockets.on('connection', (socket) => {
     console.log('# sockets connected', io.engine.clientsCount);
 
 
-    socket.on('requestImage', async (data) => {
-        // console.log("requestImage")
-        // console.log(data.name)
-        const { name } = data;
-        if (name) {
-            try {
-                let buffer;
-                if (largeFileHash[name]) {
-                    buffer = largeFileHash[name];
-                } else {
-                    const imagePath = `${imgPath}${name}.jpg`;
-                    const file = await readFile(imagePath);
-                    buffer = file.toString('base64');
-                    largeFileHash[name] = buffer;
-                }
-                socket.emit('receiveImage', {
-                    name,
-                    buffer,
-                    index: data.index,
-                });
-                console.log(`Image is send: ${name}`);
-            } catch (err) {
-                console.error(err);
-            }
-        } else {
-            console.error('that shoud now happen - report please!!! (requests image withoutname');
-        }
-    });
+    socket.on('requestImage', requestImage(socket));
 
     socket.on('updateNodes', async (data) => {
         console.log('updateNodes');

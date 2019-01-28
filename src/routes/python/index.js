@@ -3,8 +3,8 @@ import fetch from 'node-fetch';
 import { compareAndClean } from '../../util/compareAndClean';
 import { mockDataLength } from '../../config/env';
 import buildLabels from '../../util/buildLabels';
-import {getRandomUnusedId} from "../../util/getRandomUnusedId";
-import {pythonApi} from "../../config/pythonApi";
+import { getRandomUnusedId } from '../../util/getRandomUnusedId';
+import { pythonApi } from '../../config/pythonApi';
 
 const router = Router();
 
@@ -39,11 +39,11 @@ router.post('/updateLabels', async (req, res, next) => {
 // This is right now just for the python backend to get data back to UI without request
 router.post('/updateEmbedding', async (req, res, next) => {
     console.log('POST /updateEmbedding');
-    // TODO the dev should get insight what body is transporting
     const { categories, nodes, socket_id } = req.body;
 
     if (!socket_id) return next(new Error('No socket connection'));
 
+    // todo @Katja: why is categories not always inside?
     const labels = categories ? buildLabels(categories, nodes) : undefined;
     const socket = req.app.io.sockets.sockets[socket_id];
     if (!socket) return next(new Error(`No socket with ID: ${socket_id} found`)); // TODO maybe deliver error to frontend
@@ -110,6 +110,7 @@ router.post('/stopUpdateEmbedding', async (req, res, next) => {
     }
 });
 
+// todo @Katja: the groupId should be also returned from python, otherwise the user can select a new active group while the request return
 router.post('/getGroupNeighbours', async (req, res, next) => {
     console.log('POST /getGroupNeighbours');
     console.log(req.body);
