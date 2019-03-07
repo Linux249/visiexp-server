@@ -12,7 +12,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer       # python 2
 import json
 #from compute_embedding_snack import compute_graph
 import time, threading
-import requests
+# import requests
 from random import uniform
 
 StartTime = time.time()
@@ -122,10 +122,10 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             print(data)
 
             # Katjas code goes here
-            data = compute_graph(data)
+            #data = compute_graph(data)
 
             # make json
-            data = json.dumps(data).encode()
+            data = json.dumps({'nodes': {}}).encode()
             self.wfile.write(data)  #body zurueckschicken
 
         if self.path == "/trainSvm":
