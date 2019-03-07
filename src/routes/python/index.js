@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import fetch from 'node-fetch';
 import { compareAndClean } from '../../util/compareAndClean';
-import { mockDataLength } from '../../config/env';
 import buildLabels from '../../util/buildLabels';
 import { getRandomUnusedId } from '../../util/getRandomUnusedId';
 import { pythonApi } from '../../config/pythonApi';
@@ -131,6 +130,7 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
     console.log({ body });
 
     if (process.env.NODE_ENV === 'development') {
+        const mockDataLength = require('../../config/env');
         res.status = 200;
 
         const dumyNeighbours = {};
