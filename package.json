@@ -36,5 +36,8 @@
     "eslint-plugin-import": "^2.15.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "nodemon": "^1.18.9"
+  },
+  "config": {
+    "libvips": "8.7.4"
   }
 }
