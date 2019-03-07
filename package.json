@@ -22,6 +22,7 @@
     "kdbush": "^3.0.0",
     "morgan": "^1.9.1",
     "node-fetch": "^2.3.0",
+    "pm2": "^3.2.9",
     "sharp": "^0.21.3",
     "socket.io": "^2.2.0",
     "supercluster": "^6.0.1",

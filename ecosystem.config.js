@@ -1,7 +1,7 @@
 module.exports = {
     apps: [{
-        name: 'API',
-        script: 'app.js',
+        name: 'API(Node)',
+        script: 'dist/app.js',
         env: {
             NODE_ENV: 'development',
         },

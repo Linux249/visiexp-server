@@ -60,7 +60,7 @@ export default socket => async (data) => {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({
-                    nodes: data.nodes,
+                    // nodes: data.nodes,
                     // tripel,
                 }),
             });

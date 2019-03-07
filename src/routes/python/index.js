@@ -20,7 +20,7 @@ router.post('/updateLabels', async (req, res, next) => {
         console.log('send updateLabels to python');
         try {
             const time = process.hrtime();
-            const data = await fetch(`http://${pythonApi}:8000/updateLabels`, {
+            await fetch(`http://${pythonApi}:8000/updateLabels`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({ nodes }),
