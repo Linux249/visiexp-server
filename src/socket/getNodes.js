@@ -289,6 +289,7 @@ export default socket => async (data) => {
             console.log('Node was not send cause of missing image - how to handle?');
             console.error(err);
             console.log(node.index);
+            console.log(node);
         }
     })).then(() => {
         const diffStartSendNodes = process.hrtime(timeStartSendNodes);
