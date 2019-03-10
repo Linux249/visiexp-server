@@ -3,11 +3,12 @@ module.exports = {
         name: 'API(Node)',
         script: 'dist/app.js',
         env: {
-            NODE_ENV: 'development',
+            NODE_ENV: 'production',
         },
         env_production: {
             NODE_ENV: 'production',
         },
+        watch: true,
     }, {
         name: 'API(python)',
         script: 'server.py',
