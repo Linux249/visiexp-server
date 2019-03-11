@@ -38,7 +38,7 @@ const resizePics = async (imgSizes) => {
     if (fs.existsSync(outImgPath)) {
         console.log(`out dir ${outImgPath}already exists`)
         // delelete folder first
-        throw new Error(`out dir ${outImgPath}already exists - please delete it and restart`);
+        // throw new Error(`out dir ${outImgPath}already exists - please delete it and restart`);
     } else fs.mkdirSync(outImgPath);
     console.log({ outImgPath });
 
