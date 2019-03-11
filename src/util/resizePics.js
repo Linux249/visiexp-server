@@ -41,7 +41,7 @@ const resizePics = async (imgSizes) => {
             const sourceImagePath = path.join(inImgPath, file);
 
             // map through image sizes
-            return Promise.all(imgSizes.map((size) => {
+            await Promise.all(imgSizes.map((size) => {
                 const outPath = path.join(outImgPath, size.toString(), `${file.split('.')[0]}.png`);
                 // if file exists return | is not require cause of return above
                 // if (fs.existsSync(outPath)) return null;
@@ -51,8 +51,6 @@ const resizePics = async (imgSizes) => {
                     .toFile(outPath)
                     .then(() => {
                         if (size === 10 && i && !(i % 100)) {
-                            const diffResizePics = process.hrtime(timeResizePics);
-                            console.log(`saved: ${i}/${count} in ${diffResizePics[0] + diffResizePics[1] / 1e9}s (- )${outPath})`);
                         }
                     })
                     .catch((e) => {
@@ -60,6 +58,8 @@ const resizePics = async (imgSizes) => {
                         console.log({ file, sourceImagePath, outPath });
                     });
             }));
+            const diffResizePics = process.hrtime(timeResizePics);
+            console.log(`saved: ${i}/${count} in ${diffResizePics[0] + diffResizePics[1] / 1e9}s (- )${file})`);
         }));
     } catch (err) {
         if (err) return new Error(err);
