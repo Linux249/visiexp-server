@@ -42,6 +42,7 @@ const resizePics = async (imgSizes) => {
             // path to load img
             const sourceImagePath = path.join(inImgPath, file);
             if (fs.existsSync(sourceImagePath)) console.log(`${sourceImagePath} exists`);
+            else console.log(`${sourceImagePath} check failed`);
             const resize = (size) => {
                 const outPath = path.join(outImgPath, size.toString(), `${file.split('.')[0]}.png`);
                 // if file exists return | is not require cause of return above
