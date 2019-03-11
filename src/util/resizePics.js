@@ -19,7 +19,7 @@ const resizePics = async (imgSizes) => {
     if (!fs.existsSync(inImgPath)) return new Error('Path to images (source) invalid');
     console.log({ inImgPath });
 
-    const outImgPath = path.join('../../images/', datasetName);
+    const outImgPath = path.join(__dirname, '../../images/', datasetName);
     if (fs.existsSync(outImgPath)) return new Error('out dir already exists - please delete it and restart');
     console.log({ outImgPath });
 
