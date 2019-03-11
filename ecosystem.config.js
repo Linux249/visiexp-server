@@ -9,7 +9,7 @@ module.exports = {
             NODE_ENV: 'production',
         },
         watch: true,
-    }, {
+    }, /*{
         name: 'API(python)',
         script: 'server.py',
         env: {
@@ -19,7 +19,7 @@ module.exports = {
             NODE_ENV: 'production',
         },
         watch: true,
-    }],
+    }*/],
 
     deploy: {
         production: {
