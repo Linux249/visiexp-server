@@ -36,14 +36,17 @@ const resizePics = async (imgSizes) => {
 
     const outImgPath = path.join(__dirname, '../../images/', datasetName);
     if (fs.existsSync(outImgPath)) {
-        console.log(`out dir ${outImgPath}already exists`)
+        console.log(`out dir ${outImgPath}already exists`);
         // delelete folder first
         // throw new Error(`out dir ${outImgPath}already exists - please delete it and restart`);
     } else fs.mkdirSync(outImgPath);
     console.log({ outImgPath });
 
     // create all images size dirs
-    imgSizes.forEach(size => fs.mkdirSync(path.join(outImgPath, size.toString())));
+    imgSizes.forEach((size) => {
+        const sizeFolder = path.join(outImgPath, size.toString());
+        if (!fs.existsSync(sizeFolder)) fs.mkdirSync(sizeFolder);
+    });
 
     // console.log(imgPath);
     try {
