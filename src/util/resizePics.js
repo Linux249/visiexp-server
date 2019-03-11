@@ -58,23 +58,23 @@ const resizePics = async (imgSizes) => {
             // build path to img and resolce sym links
 
 
-            const realtivPath = path.join(inImgPath, file)
-            console.log(`realtivPath: ${realtivPath}`);
+            const realtivPath = path.join(inImgPath, file);
+            // console.log(`realtivPath: ${realtivPath}`);
             const sourceImagePath = fs.realpathSync(realtivPath);
 
-            console.log(`check: ${sourceImagePath}`);
-            try {
-                fs.accessSync(sourceImagePath, fs.constants.F_OK);
-                console.log('file exists');
-                fs.accessSync(sourceImagePath, fs.constants.R_OK);
-                console.log('can read');
-                fs.accessSync(sourceImagePath, fs.constants.W_OK);
-                console.log('can write');
-            } catch (err) {
-                console.error('no access!');
-                console.error(err);
-                return;
-            }
+            // console.log(`check: ${sourceImagePath}`);
+            // try {
+            //     fs.accessSync(sourceImagePath, fs.constants.F_OK);
+            //     console.log('file exists');
+            //     fs.accessSync(sourceImagePath, fs.constants.R_OK);
+            //     console.log('can read');
+            //     fs.accessSync(sourceImagePath, fs.constants.W_OK);
+            //     console.log('can write');
+            // } catch (err) {
+            //     console.error('no access!');
+            //     console.error(err);
+            //     return;
+            // }
             const resize = (size) => {
                 const outPath = path.join(outImgPath, size.toString(), `${file.split('.')[0]}.png`);
                 // if file exists return | is not require cause of return above
