@@ -19,19 +19,19 @@ const resizePics = async (imgSizes) => {
     if (!fs.existsSync(inImgPath)) throw new Error('Path to images (source) invalid');
     console.log({ inImgPath });
 
-    console.log(`check: ${inImgPath}`);
-    try {
-        fs.accessSync(inImgPath, fs.constants.F_OK);
-        console.log('inImgPath exists');
-        fs.accessSync(inImgPath, fs.constants.R_OK);
-        console.log('can read inImgPath');
-        fs.accessSync(inImgPath, fs.constants.W_OK);
-        console.log('can write inImgPath');
-    } catch (err) {
-        console.error('no access inImgPath!');
-        console.error(err);
-        return;
-    }
+    // console.log(`check: ${inImgPath}`);
+    // try {
+    //     fs.accessSync(inImgPath, fs.constants.F_OK);
+    //     console.log('inImgPath exists');
+    //     fs.accessSync(inImgPath, fs.constants.R_OK);
+    //     console.log('can read inImgPath');
+    //     fs.accessSync(inImgPath, fs.constants.W_OK);
+    //     console.log('can write inImgPath');
+    // } catch (err) {
+    //     console.error('no access inImgPath!');
+    //     console.error(err);
+    //     return;
+    // }
 
 
     const outImgPath = path.join(__dirname, '../../images/', datasetName);
@@ -55,24 +55,24 @@ const resizePics = async (imgSizes) => {
             // todo that should never be happen again but maybe is usefull later
             if (imgSizes.includes(+file)) continue;
             // path to load img
-            const sourceImagePath = path.join(inImgPath, file);
+            // build path to img and resolce sym links
 
-            console.log(`check: ${sourceImagePath}`);
-            try {
-                fs.accessSync(sourceImagePath, fs.constants.F_OK);
-                console.log('file exists');
-                fs.accessSync(sourceImagePath, fs.constants.R_OK);
-                console.log('can read');
-                fs.accessSync(sourceImagePath, fs.constants.W_OK);
-                console.log('can write');
-            } catch (err) {
-                console.error('no access!');
-                console.error(err);
-                return;
-            }
 
-            if (fs.existsSync(sourceImagePath)) console.log(`${sourceImagePath} exists`);
-            else console.log(`${sourceImagePath} check failed`);
+            const sourceImagePath = fs.realpathSync(path.join(inImgPath, file));
+
+            // console.log(`check: ${sourceImagePath}`);
+            // try {
+            //     fs.accessSync(sourceImagePath, fs.constants.F_OK);
+            //     console.log('file exists');
+            //     fs.accessSync(sourceImagePath, fs.constants.R_OK);
+            //     console.log('can read');
+            //     fs.accessSync(sourceImagePath, fs.constants.W_OK);
+            //     console.log('can write');
+            // } catch (err) {
+            //     console.error('no access!');
+            //     console.error(err);
+            //     return;
+            // }
             const resize = (size) => {
                 const outPath = path.join(outImgPath, size.toString(), `${file.split('.')[0]}.png`);
                 // if file exists return | is not require cause of return above
@@ -97,7 +97,7 @@ const resizePics = async (imgSizes) => {
         }
     // ));
     } catch (err) {
-        if (err) return new Error(err);
+        if (err) throw new Error(err);
     }
     console.timeEnd('resizePics');
 };
@@ -111,5 +111,6 @@ resizePics(sizes).then((e) => {
     console.log('Finished: all images resized');
 }).catch((err) => {
     console.error('Error: resizePics not finished');
+    console.error(err.message);
     console.error(err);
 });

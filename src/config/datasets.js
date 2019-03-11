@@ -57,7 +57,7 @@ const prodDataSet = [
         id: '001',
         name: 'AwA2_vectors_train',
         description: 'description text missing',
-        imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/JPEGImages/zebra',
+        imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/JPEGImages/zebr',
     }, {
         id: '002',
         name: 'AwA2_vectors_test',
