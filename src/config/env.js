@@ -1,3 +1,3 @@
 // stuff that changes through env
 
-export const mockDataLength = 500;
+export const mockDataLength = 50;

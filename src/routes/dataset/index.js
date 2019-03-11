@@ -19,6 +19,7 @@ router.get('/all', async (req, res) => {
 });
 
 router.get('/stream', async (req, res, next) => {
+    if(process.env.NODE_ENV === 'production') return next() // route is still in dev
     const readStream = new Readable({ read() {} });
     //res.header('Content-type: application/octet-stream')
     res.set('Content-type', 'application/octet-stream')
