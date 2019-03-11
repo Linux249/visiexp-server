@@ -16,7 +16,7 @@ const resizePics = async (imgSizes) => {
 
     // absolute source of images
     const inImgPath = dataSets[0].imgPath;
-    if (!fs.existsSync(inImgPath)) throw new Error('Path to images (source) invalid');
+    if (!fs.existsSync(inImgPath)) throw new Error(`Path to images (source) invalid: ${inImgPath}`);
     console.log({ inImgPath });
 
     // console.log(`check: ${inImgPath}`);
@@ -35,7 +35,7 @@ const resizePics = async (imgSizes) => {
 
 
     const outImgPath = path.join(__dirname, '../../images/', datasetName);
-    if (fs.existsSync(outImgPath)) throw new Error('out dir already exists - please delete it and restart');
+    if (fs.existsSync(outImgPath)) throw new Error(`out dir ${outImgPath}already exists - please delete it and restart`);
     fs.mkdirSync(outImgPath);
     console.log({ outImgPath });
 
