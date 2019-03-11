@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# create symlinks https://stackoverflow.com/questions/1347105/linux-link-all-files-from-one-to-another-directory
 path="/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2"
 
 newDir="$path/single_folder_images2/"
