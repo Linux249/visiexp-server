@@ -49,7 +49,7 @@ const resizePics = async (imgSizes) => {
                     .resize(size, size, { fit: 'inside' })
                     .ensureAlpha()
                     .toFile(outPath)
-                    .then((_) => {
+                    .then(() => {
                         if (size === 10 && i && !(i % 100)) {
                             const diffResizePics = process.hrtime(timeResizePics);
                             console.log(`saved: ${i}/${count} in ${diffResizePics[0] + diffResizePics[1] / 1e9}s (- )${outPath})`);
@@ -57,7 +57,7 @@ const resizePics = async (imgSizes) => {
                     })
                     .catch((e) => {
                         console.error(e);
-                        console.log({ file, path: sourceImagePath, outPath });
+                        console.log({ file, sourceImagePath, outPath });
                     });
             }));
         }));
