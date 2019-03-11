@@ -41,9 +41,7 @@ const resizePics = async (imgSizes) => {
             if (imgSizes.includes(+file)) return null;
             // path to load img
             const sourceImagePath = path.join(inImgPath, file);
-
-            // map through image sizes
-            await Promise.all(imgSizes.map((size) => {
+            const resize = (size) => {
                 const outPath = path.join(outImgPath, size.toString(), `${file.split('.')[0]}.png`);
                 // if file exists return | is not require cause of return above
                 // if (fs.existsSync(outPath)) return null;
@@ -51,17 +49,19 @@ const resizePics = async (imgSizes) => {
                     .resize(size, size, { fit: 'inside' })
                     .ensureAlpha()
                     .toFile(outPath)
-                    .then(() => {
-                        if (size === 10 && i && !(i % 100)) {
-                        }
-                    })
                     .catch((e) => {
                         console.error(e);
                         console.log({ file, sourceImagePath, outPath });
                     });
-            }));
-            const diffResizePics = process.hrtime(timeResizePics);
-            console.log(`saved: ${i}/${count} in ${diffResizePics[0] + diffResizePics[1] / 1e9}s (- )${file})`);
+            };
+
+            // map through image sizes
+            await Promise.all(imgSizes.map(resize)).then(() => {
+                if (i && !(i % 100)) {
+                    const diffResizePics = process.hrtime(timeResizePics);
+                    console.log(`saved: ${i}/${count} in ${diffResizePics[0] + diffResizePics[1] / 1e9}s (- )${file})`);
+                }
+            });
         }
     // ));
     } catch (err) {
