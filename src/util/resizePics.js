@@ -33,7 +33,9 @@ const resizePics = async (imgSizes) => {
         const count = sourceFiles.length;
         console.log(`start resizing ${count} pics`);
         // map through files
-        await Promise.all(sourceFiles.map(async (file, i) => {
+        // await Promise.all(sourceFiles.map(async (file, i) =>
+        for (let i = 0; i < count; i += 1) {
+            const file = sourceFiles[i];
             // check if file is a folder (10, 20, ...)
             // todo that should never be happen again but maybe is usefull later
             if (imgSizes.includes(+file)) return null;
@@ -60,7 +62,8 @@ const resizePics = async (imgSizes) => {
             }));
             const diffResizePics = process.hrtime(timeResizePics);
             console.log(`saved: ${i}/${count} in ${diffResizePics[0] + diffResizePics[1] / 1e9}s (- )${file})`);
-        }));
+        }
+    // ));
     } catch (err) {
         if (err) return new Error(err);
     }
