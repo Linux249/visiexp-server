@@ -58,7 +58,9 @@ const resizePics = async (imgSizes) => {
             // build path to img and resolce sym links
 
 
-            const sourceImagePath = fs.realpathSync(path.join(inImgPath, file));
+            const realtivPath = path.join(inImgPath, file)
+            console.log(`realtivPath: ${realtivPath}`);
+            const sourceImagePath = fs.realpathSync(realtivPath);
 
             console.log(`check: ${sourceImagePath}`);
             try {
