@@ -19,6 +19,20 @@ const resizePics = async (imgSizes) => {
     if (!fs.existsSync(inImgPath)) throw new Error('Path to images (source) invalid');
     console.log({ inImgPath });
 
+    console.log(`check: ${inImgPath}`);
+    try {
+        fs.accessSync(inImgPath, fs.constants.F_OK);
+        console.log('inImgPath exists');
+        fs.accessSync(inImgPath, fs.constants.R_OK);
+        console.log('can read inImgPath');
+        fs.accessSync(inImgPath, fs.constants.W_OK);
+        console.log('can write inImgPath');
+    } catch (err) {
+        console.error('no access inImgPath!');
+        console.error(err);
+        return;
+    }
+
 
     const outImgPath = path.join(__dirname, '../../images/', datasetName);
     if (fs.existsSync(outImgPath)) throw new Error('out dir already exists - please delete it and restart');
@@ -45,16 +59,16 @@ const resizePics = async (imgSizes) => {
 
             console.log(`check: ${sourceImagePath}`);
             try {
-                fs.accessSync(sourceImagePath, fs.constants.F_OK );
-                console.log('file exists')
-                fs.accessSync(sourceImagePath, fs.constants.R_OK );
-                console.log('can read')
-                fs.accessSync(sourceImagePath, fs.constants.W_OK );
+                fs.accessSync(sourceImagePath, fs.constants.F_OK);
+                console.log('file exists');
+                fs.accessSync(sourceImagePath, fs.constants.R_OK);
+                console.log('can read');
+                fs.accessSync(sourceImagePath, fs.constants.W_OK);
                 console.log('can write');
             } catch (err) {
                 console.error('no access!');
-                console.error(err)
-                return
+                console.error(err);
+                return;
             }
 
             if (fs.existsSync(sourceImagePath)) console.log(`${sourceImagePath} exists`);
