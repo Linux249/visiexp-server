@@ -10,7 +10,7 @@ for d in $(find ${path}/JPEGImages -maxdepth 1 -type d)
 do
   #Do something, the directory is accessible with $d:
   echo ${d}
-  #ln -s ${d}/* ${path}/single_folder_images2/
+  ln -s ${d}/* ${newDir}
 done
 
 #ln -s ${path}/JPEGImages/antelope/* ${path}/single_folder_images2/
