@@ -57,7 +57,7 @@ const prodDataSet = [
         id: '001',
         name: 'AwA2_vectors_train',
         description: 'description text missing',
-        imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images',
+        imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
     }, {
         id: '002',
         name: 'AwA2_vectors_test',
