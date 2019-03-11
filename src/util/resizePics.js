@@ -16,11 +16,12 @@ const resizePics = async (imgSizes) => {
 
     // absolute source of images
     const inImgPath = dataSets[0].imgPath;
-    if (!fs.existsSync(inImgPath)) return new Error('Path to images (source) invalid');
+    if (!fs.existsSync(inImgPath)) throw new Error('Path to images (source) invalid');
     console.log({ inImgPath });
 
+
     const outImgPath = path.join(__dirname, '../../images/', datasetName);
-    if (fs.existsSync(outImgPath)) return new Error('out dir already exists - please delete it and restart');
+    if (fs.existsSync(outImgPath)) throw new Error('out dir already exists - please delete it and restart');
     fs.mkdirSync(outImgPath);
     console.log({ outImgPath });
 
@@ -41,6 +42,21 @@ const resizePics = async (imgSizes) => {
             if (imgSizes.includes(+file)) continue;
             // path to load img
             const sourceImagePath = path.join(inImgPath, file);
+
+            console.log(`check: ${sourceImagePath}`);
+            try {
+                fs.accessSync(sourceImagePath, fs.constants.F_OK );
+                console.log('file exists')
+                fs.accessSync(sourceImagePath, fs.constants.R_OK );
+                console.log('can read')
+                fs.accessSync(sourceImagePath, fs.constants.W_OK );
+                console.log('can write');
+            } catch (err) {
+                console.error('no access!');
+                console.error(err)
+                return
+            }
+
             if (fs.existsSync(sourceImagePath)) console.log(`${sourceImagePath} exists`);
             else console.log(`${sourceImagePath} check failed`);
             const resize = (size) => {
