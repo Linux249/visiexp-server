@@ -14,9 +14,9 @@
 const devDataSets = [
     {
         id: '001',
-        name: 'test-1 - 2582_sub_wikiarts',
+        name: '2582_sub_wikiarts-90',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
-        imgPath: `${__dirname}/../../images/2582_sub_wikiarts`,
+        imgPath: `${__dirname}/../../images/2582_sub_wikiarts#90`,
         mockDataFile: '',
         count: 50,
     }, {
