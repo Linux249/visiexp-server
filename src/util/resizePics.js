@@ -3,45 +3,47 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 import sizes from '../config/imgSizes';
-import imagePath from '../config/imgPath';
-import { dataSet } from '../config/datasets';
+import dataSets from '../config/datasets';
 
 const fsp = fs.promises;
 
-const resizePics = async (imgPath, imgSizes) => {
-    console.log(`path: ${imgPath}`);
+const resizePics = async (imgSizes) => {
     console.time('resizePics');
     const timeResizePics = process.hrtime();
 
-    // check the hole path
-    if (!fs.existsSync(imgPath)) return new Error('Pfad zu Bilder in resizePics ungültig');
-    // create all dirs
-    imgSizes.forEach((size) => {
-        const dir = path.join(imgPath, size.toString());
-        // console.log(dir);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir);
-        else console.warn('dir allready exists - doing nothing now');
-    });
+    // todo later all sets
+    const datasetName = dataSets[0].name;
+
+    // absolute source of images
+    const inImgPath = dataSets[0].imgPath;
+    if (!fs.existsSync(inImgPath)) return new Error('Path to images (source) invalid');
+    console.log({ inImgPath });
+
+    const outImgPath = path.join('../../images/', datasetName);
+    if (fs.existsSync(outImgPath)) return new Error('out dir already exists - please delete it and restart');
+    console.log({ outImgPath });
+
+    // create all images size dirs
+    imgSizes.forEach(size => fs.mkdirSync(path.join(outImgPath, size.toString())));
 
     // console.log(imgPath);
     try {
-        const files = await fsp.readdir(imgPath);
-        const count = files.length;
+        const sourceFiles = await fsp.readdir(inImgPath);
+        const count = sourceFiles.length;
         console.log(`start resizing ${count} pics`);
         // map through files
-        await Promise.all(files.map(async (file, i) => {
+        await Promise.all(sourceFiles.map(async (file, i) => {
             // check if file is a folder (10, 20, ...)
+            // todo that should never be happen again but maybe is usefull later
             if (imgSizes.includes(+file)) return null;
             // path to load img
-            const sourceImagePath = path.join(imgPath, file);
-
+            const sourceImagePath = path.join(inImgPath, file);
 
             // map through image sizes
             return Promise.all(imgSizes.map((size) => {
-                const outPath = path.join(imgPath, size.toString(), `${file.split('.')[0]}.png`);
-                // if file exists return
-                if (fs.existsSync(outPath)) return null;
-                // todo chekc sharp newest version, issue #1153 seems to add a new method for alpha
+                const outPath = path.join(outImgPath, size.toString(), `${file.split('.')[0]}.png`);
+                // if file exists return | is not require cause of return above
+                // if (fs.existsSync(outPath)) return null;
                 return sharp(sourceImagePath)
                     .resize(size, size, { fit: 'inside' })
                     .ensureAlpha()
@@ -67,8 +69,9 @@ const resizePics = async (imgPath, imgSizes) => {
 
 export default resizePics;
 
-const testPath = 'C:/Users/libor/bachelor-node/images/2582_sub_wikiarts#90/';
-resizePics(imagePath, sizes).then((e) => {
+// const testPath = 'C:/Users/libor/bachelor-node/images/2582_sub_wikiarts#90/';
+
+resizePics(sizes).then((e) => {
     console.log('Finished: all images resized');
 }).catch((err) => {
     console.error('Error: resizePics not finished');

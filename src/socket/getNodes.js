@@ -9,8 +9,11 @@ import { pythonApi } from '../config/pythonApi';
 // import { colorTable } from '../config/colors';
 import { imgSizes } from '../config/imgSizes';
 import imgPath from '../config/imgPath';
+import dataSets from '../config/datasets';
 
-const exampleNodes = (process.env.NODE_ENV === 'development') ? require('../../mock/2582_sub_wikiarts').default : {};
+const exampleNodes = (process.env.NODE_ENV === 'development')
+    ? require('../../mock/2582_sub_wikiarts').default
+    : {};
 
 export default socket => async (data) => {
     console.log('getNodes');
@@ -23,6 +26,10 @@ export default socket => async (data) => {
     // the nodes object for mutating differently in dev mode
     let nodes = {};
     let categories = [];
+    const { datasetId } = data;
+    const dataset = dataSets.find(e => e.id === datasetId);
+    if(!dataset) console.error('No valid dataset') // TODO Error handling, maybe a error emit
+
 
     // build tripel from data
     // console.log('buildTripel');
@@ -60,6 +67,7 @@ export default socket => async (data) => {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({
+                    dataset: dataset.name,
                     // nodes: data.nodes,
                     // tripel,
                 }),
@@ -257,7 +265,7 @@ export default socket => async (data) => {
             // new architecture 2
 
             await Promise.all(imgSizes.map(async (size) => {
-                const filePath = path.join(imgPath, size.toString(), `${node.name}.png`);
+                const filePath = path.join(imgPath, dataset.name, size.toString(), `${node.name}.png`);
                 node.pics[size] = await sharp(filePath)
                     .raw()
                     .toBuffer({ resolveWithObject: true });
