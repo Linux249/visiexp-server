@@ -243,7 +243,7 @@ export default socket => async (data) => {
 
         node.pics = Object.create(null);
         // node.cached = false; // this is interesting while performance messearuing
-        node.url = `/images_3000/${node.name}.jpg`;
+        // node.url = `/images_3000/${node.name}.jpg`;
 
         try {
             // if (scaledPicsHash[node.name]) {
