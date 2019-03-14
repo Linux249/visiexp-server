@@ -265,7 +265,7 @@ export default socket => async (data) => {
             // new architecture 2
 
             await Promise.all(imgSizes.map(async (size) => {
-                const filePath = path.join(imgPath, dataset.name, size.toString(), `${node.name}.png`);
+                const filePath = path.join(dataset.imgPath, size.toString(), `${node.name}.png`);
                 console.log({filePath })
                 node.pics[size] = await sharp(filePath)
                     .raw()
