@@ -28,7 +28,7 @@ export default socket => async (data) => {
     let categories = [];
     const { datasetId } = data;
     const dataset = dataSets.find(e => e.id === datasetId);
-    if(!dataset) console.error('No valid dataset') // TODO Error handling, maybe a error emit
+    if (!dataset) console.error('No valid dataset'); // TODO Error handling, maybe a error emit
 
 
     // build tripel from data
@@ -263,23 +263,25 @@ export default socket => async (data) => {
             // stringImgHash[node.name] = node.buffer; // save for faster reload TODO test with lots + large image
 
             // new architecture 2
-
-            // await Promise.all(imgSizes.map(async (size) => {
-            //     const filePath = path.join(imgPath, dataset.name, size.toString(), `${node.name}.png`);
-            //     console.log({filePath })
-            //     node.pics[size] = await sharp(filePath)
-            //         .raw()
-            //         .toBuffer({ resolveWithObject: true });
-            // }));
-            await Promise.all(imgSizes.map(async (size) => {
-                const filePath = path.join(dataset.imgPath, `${node.name}.jpg`);
-                console.log({filePath })
-                node.pics[size] = await sharp(filePath)
-                    .resize(size, size, { fit: 'inside' })
-                    .ensureAlpha()
-                    .raw()
-                    .toBuffer({ resolveWithObject: true });
-            }));
+            if (dataset.reszied) {
+                await Promise.all(imgSizes.map(async (size) => {
+                    const filePath = path.join(imgPath, dataset.name, size.toString(), `${node.name}.png`);
+                    console.log({ filePath });
+                    node.pics[size] = await sharp(filePath)
+                        .raw()
+                        .toBuffer({ resolveWithObject: true });
+                }));
+            } else {
+                await Promise.all(imgSizes.map(async (size) => {
+                    const filePath = path.join(dataset.imgPath, `${node.name}.jpg`);
+                    console.log({ filePath });
+                    node.pics[size] = await sharp(filePath)
+                        .resize(size, size, { fit: 'inside' })
+                        .ensureAlpha()
+                        .raw()
+                        .toBuffer({ resolveWithObject: true });
+                }));
+            }
             // scaledPicsHash[node.name] = node.pics;
 
             // new archetecture 1
