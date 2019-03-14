@@ -83,7 +83,7 @@ const prodDataSet = [
     },
 ];
 
-export const dataSet = process.env.NODE_ENV === 'production' ? prodDataSet : devDataSets;
+export const dataSet = process.env.NODE_ENV === 'development' ? devDataSets : prodDataSet;
 
 export default dataSet;
 
