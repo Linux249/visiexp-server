@@ -1,4 +1,4 @@
-No valid datasetimport path from 'path';
+import path from 'path';
 import fetch from 'node-fetch';
 import clusterfck from 'tayden-clusterfck';
 import sharp from 'sharp';
