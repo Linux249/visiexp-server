@@ -1,4 +1,4 @@
-import path from 'path';
+No valid datasetimport path from 'path';
 import fetch from 'node-fetch';
 import clusterfck from 'tayden-clusterfck';
 import sharp from 'sharp';
@@ -28,7 +28,12 @@ export default socket => async (data) => {
     let categories = [];
     const { datasetId } = data;
     const dataset = dataSets.find(e => e.id === datasetId);
-    if (!dataset) console.error('No valid dataset'); // TODO Error handling, maybe a error emit
+    if (!dataset) {
+        // TODO Error handling, maybe a error emit
+        console.error('No valid dataset');
+        console.log({dataset, datasetId, dataSets})
+        return socket.emit('Error', {message: 'Error while reading datasetname'})
+    }
 
 
     // build tripel from data
@@ -79,6 +84,7 @@ export default socket => async (data) => {
             const diff2 = process.hrtime(time2);
             console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
         } catch (err) {
+            // todo bedder error handling, return and emit to inform user
             console.error('error - get nodes from python - error');
             console.error(err);
         }
