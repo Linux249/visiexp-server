@@ -31,7 +31,7 @@ export default socket => async (data) => {
     if (!dataset) {
         // TODO Error handling, maybe a error emit
         console.error('No valid dataset');
-        console.log({dataset, datasetId, dataSets})
+        console.error({dataset, datasetId, dataSets})
         return socket.emit('Error', {message: 'Error while reading datasetname'})
     }
 

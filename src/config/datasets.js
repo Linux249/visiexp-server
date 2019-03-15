@@ -57,11 +57,11 @@ Wikiart_Elgammal_EQ_artist_*
  */
 const prodDataSet = [
     {
-        id: '003',
+        id: '001',
         name: 'Wikiart_artist49_images',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_artist49_images/',
-        count: 50,
+        count: 5000,
         resized: false,
     }, /* {
         id: '004',
