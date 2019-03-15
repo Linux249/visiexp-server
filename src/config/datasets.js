@@ -57,30 +57,30 @@ Wikiart_Elgammal_EQ_artist_*
  */
 const prodDataSet = [
     {
-        id: '001',
+        id: '004',
         name: 'Wikiart_artist49_images',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_artist49_images/',
         count: 5000,
         resized: false,
-    }, /* {
-        id: '004',
+    },  {
+        id: '001',
         name: 'Wikiart_Elgammal',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_Elgammal/',
         count: 50,
         resized: false,
-    }, */{
+    }, {
         id: '002',
         name: 'AwA2_vectors_train',
         description: 'description text missing',
         imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
         resized: false,
     }, {
-        id: '002',
+        id: '003',
         name: 'AwA2_vectors_test',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
-        imgPath: 'Kompletter pfad zu Bildern',
+        imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
         resized: false,
     },
 ];

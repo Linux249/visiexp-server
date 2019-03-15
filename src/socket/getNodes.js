@@ -285,7 +285,7 @@ export default socket => async (data) => {
             } else {
                 await Promise.all(imgSizes.map(async (size) => {
                     const filePath = path.join(dataset.imgPath, `${node.name}.jpg`);
-                    console.log({ filePath });
+                    // console.log({ filePath });
                     node.pics[size] = await sharp(filePath)
                         .resize(size, size, { fit: 'inside' })
                         .png()
