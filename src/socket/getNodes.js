@@ -275,7 +275,11 @@ export default socket => async (data) => {
                     console.log({ filePath });
                     node.pics[size] = await sharp(filePath)
                         .raw()
-                        .toBuffer({ resolveWithObject: true });
+                        .toBuffer({ resolveWithObject: true })
+                        .catch(e => {
+                            console.warn(filePath)
+                            throw Error(e)
+                        });
                 }));
             } else {
                 await Promise.all(imgSizes.map(async (size) => {
@@ -285,7 +289,11 @@ export default socket => async (data) => {
                         .resize(size, size, { fit: 'inside' })
                         .ensureAlpha()
                         .raw()
-                        .toBuffer({ resolveWithObject: true });
+                        .toBuffer({ resolveWithObject: true })
+                        .catch(e => {
+                            console.warn(filePath)
+                            throw Error(e)
+                        });
                 }));
             }
             // scaledPicsHash[node.name] = node.pics;
