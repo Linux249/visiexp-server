@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import fetch from 'node-fetch';
 import clusterfck from 'tayden-clusterfck';
 import sharp from 'sharp';
@@ -287,11 +288,13 @@ export default socket => async (data) => {
                     console.log({ filePath });
                     node.pics[size] = await sharp(filePath)
                         .resize(size, size, { fit: 'inside' })
+                        .png()
                         .ensureAlpha()
                         .raw()
                         .toBuffer({ resolveWithObject: true })
                         .catch(e => {
                             console.warn(filePath)
+                            console.log('exists?: ' + fs.existsSync(filePath))
                             throw Error(e)
                         });
                 }));
