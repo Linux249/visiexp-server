@@ -19,7 +19,7 @@ router.post('/updateLabels', async (req, res, next) => {
         console.log('send updateLabels to python');
         try {
             const time = process.hrtime();
-            await fetch(`http://${pythonApi}:8000/updateLabels`, {
+            await fetch(`${pythonApi}/updateLabels`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({ nodes }),
@@ -67,7 +67,7 @@ router.post('/startUpdateEmbedding', async (req, res, next) => {
 
     try {
         const time = process.hrtime();
-        await fetch(`http://${pythonApi}:8000/startUpdateEmbedding`, {
+        await fetch(`${pythonApi}/startUpdateEmbedding`, {
             method: 'POST',
             header: { 'Content-type': 'application/json' },
             body: JSON.stringify(body),
@@ -96,7 +96,7 @@ router.post('/stopUpdateEmbedding', async (req, res, next) => {
 
     try {
         const time = process.hrtime();
-        const data = await fetch(`http://${pythonApi}:8000/stopUpdateEmbedding`, {
+        const data = await fetch(`${pythonApi}/stopUpdateEmbedding`, {
             method: 'POST',
             header: { 'Content-type': 'application/json' },
             body: JSON.stringify(body),
@@ -147,7 +147,7 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
     } else {
         try {
             const time = process.hrtime();
-            const data = await fetch(`http://${pythonApi}:8000/getGroupNeighbours`, {
+            const data = await fetch(`${pythonApi}/getGroupNeighbours`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify(body),

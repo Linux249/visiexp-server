@@ -26,7 +26,7 @@ export default socket => async (data) => {
     } else {
         try {
             const time2 = process.hrtime();
-            const res = await fetch(`http://${pythonApi}:8000/nodes`, {
+            const res = await fetch(`${pythonApi}/nodes`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({ nodes }),

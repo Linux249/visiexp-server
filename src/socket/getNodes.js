@@ -32,8 +32,8 @@ export default socket => async (data) => {
     if (!dataset) {
         // TODO Error handling, maybe a error emit
         console.error('No valid dataset');
-        console.error({dataset, datasetId, dataSets})
-        return socket.emit('Error', {message: 'Error while reading datasetname'})
+        console.error({ dataset, datasetId, dataSets });
+        return socket.emit('Error', { message: 'Error while reading datasetname' });
     }
 
 
@@ -69,12 +69,12 @@ export default socket => async (data) => {
 
         try {
             const time2 = process.hrtime();
-            const res = await fetch(`http://${pythonApi}:8000/nodes`, {
+            const res = await fetch(`${pythonApi}/nodes`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({
                     dataset: dataset.name,
-                    // nodes: data.nodes,
+                    count: 2000,
                     // tripel,
                 }),
             });
@@ -277,9 +277,9 @@ export default socket => async (data) => {
                     node.pics[size] = await sharp(filePath)
                         .raw()
                         .toBuffer({ resolveWithObject: true })
-                        .catch(e => {
-                            console.warn(filePath)
-                            throw Error(e)
+                        .catch((e) => {
+                            console.warn(filePath);
+                            throw Error(e);
                         });
                 }));
             } else {
@@ -292,10 +292,10 @@ export default socket => async (data) => {
                         .ensureAlpha()
                         .raw()
                         .toBuffer({ resolveWithObject: true })
-                        .catch(e => {
-                            console.warn(filePath)
-                            console.log('exists?: ' + fs.existsSync(filePath))
-                            throw Error(e)
+                        .catch((e) => {
+                            console.warn(filePath);
+                            console.log(`exists?: ${fs.existsSync(filePath)}`);
+                            throw Error(e);
                         });
                 }));
             }

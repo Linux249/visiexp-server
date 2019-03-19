@@ -14,7 +14,7 @@ router.post('/train', async (req, res) => {
 
         try {
             const time = process.hrtime();
-            const data = await fetch(`http://${pythonApi}:8000/trainSvm`, {
+            const data = await fetch(`${pythonApi}/trainSvm`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify(req.body),
@@ -38,7 +38,7 @@ router.post('/stop', async (req, res) => {
         console.log('send stopSvm to python');
         try {
             const time = process.hrtime();
-            const data = await fetch(`http://${pythonApi}:8000/stopSvm`, {
+            const data = await fetch(`${pythonApi}/stopSvm`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
             }).then(response => response.json());

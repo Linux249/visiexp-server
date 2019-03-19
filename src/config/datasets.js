@@ -9,44 +9,6 @@
     }
  */
 
-// dev mode
-const devDataSets = [
-    {
-        id: '001',
-        name: '2582_sub_wikiarts',
-        description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
-        imgPath: `${__dirname}/../../images/2582_sub_wikiarts#90`,
-        mockDataFile: '',
-        count: 50,
-        resized: true,
-    }, {
-        id: '002',
-        name: 'test-2 - bla bla',
-        description: 'description text missing',
-        imgPath: `${__dirname}/../../images/2582_sub_wikiarts`,
-        mockDataFile: '',
-        count: 50,
-        resized: true,
-
-    },
-    /* {
-        id: '002',
-        name: 'test-2',
-        description: 'this contains X Nodes, \n Y datas, Z cliques, \n K ranks',
-        imgPath: `${__dirname}/../../images/images_3000/`,
-        mockDataFile: '',
-        count: 100,
-    },
-    {
-        id: '003',
-        name: 'test-3',
-        description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
-        imgPath: `${__dirname}/../../images/2582_sub_wikiarts/`,
-        mockDataFile: '',
-    }, */
-
-];
-
 const prodDataSet = [
     {
         id: '002',
@@ -108,6 +70,44 @@ const prodDataSet = [
         resized: false,
     },
 ];
+
+// dev mode
+const devDataSets = [
+    {
+        id: '001',
+        name: '2582_sub_wikiarts',
+        description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
+        imgPath: `${__dirname}/../../images/2582_sub_wikiarts#90`,
+        mockDataFile: '',
+        count: 50,
+        resized: true,
+    }, {
+        id: '002',
+        name: 'test-2 - bla bla',
+        description: 'description text missing',
+        imgPath: `${__dirname}/../../images/2582_sub_wikiarts`,
+        mockDataFile: '',
+        count: 50,
+        resized: true,
+
+    },
+    /* {
+        id: '002',
+        name: 'test-2',
+        description: 'this contains X Nodes, \n Y datas, Z cliques, \n K ranks',
+        imgPath: `${__dirname}/../../images/images_3000/`,
+        mockDataFile: '',
+        count: 100,
+    },
+    {
+        id: '003',
+        name: 'test-3',
+        description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
+        imgPath: `${__dirname}/../../images/2582_sub_wikiarts/`,
+        mockDataFile: '',
+    }, */
+];
+
 
 export const dataSet = process.env.NODE_ENV === 'development' ? devDataSets : prodDataSet;
 
