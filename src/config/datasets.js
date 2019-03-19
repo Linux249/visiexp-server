@@ -55,14 +55,17 @@ Wikiart_Elgammal_EQ_artist_*
 Wikiart_Elgammal_EQ_genre_*
 Wikiart_Elgammal_EQ_artist_*
  */
+Wikiart_Elgammal_EQ_genre_*
+Wikiart_Elgammal_EQ_artist_*
 const prodDataSet = [
     {
-        id: '003',
+        id: '001',
         name: 'Wikiart_artist49_images',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_artist49_images/',
-        count: 50,
+        count: 16179,
         resized: false,
+        imagesInPath: true
     }, /* {
         id: '004',
         name: 'Wikiart_Elgammal',
@@ -75,12 +78,48 @@ const prodDataSet = [
         name: 'AwA2_vectors_train',
         description: 'description text missing',
         imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
-        resized: false,
+        resized: true,
     }, {
-        id: '002',
+        id: '003',
         name: 'AwA2_vectors_test',
-        description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
-        imgPath: 'Kompletter pfad zu Bildern',
+        description: 'description text missing',
+        imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
+        resized: true,
+    },{
+        id: '004',
+        name: 'STL_label_train',
+        description: 'description text missing',
+        imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_train',
+        resized: false,
+    },{
+        id: '005',
+        name: 'STL_label_test',
+        description: 'description text missing',
+        imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_test',
+        resized: false,
+    },{
+        id: '006',
+        name: 'Wikiart_Elgammal_EQ_artist_test',
+        description: 'description text missing',
+        imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/Wikiart_Elgammal',
+        resized: false,
+    },{
+        id: '007',
+        name: 'Wikiart_Elgammal_EQ_artist_train',
+        description: 'description text missing',
+        imgPath: '',
+        resized: false,
+    },{
+        id: '',
+        name: 'Wikiart_Elgammal_EQ_genre_train',
+        description: 'description text missing',
+        imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/Wikiart_Elgammal',
+        resized: false,
+    },{
+        id: '',
+        name: 'Wikiart_Elgammal_EQ_genre_test',
+        description: 'description text missing',
+        imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/Wikiart_Elgammal',
         resized: false,
     },
 ];
