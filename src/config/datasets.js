@@ -4,9 +4,8 @@
         name: String, Name that is shown to the user
         description: String, also shown to the user
         imgPath: String, absolute path to dicts
-        mockDataFile: '',
+        mockDataFile: String, path to mock file
         count: Number, use only if want to reduce the dataset to the first n elements. Most time creating a new one is the bedder way
-
     }
  */
 
@@ -15,7 +14,6 @@ const devDataSets = [
     {
         id: '001',
         name: '2582_sub_wikiarts',
-
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: `${__dirname}/../../images/2582_sub_wikiarts#90`,
         mockDataFile: '',
@@ -42,22 +40,16 @@ const devDataSets = [
     {
         id: '003',
         name: 'test-3',
-        description: 'this contains Xqwewqewqeqweqwewqeqwewqeqweqwewqe Nodes, Y datas, Z cliques, K ranks',
+        description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: `${__dirname}/../../images/2582_sub_wikiarts/`,
         mockDataFile: '',
     }, */
 
 ];
 
-/*
-AwA2_vectors_*
-Wikiart_Elgammal_EQ_artist_*
-Wikiart_Elgammal_EQ_genre_*
-Wikiart_Elgammal_EQ_artist_*
- */
 const prodDataSet = [
     {
-        id: '003',
+        id: '002',
         name: 'Wikiart_artist49_images',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_artist49_images/',
@@ -65,51 +57,51 @@ const prodDataSet = [
         resized: false,
         imagesInPath: true,
     }, {
-        id: '002',
+        id: '003',
         name: 'AwA2_vectors_train',
         description: 'description text missing',
         imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
         resized: true,
     }, {
-        id: '001',
+        id: '004',
         name: 'AwA2_vectors_test',
         description: 'description text missing',
         imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
         resized: true,
     }, {
-        id: '004',
+        id: '005',
         name: 'STL_label_train',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_train',
         resized: false,
     }, {
-        id: '005',
+        id: '006',
         name: 'STL_label_test',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_test',
         resized: false,
     }, {
-        id: '006',
+        id: '001',
         name: 'Wikiart_Elgammal_EQ_artist_test',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_Elgammal',
         count: 8000,
         resized: false,
     }, {
-        id: '007',
+        id: '008',
         name: 'Wikiart_Elgammal_EQ_artist_train',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_Elgammal',
         count: 5000,
         resized: false,
     }, {
-        id: '008',
+        id: '009',
         name: 'Wikiart_Elgammal_EQ_genre_train',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_Elgammal',
         resized: false,
     }, {
-        id: '009',
+        id: '010',
         name: 'Wikiart_Elgammal_EQ_genre_test',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_Elgammal',
