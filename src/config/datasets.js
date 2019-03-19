@@ -63,7 +63,7 @@ const prodDataSet = [
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_artist49_images/',
         count: 16179,
         resized: false,
-        imagesInPath: true
+        imagesInPath: true,
     }, {
         id: '002',
         name: 'AwA2_vectors_train',
@@ -71,42 +71,42 @@ const prodDataSet = [
         imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
         resized: true,
     }, {
-        id: '003',
+        id: '001',
         name: 'AwA2_vectors_test',
         description: 'description text missing',
         imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
         resized: true,
-    },{
+    }, {
         id: '004',
         name: 'STL_label_train',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_train',
         resized: false,
-    },{
+    }, {
         id: '005',
         name: 'STL_label_test',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_test',
         resized: false,
-    },{
+    }, {
         id: '006',
         name: 'Wikiart_Elgammal_EQ_artist_test',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/Wikiart_Elgammal',
         resized: false,
-    },{
+    }, {
         id: '007',
         name: 'Wikiart_Elgammal_EQ_artist_train',
         description: 'description text missing',
         imgPath: '',
         resized: false,
-    },{
+    }, {
         id: '008',
         name: 'Wikiart_Elgammal_EQ_genre_train',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/Wikiart_Elgammal',
         resized: false,
-    },{
+    }, {
         id: '009',
         name: 'Wikiart_Elgammal_EQ_genre_test',
         description: 'description text missing',
