@@ -8,7 +8,7 @@ export default socket => async (data) => {
 
     let newNodes = {};
 
-    // HINT The data should never by empty - inital nodes comes from getNodes
+    // HINT The data should never by empty - initial nodes comes from getNodes
     const { nodes } = data;
     // categories can but don't have to change
     let categories;
