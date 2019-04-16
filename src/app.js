@@ -89,7 +89,7 @@ dataSet.map(async (set) => {
 }); */
 
 // Socket.io
-const io = socketIo({ pingTimeout: 1200000, pingInterval: 300000 });
+const io = socketIo({ pingTimeout: 4800000, pingInterval: 600000 });
 app.io = io;
 
 // const scaledPicsHash = {}; // scaled images in new archetecture 2

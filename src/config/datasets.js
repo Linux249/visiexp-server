@@ -74,7 +74,8 @@ const prodDataSet = [
 // dev mode
 const devDataSets = [
     {
-        id: '001',
+
+        id: '002',
         name: '2582_sub_wikiarts',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: `${__dirname}/../../images/2582_sub_wikiarts#90`,
@@ -82,7 +83,7 @@ const devDataSets = [
         count: 50,
         resized: true,
     }, {
-        id: '002',
+        id: '001',
         name: 'test-2 - bla bla',
         description: 'description text missing',
         imgPath: `${__dirname}/../../images/2582_sub_wikiarts`,
