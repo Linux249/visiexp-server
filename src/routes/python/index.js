@@ -4,6 +4,7 @@ import { compareAndClean } from '../../util/compareAndClean';
 import buildLabels from '../../util/buildLabels';
 import { getRandomUnusedId } from '../../util/getRandomUnusedId';
 import { pythonApi } from '../../config/pythonApi';
+const mockDataLength = require('../../config/env').mockDataLength;
 
 const router = Router();
 
@@ -130,10 +131,11 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
     console.log({ body });
 
     if (process.env.NODE_ENV === 'development') {
-        const mockDataLength = require('../../config/env');
+
         res.status = 200;
 
         const dumyNeighbours = {};
+        console.log({mockDataLength})
 
         for (let n = 0; n < 5; n += 1) {
             const id = getRandomUnusedId(mockDataLength, body.positives);
