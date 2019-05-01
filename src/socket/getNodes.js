@@ -1,15 +1,10 @@
-import path from 'path';
-import fs from 'fs';
 import fetch from 'node-fetch';
 import clusterfck from 'tayden-clusterfck';
-import sharp from 'sharp';
+// import sharp from 'sharp';
 import { getRandomColor } from '../util/getRandomColor';
 import { buildLabels } from '../util/buildLabels';
 import { mockDataLength } from '../config/env';
 import { pythonApi } from '../config/pythonApi';
-// import { colorTable } from '../config/colors';
-import { imgSizes } from '../config/imgSizes';
-import imgPath from '../config/imgPath';
 import dataSets from '../config/datasets';
 
 const exampleNodes = (process.env.NODE_ENV === 'development')
@@ -215,7 +210,8 @@ export default socket => async (data) => {
     const timeStartSendNodes = process.hrtime();
 
     // doing everything for each node and send it back
-    await Promise.all(Object.values(nodes).map(async (node, index) => {
+    //await Promise.all(
+    Object.values(nodes).map(async (node, index) => {
         // that this is not inside !!! DONT FORGET THIS
         // console.time('map' + i)
         // console.log("start")
@@ -248,7 +244,7 @@ export default socket => async (data) => {
         if (!node.clique) node.clique = [1, 2, 3];
         if (!node.rank && node.rank !== 0) node.rank = 0.5;
 
-        node.pics = Object.create(null);
+        /*node.pics = Object.create(null);
         // node.cached = false; // this is interesting while performance messearuing
         // node.url = `/images_3000/${node.name}.jpg`;
 
@@ -288,31 +284,32 @@ export default socket => async (data) => {
                     // console.log({ filePath });
                     node.pics[size] = await sharp(filePath)
                         .resize(size, size, { fit: 'inside' })
-                        .png()
+                        // .png()
                         .ensureAlpha()
                         .raw()
                         .toBuffer({ resolveWithObject: true })
                         .catch((e) => {
-                            console.warn(filePath);
+                            console.log(filePath);
                             console.log(`exists?: ${fs.existsSync(filePath)}`);
                             throw Error(e);
                         });
                 }));
             }
+
             // scaledPicsHash[node.name] = node.pics;
 
             // new archetecture 1
-            /* await Promise.all(arr.map(async (size) => {
+            /!* await Promise.all(arr.map(async (size) => {
                         const buffer = await sharp(file)
                             .resize(size, size)
                             .max()
                             .toFormat('jpg')
                             .toBuffer();
                         node.pics[size] = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
-                    })); */
+                    })); *!/
             // }
 
-            socket
+            /!*socket
                 .compress(false) // important - otherwise it's waiting for all nodes
             // .binary(true)    // todo check what this could be
                 .emit('node', node);
@@ -321,23 +318,42 @@ export default socket => async (data) => {
                 const diffStartSendNodes = process.hrtime(timeStartSendNodes);
                 console.log(`node is send: ${node.name} #${node.index} after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
                 // socket.compress(false).emit('nodesCount', node.index);
-            }
+            }*!/
         } catch (err) {
             console.log('Node was not send cause of missing image - how to handle?');
             console.error(err);
             console.log(node.index);
             console.log(node);
-        }
-    })).then(() => {
-        const diffStartSendNodes = process.hrtime(timeStartSendNodes);
-        console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
-        // console.log(a)
-        socket.emit('allNodesSend');
+        }*/
+    })
+    //)
 
-        // socket.emit('updateKdtree', kdtree)
+    //.then(() => {
+    const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+    console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
+    // console.log(a)
+    socket.emit('sendAllNodes', nodes);
 
-        // sending back the labels and the colors
-        socket.emit('updateCategories', { labels });
-        console.log('labels are send');
-    });
+    // socket.emit('updateKdtree', kdtree)
+
+    // sending back the labels and the colors
+    socket.emit('updateCategories', { labels });
+    console.log('labels are send');
+    //});
+    // console.log(nodes);
+
+    // const wstream = fs.createWriteStream(`${dataset.name}_${mockDataLength}.bin`);
+    //
+    //
+    // Object.values(nodes).map(n => Object.values(n.pics).map((p) => {
+    //     wstream.write(Buffer.from([p.info.width, p.info.height]));
+    //     // wstream.write(p.info.height);
+    //     wstream.write(p.data);
+    //     console.log(p.info.width, p.info.height, p.data.length);
+    // }));
+    // wstream.end();
+    // wstream.on('finish', () => {
+    //     console.log('All writes are now complete.');
+    //     console.log(wstream.path)
+    // });
 };

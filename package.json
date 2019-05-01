@@ -11,6 +11,8 @@
     "profiling": "cross-env NODE_ENV=development babel-node --prof ./src",
     "resize:prod": "cross-env NODE_ENV=production babel-node -- ./src/util/resizePics.js",
     "resize:dev": "babel-node -- ./src/util/resizePics.js",
+    "dataset:dev": "cross-env NODE_ENV=development babel-node -- ./src/util/buildDatasets.js",
+    "dataset:prod": "cross-env NODE_ENV=production babel-node -- ./src/util/buildDatasets.js",
     "cluster": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./performance/clustering",
     "clusterdebug": "cross-env NODE_ENV=development nodemon --exec babel-node %NODE_DEBUG_OPTION% -- ./performance/clustering",
     "perf:cluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/clusterPerf.js",

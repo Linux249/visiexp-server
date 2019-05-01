@@ -74,39 +74,27 @@ const prodDataSet = [
 // dev mode
 const devDataSets = [
     {
-
-        id: '002',
+        id: '001',
         name: '2582_sub_wikiarts',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
-        imgPath: `${__dirname}/../../images/2582_sub_wikiarts#90`,
+        imgPath: `${__dirname}/../../images/2582_sub_wikiarts`,
         mockDataFile: '',
         count: 50,
-        resized: true,
     }, {
-        id: '001',
+        id: '002',
         name: 'test-2 - bla bla',
         description: 'description text missing',
         imgPath: `${__dirname}/../../images/2582_sub_wikiarts`,
         mockDataFile: '',
-        count: 50,
-        resized: true,
-
-    },
-    /* {
-        id: '002',
-        name: 'test-2',
-        description: 'this contains X Nodes, \n Y datas, Z cliques, \n K ranks',
-        imgPath: `${__dirname}/../../images/images_3000/`,
-        mockDataFile: '',
-        count: 100,
-    },
-    {
+        count: 250,
+    },{
         id: '003',
-        name: 'test-3',
+        name: 'test-3 - . bla',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: `${__dirname}/../../images/2582_sub_wikiarts/`,
         mockDataFile: '',
-    }, */
+        count: 2582,
+    },
 ];
 
 

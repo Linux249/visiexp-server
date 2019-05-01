@@ -10,21 +10,28 @@ const router = Router();
 
 // GET - /api/v1/dataset/all
 router.get('/all', async (req, res) => {
+    // TODO check if there bin files exist
     const datasets = dataSet.map(({
-        id, name, description, count, dirName,
-    }) => ({
-        id, name, description, count, dirName,
-    }));
+        id, name, description, count, imgPath,
+    }) => {
+        // check if byte file exists
+        const byteFileName = path.join(__dirname, '/../../../images/bin', `${name}#${count}.bin`);
+        const exists = fs.existsSync(byteFileName);
+        console.log({byteFileName, exists})
+        return {
+            id, name, description, count, exists,
+        };
+    });
     return res.json(datasets);
 });
 
 router.get('/stream', async (req, res, next) => {
-    if(process.env.NODE_ENV === 'production') return next() // route is still in dev
+    if (process.env.NODE_ENV === 'production') return next(); // route is still in dev
     const readStream = new Readable({ read() {} });
-    //res.header('Content-type: application/octet-stream')
-    res.set('Content-type', 'application/octet-stream')
+    // res.header('Content-type: application/octet-stream')
+    res.set('Content-type', 'application/octet-stream');
     // res.set('Cache-Control', 'public, max-age=3600')
-    //readStream.pipe(res);
+    // readStream.pipe(res);
     const { imgPath } = dataSet[0];
     const sampleImg1 = 'albert-bierstadt_a-river-estuary.png';
     const sampleImg2 = 'albert-bierstadt_among-the-sierra-nevada-mountains-california-1868.png';
@@ -34,12 +41,12 @@ router.get('/stream', async (req, res, next) => {
         await sharp(filePath1)
             .raw()
             .toBuffer({ resolveWithObject: true })
-            .then(pic => {
-                //console.log(pic)
-                //readStream.push(pic.data)
-                //readStream.pipe(res)
-                //res.write(imgPath, 'utf8')
-                res.write(pic.data)
+            .then((pic) => {
+                // console.log(pic)
+                // readStream.push(pic.data)
+                // readStream.pipe(res)
+                // res.write(imgPath, 'utf8')
+                res.write(pic.data);
             })
             .catch((e) => {
                 console.error(e);
@@ -50,12 +57,12 @@ router.get('/stream', async (req, res, next) => {
         await sharp(filePath2)
             .raw()
             .toBuffer({ resolveWithObject: true })
-            .then(pic => {
-                console.log(pic)
-                //readStream.push(pic.data)
-                //readStream.pipe(res)
+            .then((pic) => {
+                console.log(pic);
+                // readStream.push(pic.data)
+                // readStream.pipe(res)
                 // res.write(imgPath, 'utf8')
-                res.write(pic.data)
+                res.write(pic.data);
             })
             .catch((e) => {
                 console.error(e);
@@ -98,14 +105,24 @@ router.get('/stream', async (req, res, next) => {
 
 // GET - /api/v1/dataset/:id
 router.get('/:id', async (req, res, next) => {
-    const { imgPath, count } = dataSet.find(e => e.id === req.params.id);
-    console.log({ imgPath, count });
-    if (!imgPath || !count) return next(new Error('keine gültige id oder name'));
-    // TODO hier sollen eigentlich alle Namen zurückgegeben werden
-    const p = path.join(imgPath, '10');
-    const files = await fsP.readdir(p);
-    const imgNames = count ? files.slice(0, count) : files;
-    return res.json({ imgNames });
+    console.log('request dataset stream');
+    const { name, count } = dataSet.find(e => e.id === req.params.id);
+    // console.log({ name, count });
+    // if (!imgPath || !count) return next(new Error('keine gültige id oder name'));
+    const fileName = `${name}#${count}.bin`;
+    const filePath = path.join(__dirname, '/../../../images/bin/', fileName);
+
+    const stat = fs.statSync(filePath);
+    console.log(stat);
+
+    res.writeHead(200, {
+        'Content-Type': 'application/octet-stream',
+        'Content-Length': stat.size,
+    });
+
+    const readStream = fs.createReadStream(filePath);
+    // We replaced all the event handlers with a simple call to readStream.pipe()
+    readStream.pipe(res);
 });
 
 
