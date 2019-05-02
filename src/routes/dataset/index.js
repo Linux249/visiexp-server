@@ -1,6 +1,6 @@
 import fs, { promises as fsP } from 'fs';
 import path from 'path';
-import sharp from 'sharp';
+// import sharp from 'sharp';
 import { Readable } from 'stream';
 import { Router } from 'express';
 import { dataSet } from '../../config/datasets';
@@ -24,7 +24,7 @@ router.get('/all', async (req, res) => {
     });
     return res.json(datasets);
 });
-
+/*
 router.get('/stream', async (req, res, next) => {
     if (process.env.NODE_ENV === 'production') return next(); // route is still in dev
     const readStream = new Readable({ read() {} });
@@ -102,7 +102,7 @@ router.get('/stream', async (req, res, next) => {
     }
     res.end(null);
 });
-
+*/
 // GET - /api/v1/dataset/:id
 router.get('/:id', async (req, res, next) => {
     console.log('request dataset stream');
