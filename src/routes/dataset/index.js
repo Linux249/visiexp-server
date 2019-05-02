@@ -12,18 +12,19 @@ const router = Router();
 router.get('/all', async (req, res) => {
     // TODO check if there bin files exist
     const datasets = dataSet.map(({
-        id, name, description, count, imgPath,
+        id, name, description, count,
     }) => {
         // check if byte file exists
         const byteFileName = path.join(__dirname, '/../../../images/bin', `${name}#${count}.bin`);
         const exists = fs.existsSync(byteFileName);
-        console.log({byteFileName, exists})
+        console.log({ byteFileName, exists });
         return {
             id, name, description, count, exists,
         };
     });
     return res.json(datasets);
 });
+
 /*
 router.get('/stream', async (req, res, next) => {
     if (process.env.NODE_ENV === 'production') return next(); // route is still in dev
@@ -82,7 +83,7 @@ router.get('/stream', async (req, res, next) => {
             })
          */
 
-        /*
+/*
         const instream = fs.createReadStream(filePath)
         console.log(filePath)
         const transformer = sharp(filePath)
@@ -91,13 +92,13 @@ router.get('/stream', async (req, res, next) => {
         console.log(typeof pipeline)
         //res.pipe(pipeline) // only .pipe on readable streams and give them an write
         instream.pipe(transformer).pipe(res) */
-        // pipeline.pipe(res)
+// pipeline.pipe(res)
 
-        /* .then(pic => pics[size] = pic)
+/* .then(pic => pics[size] = pic)
             .catch((e) => {
                 console.error(e);
                 console.log({ filePath });
-            }); */
+            });
         // res.pipe(size.toString())
     }
     res.end(null);
