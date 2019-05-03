@@ -23,31 +23,35 @@ const prodDataSet = [
         name: 'AwA2_vectors_train',
         description: 'description text missing',
         imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
+        count: 1000, // 37372
         resized: true,
     }, {
         id: '004',
         name: 'AwA2_vectors_test',
         description: 'description text missing',
         imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
+        count: 500,
         resized: true,
     }, {
         id: '005',
         name: 'STL_label_train',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_train',
+        count: 5000, // 5000
         resized: false,
     }, {
         id: '006',
         name: 'STL_label_test',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_test',
+        count: 8000, // 8000
         resized: false,
     }, {
         id: '001',
         name: 'Wikiart_Elgammal_EQ_artist_test',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_Elgammal',
-        count: 8000,
+        count: 1000, // 119312
         resized: false,
     }, {
         id: '008',
@@ -61,12 +65,14 @@ const prodDataSet = [
         name: 'Wikiart_Elgammal_EQ_genre_train',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_Elgammal',
+        count: 100,
         resized: false,
     }, {
         id: '010',
         name: 'Wikiart_Elgammal_EQ_genre_test',
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_Elgammal',
+        count: 8000,
         resized: false,
     },
 ];
