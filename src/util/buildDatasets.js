@@ -22,6 +22,7 @@ const buildDatasets = async (imgSizes) => {
             const sourceFiles = await fsp.readdir(inImgPath);
             const datasetName = dataSets[d].name;
             const count = dataSets[d].count || sourceFiles.length;
+            console.log({count})
 
             const outPath = path.join(__dirname, '../../images/bin/');
             if (!fs.existsSync(outPath)) fs.mkdirSync(outPath);

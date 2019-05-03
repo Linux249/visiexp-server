@@ -15,7 +15,7 @@ const prodDataSet = [
         name: 'Wikiart_artist49_images',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_artist49_images/',
-        count: 16179,
+        count: 1000, // 16164
         resized: false,
         imagesInPath: true,
     }, {
