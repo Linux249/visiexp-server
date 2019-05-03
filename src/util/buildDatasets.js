@@ -7,6 +7,7 @@ import dataSets from '../config/datasets';
 const fsp = fs.promises;
 
 const buildDatasets = async (imgSizes) => {
+    console.log('Start building byte files')
     console.time('buildDatasets');
     // const timeResizePics = process.hrtime();
 
