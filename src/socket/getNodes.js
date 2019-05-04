@@ -69,7 +69,7 @@ export default socket => async (data) => {
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({
                     dataset: dataset.name,
-                    count: 2000,
+                    count: dataset.count,
                     // tripel,
                 }),
             });
@@ -110,7 +110,7 @@ export default socket => async (data) => {
     // console.log(nodesStore)
 
     // add default cluster value (max cluster/zooming)
-    Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
+    // Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
 
     // starting the clustering
     console.log('start clustering');
@@ -210,7 +210,7 @@ export default socket => async (data) => {
     const timeStartSendNodes = process.hrtime();
 
     // doing everything for each node and send it back
-    //await Promise.all(
+    // await Promise.all(
     Object.values(nodes).map(async (node, index) => {
         // that this is not inside !!! DONT FORGET THIS
         // console.time('map' + i)
@@ -244,7 +244,7 @@ export default socket => async (data) => {
         if (!node.clique) node.clique = [1, 2, 3];
         if (!node.rank && node.rank !== 0) node.rank = 0.5;
 
-        /*node.pics = Object.create(null);
+        /* node.pics = Object.create(null);
         // node.cached = false; // this is interesting while performance messearuing
         // node.url = `/images_3000/${node.name}.jpg`;
 
@@ -324,22 +324,22 @@ export default socket => async (data) => {
             console.error(err);
             console.log(node.index);
             console.log(node);
-        }*/
-    })
-    //)
+        } */
+    });
+    // )
 
-    //.then(() => {
+    // .then(() => {
     const diffStartSendNodes = process.hrtime(timeStartSendNodes);
-    console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
     // console.log(a)
     socket.emit('sendAllNodes', nodes);
+    console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
 
     // socket.emit('updateKdtree', kdtree)
 
     // sending back the labels and the colors
     socket.emit('updateCategories', { labels });
     console.log('labels are send');
-    //});
+    // });
     // console.log(nodes);
 
     // const wstream = fs.createWriteStream(`${dataset.name}_${mockDataLength}.bin`);
