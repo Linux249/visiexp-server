@@ -7,7 +7,7 @@ import dataSets from '../config/datasets';
 const fsp = fs.promises;
 
 const buildDatasets = async (imgSizes) => {
-    console.log('Start building byte files')
+    console.log('Start building byte files');
     console.time('buildDatasets');
     // const timeResizePics = process.hrtime();
 
@@ -15,20 +15,19 @@ const buildDatasets = async (imgSizes) => {
     for (let d = 0; d < l; d += 1) {
         try {
             // absolute source of images
-            const inImgPath = dataSets[d].imgPath;
-            if (!fs.existsSync(inImgPath)) throw new Error(`Path to images (source) invalid: ${inImgPath}`);
-            console.log({ inImgPath });
+            const { id, imgPath } = dataSets[d];
+            if (!fs.existsSync(imgPath)) throw new Error(`Path to images (source) invalid: ${imgPath}`);
 
-            const sourceFiles = await fsp.readdir(inImgPath);
+            const sourceFiles = await fsp.readdir(imgPath);
             const datasetName = dataSets[d].name;
             const count = dataSets[d].count || sourceFiles.length;
-            console.log({count})
+            console.log(`Dataset: ${id} Count: ${count} Path: ${imgPath}`);
 
             const outPath = path.join(__dirname, '../../images/bin/');
             if (!fs.existsSync(outPath)) fs.mkdirSync(outPath);
             const binFileName = `${datasetName}#${count}.bin`;
             const binFilePath = path.join(outPath, binFileName);
-            console.log({ binFilePath });
+            console.log(`binFilePath: ${binFilePath}`);
             if (fs.existsSync(binFilePath)) {
                 console.log(`bin file allready exists for dataset: ${datasetName} - delete the file for recreating the dataset`);
                 continue;
@@ -40,7 +39,7 @@ const buildDatasets = async (imgSizes) => {
             // map through files
             for (let i = 0; i < count; i += 1) {
                 const file = sourceFiles[i];
-                const imgFilePath = fs.realpathSync(path.join(inImgPath, file));
+                const imgFilePath = fs.realpathSync(path.join(imgPath, file));
                 console.log(`${i}: ${imgFilePath}`);
 
                 // console.log(`check: ${sourceImagePath}`);
