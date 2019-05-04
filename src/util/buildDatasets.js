@@ -35,6 +35,7 @@ const buildDatasets = async (imgSizes) => {
             const wstream = fs.createWriteStream(binFilePath);
 
             console.log(`start building dataset for ${count} pics`);
+            console.log(sourceFiles)
 
             // map through files
             for (let i = 0; i < count; i += 1) {
