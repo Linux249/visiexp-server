@@ -39,6 +39,7 @@ const buildDatasets = async (imgSizes) => {
             // map through files
             for (let i = 0; i < count; i += 1) {
                 const file = sourceFiles[i];
+                console.log(imgPath, file)
                 const imgFilePath = fs.realpathSync(path.join(imgPath, file));
                 console.log(`${i}: ${imgFilePath}`);
 
