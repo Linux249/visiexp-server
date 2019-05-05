@@ -46,6 +46,14 @@ const prodDataSet = [
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_test',
         count: 8000, // 8000
         resized: false,
+    },{
+        id: '011',
+        name: 'STL_label_test_random',
+        description: 'description text missing',
+        imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_test',
+        count: 1000, // 8000
+        resized: false,
+        random: true,
     }, {
         id: '001',
         name: 'Wikiart_Elgammal_EQ_artist_test',
