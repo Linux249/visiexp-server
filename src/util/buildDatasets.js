@@ -34,10 +34,7 @@ const buildDatasets = async (imgSizes) => {
             }
             const wstream = fs.createWriteStream(binFilePath);
 
-            if(dataSets[d].random) {
-                sourceFiles = sourceFiles.slice(0, count)
-                sourceFiles.sort(() => Math.random() - 0.5)
-            }
+            if(dataSets[d].random) sourceFiles.sort(() => Math.random() - 0.5)
 
             console.log(`start building dataset for ${count} pics`);
             // console.log(sourceFiles) // dont' do this with 119k files!
