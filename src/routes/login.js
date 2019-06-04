@@ -31,7 +31,7 @@ router.post('/login', async (req, res, next) => {
     if (!user) return res.status(504).json({ message: 'user missing' });
     if (!password) return res.status(504).json({ message: 'password missing' });
     try {
-        connection.query('SELECT * FROM vis_users WHERE username = ? AND password = ?', [user, md5(password)], (error, results, fields) => {
+        connection.query('SELECT * FROM vis_users WHERE name = ? ', [user], (error, results, fields) => {
             console.log(results)
             if(error) return res.json(error)
             if (results.length > 0) {
