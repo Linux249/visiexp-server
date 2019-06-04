@@ -30,15 +30,24 @@ router.post('/login', async (req, res, next) => {
     console.log({ user, password });
     if (!user) return res.status(504).json({ message: 'user missing' });
     if (!password) return res.status(504).json({ message: 'password missing' });
-    connection.query('SELECT * FROM vis_users WHERE username = ? AND password = ?', [user, md5(password)], (error, results, fields) => {
-        if (results.length > 0) {
-            response.json({isAuth: true});
-        } else {
-            response.status(504).json({message: 'Incorrect Username and/or Password!'});
-        }
+    try {
+        connection.query('SELECT * FROM vis_users WHERE username = ? AND password = ?', [user, md5(password)], (error, results, fields) => {
+            console.log(results)
+            if(error) return res.json(error)
+            if (results.length > 0) {
+                //
+                console.log(results)
+                res.json({isAuth: true, id: 0, user: 'test'});
+            } else {
+                res.status(504).json({message: 'Incorrect Username and/or Password!'});
+            }
 
-    });
-    return res.json({ users: [{ name: 'Timmy' }] });
+        });
+
+    } catch (e) {
+        return res.json(e)
+    }
+
 });
 
 
