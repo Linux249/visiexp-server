@@ -3,5 +3,6 @@ images/*
 .idea
 /.idea
 .idea/*
+/.idea/*
 /dist
 src/config/db_secret.js

@@ -23,6 +23,7 @@ connection.connect((err) => {
 });
 
 
+// TODO HTTP STATUS CODES
 /* GET users listing. */
 router.post('/login', async (req, res, next) => {
     console.log(req.body);
@@ -32,22 +33,19 @@ router.post('/login', async (req, res, next) => {
     if (!password) return res.status(504).json({ message: 'password missing' });
     try {
         connection.query('SELECT * FROM vis_users WHERE name = ? ', [user], (error, results, fields) => {
-            console.log(results)
-            if(error) return res.json(error)
+            console.log(results);
+            if (error) return res.json(error);
             if (results.length > 0) {
-                //
-                console.log(results)
-                res.json({isAuth: true, id: 0, user: 'test'});
+                // check pw
+                if (results[0].password !== md5(password)) return res.status(504).json({ message: 'Incorrect Password!' });
+                res.json({ isAuth: true, id: results[0].id, user: results[0].name });
             } else {
-                res.status(504).json({message: 'Incorrect Username and/or Password!'});
+                res.status(504).json({ message: 'Incorrect Username' });
             }
-
         });
-
     } catch (e) {
-        return res.json(e)
+        return res.json(e);
     }
-
 });
 
 
