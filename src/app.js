@@ -1,39 +1,18 @@
 import fs from 'fs';
-// import { promises as fsP } from 'fs';
-// import path from 'path';
-// import fetch from 'node-fetch';
-// import sharp from 'sharp';
 import morgan from 'morgan';
 import cors from 'cors';
 import express from 'express';
 import socketIo from 'socket.io';
-// import clusterfck from 'tayden-clusterfck';
-// import { compareAndClean } from './util/compareAndClean';
-// import { getRandomColor } from './util/getRandomColor';
 import pythonRoute from './routes/python/index';
 import svmRoute from './routes/svm';
-// import { colorTable } from './config/colors';
-// import { imgSizes } from './config/imgSizes';
 import imgPath from './config/imgPath';
 import dataset from './routes/dataset';
-// import { mockDataLength } from './config/env';
-// import { buildLabels } from './util/buildLabels';
-// import graphMock from './mock/graphSmall'
-// import exampleGraph from './mock/example_graph'
-// import exampleNodes from './mock/exampleNodes';
-// import { mergeLinksToNodes } from "./util/mergeLinksToNodes";
-// import buildTripel from './util/buildTripels';
-// import { dataSet } from './config/datasets';
-// import { pythonApi } from './config/pythonApi';
 import requestImage from './socket/requestImage';
 import updateEmbedding from './socket/updateEmbedding';
 import getNodes from './socket/getNodes';
-// import kdbush from 'kdbush';
-// const kde2d = require('@stdlib/stdlib/lib/node_modules/@stdlib/stats/kde2d');
+import login from "./routes/login";
 
 
-// const path = require('path');
-// required for file serving
 const app = express();
 
 
@@ -117,6 +96,7 @@ app.use(cors());
 
 // app.use('/api/v1/users', users)
 // TODO add python in route name and change frontend usage
+app.use('/api/v1/', login);
 app.use('/api/v1/', pythonRoute);
 app.use('/api/v1/svm/', svmRoute);
 app.use('/api/v1/dataset/', dataset);
