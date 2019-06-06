@@ -157,7 +157,7 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify(body),
-            }).then(response => response.text());
+            }).then(response => response.json());
             console.log(data);
             const { group, neighbours: newNeighbours } = data;
             console.log({ group, newNeighbours });
