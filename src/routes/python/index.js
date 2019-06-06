@@ -23,7 +23,7 @@ router.post('/updateLabels', async (req, res, next) => {
             await fetch(`${pythonApi}/updateLabels`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
-                body: JSON.stringify({ nodes }),
+                body: JSON.stringify({ nodes, userId: req.body.userId }),
             }).then(response => response.json());
             const diff = process.hrtime(time);
             res.send();
@@ -121,6 +121,7 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
         threshold,
         positives: req.body.group,
         groupId: req.body.groupId,
+        userId: req.body.userId,
     };
 
     if (neighbours) {
