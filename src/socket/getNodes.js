@@ -11,6 +11,7 @@ const exampleNodes = (process.env.NODE_ENV === 'development')
     ? require('../../mock/2582_sub_wikiarts').default
     : {};
 
+// on: getNodes
 export default socket => async (data) => {
     console.log('getNodes');
     // console.log(typeof data)
@@ -22,7 +23,7 @@ export default socket => async (data) => {
     // the nodes object for mutating differently in dev mode
     let nodes = {};
     let categories = [];
-    const { datasetId } = data;
+    const { datasetId, userId } = data;
     const dataset = dataSets.find(e => e.id === datasetId);
     if (!dataset) {
         // TODO Error handling, maybe a error emit
@@ -70,6 +71,7 @@ export default socket => async (data) => {
                 body: JSON.stringify({
                     dataset: dataset.name,
                     count: dataset.count,
+                    userId,
                     // tripel,
                 }),
             });

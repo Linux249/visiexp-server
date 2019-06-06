@@ -9,7 +9,7 @@ export default socket => async (data) => {
     let newNodes = {};
 
     // HINT The data should never by empty - inital nodes comes from getNodes
-    const { nodes } = data;
+    const { nodes, userId } = data;
     // categories can but don't have to change
     let categories;
 
@@ -29,7 +29,7 @@ export default socket => async (data) => {
             const res = await fetch(`${pythonApi}/nodes`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
-                body: JSON.stringify({ nodes }),
+                body: JSON.stringify({ nodes, userId }),
             });
             // there are only nodes comming back from here
             const result = await res.json();
