@@ -153,7 +153,7 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
     } else {
         try {
             const time = process.hrtime();
-            const { group, neighbours as newNeighbours} = await fetch(`${pythonApi}/getGroupNeighbours`, {
+            const { group, neighbours: newNeighbours} = await fetch(`${pythonApi}/getGroupNeighbours`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify(body),
