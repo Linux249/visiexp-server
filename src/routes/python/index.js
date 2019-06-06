@@ -161,8 +161,10 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
             console.log(data);
             const { group, neighbours: newNeighbours } = data;
             console.log({ group, newNeighbours });
-            const neighboursIds = Object.keys(newNeighbours).sort((a, b) => newNeighbours[b] - newNeighbours[a]).slice(0, +threshold).map(e => +e);
-            res.json({ group, neighbours: newNeighbours, neighboursIds });
+            const neighboursIds = Object.keys(data.neighbours).sort((a, b) => data.neighbours[b] - data.neighbours[a]).slice(0, +threshold).map(e => +e);
+            const newd = { group: data.group, neighbours: newNeighbours, neighboursIds };
+            console.log(newd);
+            res.json(newd);
             const diff = process.hrtime(time);
             console.log(`getGroupNeighbours from python took ${diff[0] + diff[1] / 1e9} seconds`);
         } catch (err) {
