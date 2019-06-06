@@ -144,11 +144,15 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
             dumyNeighbours[id] = Math.random();
         }
 
-        const neighboursIds = Object.keys(dumyNeighbours).sort((a, b) => dumyNeighbours[b] - dumyNeighbours[a]).slice(0, +threshold).map(e => +e);
+        const newNeighbours = {}
+        Object.keys(dumyNeighbours)
+            .sort((a, b) => dumyNeighbours[b] - dumyNeighbours[a])
+            .slice(0, +threshold)
+            .forEach(e  => newNeighbours[e] = dumyNeighbours[e]);
         res.send({
             group: body.positives,
-            neighbours: dumyNeighbours,
-            neighboursIds,
+            neighbours: newNeighbours,
+            dumyNeighbours,
         });
     } else {
         try {
@@ -158,13 +162,15 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify(body),
             }).then(response => response.json());
-            console.log(data);
-            const { group, neighbours: newNeighbours } = data;
-            console.log({ group, newNeighbours });
-            const neighboursIds = Object.keys(data.neighbours).sort((a, b) => data.neighbours[b] - data.neighbours[a]).slice(0, +threshold).map(e => +e);
-            const newd = { group: data.group, neighbours: newNeighbours, neighboursIds };
-            console.log(newd);
-            res.json(newd);
+            const { group, neighbours: allNeighbours } = data;
+            console.log({ group, allNeighbours });
+            const newNeighbours = {}
+            Object.keys(allNeighbours)
+                .sort((a, b) => allNeighbours[b] - allNeighbours[a])
+                .slice(0, +threshold)
+                .forEach(e => newNeighbours[e] = allNeighbours[e]);
+
+            res.json({ group, neighbours: allNeighbours });
             const diff = process.hrtime(time);
             console.log(`getGroupNeighbours from python took ${diff[0] + diff[1] / 1e9} seconds`);
         } catch (err) {
