@@ -153,14 +153,16 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
     } else {
         try {
             const time = process.hrtime();
-            const { group, neighbours: newNeighbours} = await fetch(`${pythonApi}/getGroupNeighbours`, {
+            const data = await fetch(`${pythonApi}/getGroupNeighbours`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify(body),
             }).then(response => response.text());
-            const diff = process.hrtime(time);
+            console.log(data)
+            const { group, neighbours: newNeighbours } = data
             const neighboursIds = Object.keys(newNeighbours).sort((a, b) => newNeighbours[b] - newNeighbours[a]).slice(0, +threshold).map(e => +e);
             res.json({ group, neighbours, neighboursIds });
+            const diff = process.hrtime(time);
             console.log(`getGroupNeighbours from python took ${diff[0] + diff[1] / 1e9} seconds`);
         } catch (err) {
             console.error('error - getGroupNeighbours python error');
