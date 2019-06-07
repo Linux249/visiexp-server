@@ -170,7 +170,7 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
                 .slice(0, +threshold)
                 .forEach(e => newNeighbours[e] = allNeighbours[e]);
 
-            res.json({ group, neighbours: newNeighbours, allNeighbours });
+            res.json({ group, neighbours: newNeighbours });
             const diff = process.hrtime(time);
             console.log(`getGroupNeighbours from python took ${diff[0] + diff[1] / 1e9} seconds`);
         } catch (err) {
