@@ -16,6 +16,7 @@ const buildDatasets = async (imgSizes) => {
         try {
             // absolute source of images
             const { id, imgPath } = dataSets[d];
+            // check if path to source exists
             if (!fs.existsSync(imgPath)) throw new Error(`Path to images (source) invalid: ${imgPath}`);
 
             let sourceFiles = await fsp.readdir(imgPath);
@@ -30,6 +31,7 @@ const buildDatasets = async (imgSizes) => {
             console.log(`binFilePath: ${binFilePath}`);
             if (fs.existsSync(binFilePath)) {
                 console.log(`bin file allready exists for dataset: ${datasetName} - delete the file for recreating the dataset`);
+                // procede with the next dataset
                 continue;
             }
             const wstream = fs.createWriteStream(binFilePath);
