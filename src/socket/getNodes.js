@@ -1,19 +1,17 @@
-import path from 'path';
-import fs from 'fs';
 import fetch from 'node-fetch';
-import sharp from 'sharp';
+import clusterfck from 'tayden-clusterfck';
+// import sharp from 'sharp';
 import { getRandomColor } from '../util/getRandomColor';
 import { buildLabels } from '../util/buildLabels';
 import { mockDataLength } from '../config/env';
 import { pythonApi } from '../config/pythonApi';
-import { imgSizes } from '../config/imgSizes';
-import imgPath from '../config/imgPath';
 import dataSets from '../config/datasets';
 
 const exampleNodes = (process.env.NODE_ENV === 'development')
     ? require('../../mock/2582_sub_wikiarts').default
     : {};
 
+// on: getNodes
 export default socket => async (data) => {
     console.log('getNodes');
     // console.log(typeof data)
@@ -25,7 +23,7 @@ export default socket => async (data) => {
     // the nodes object for mutating differently in dev mode
     let nodes = {};
     let categories = [];
-    const { datasetId } = data;
+    const { datasetId, userId } = data;
     const dataset = dataSets.find(e => e.id === datasetId);
     if (!dataset) {
         // TODO Error handling, maybe a error emit
@@ -35,8 +33,23 @@ export default socket => async (data) => {
     }
 
 
-    // create dummy nodes
+    // build tripel from data
+    // console.log('buildTripel');
+    // const tripel = buildTripel(updatedNodes);
+    // console.log({ tripel });
+    // if (tripel) console.log(tripel);
+
+
+    // before they should be cleaned and compared with maybe old data
+    // const time = process.hrtime();
+    // updatedNodes = compareAndClean({}, updatedNodes);
+    // const diff = process.hrtime(time);
+    // console.log(`CopareAndClean took ${diff[0] + diff[1] / 1e9} seconds`);
+
+
     if (process.env.NODE_ENV === 'development') {
+        // const mockDataLength = 50 //Object.keys(exampleNodes).length;
+
         console.log(`nodes generated from mock #: ${mockDataLength}`);
 
         // generate dummy nodes
@@ -57,7 +70,8 @@ export default socket => async (data) => {
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({
                     dataset: dataset.name,
-                    count: 2000,
+                    count: dataset.count,
+                    userId,
                     // tripel,
                 }),
             });
@@ -92,70 +106,74 @@ export default socket => async (data) => {
     const labels = buildLabels(categories, nodes);
 
 
+    // store data data for comparing later
+    // nodesStore = nodes;
+    // console.log("this nodes are stored")
+    // console.log(nodesStore)
 
     // add default cluster value (max cluster/zooming)
     // Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
-    //
-    // // starting the clustering
-    // console.log('start clustering');
-    // const timeCluster = process.hrtime();
-    // const points = Object.values(nodes)
-    //     .map((n, i) => {
-    //         const point = [n.x, n.y]; // array with properties is ugly!
-    //         point.id = i;
-    //         point.x = n.x;
-    //         point.y = n.y;
-    //         return point;
-    //     });
-    //
-    // // const kdtree = kdbush(points, n => n.x, n => n.y)
-    // // console.log("finish kdtree")
-    //
-    // // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
-    // // console.log(smallBox)
-    // // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
-    // const hcCluster = clusterfck.hcluster(points);
-    // console.log('finish hccluster');
-    //
-    // const zoomStages = 20;
-    // const nodesPerStage = Math.round(nodeDataLength / zoomStages) || 1; // small #nodes can result to 0
-    // // loop trough the zoomstages
-    // for (let i = nodesPerStage; i <= nodeDataLength; i += nodesPerStage) {
-    //     hcCluster.clusters(i).forEach((cluster) => {
-    //         // TODO why the first one? this is realy bad!
-    //         const agentId = cluster[0].id; // first value in cluster is represent
-    //         if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
-    //     });
-    //     console.log(`Building ${i} clusters finished`);
+
+    // starting the clustering
+    console.log('start clustering');
+    const timeCluster = process.hrtime();
+    const points = Object.values(nodes)
+        .map((n, i) => {
+            const point = [n.x, n.y]; // array with properties is ugly!
+            point.id = i;
+            point.x = n.x;
+            point.y = n.y;
+            return point;
+        });
+
+    // const kdtree = kdbush(points, n => n.x, n => n.y)
+    // console.log("finish kdtree")
+
+    // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
+    // console.log(smallBox)
+    // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
+    const hcCluster = clusterfck.hcluster(points);
+    console.log('finish hccluster');
+
+    const zoomStages = 20;
+    const nodesPerStage = Math.round(nodeDataLength / zoomStages) || 1; // small #nodes can result to 0
+    // loop trough the zoomstages
+    for (let i = nodesPerStage; i <= nodeDataLength; i += nodesPerStage) {
+        hcCluster.clusters(i).forEach((cluster) => {
+            // TODO why the first one? this is realy bad!
+            const agentId = cluster[0].id; // first value in cluster is represent
+            if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
+        });
+        console.log(`Building ${i} clusters finished`);
+    }
+    console.log('finish clusters');
+
+    const diffCluster = process.hrtime(timeCluster);
+    console.log(`end clustering: ${diffCluster[0] + (diffCluster[1] / 1e9)} seconds`);
+    // clusterStore = nodes;
     // }
-    // console.log('finish clusters');
-    //
-    // const diffCluster = process.hrtime(timeCluster);
-    // console.log(`end clustering: ${diffCluster[0] + (diffCluster[1] / 1e9)} seconds`);
-    // // clusterStore = nodes;
-    // // }
-    //
-    // /*
-    //     CLUSTERING - kmeans performance test
-    //  */
-    // const points2 = Object.values(nodes)
-    //     .map((n, i) => {
-    //         const point = [n.x, n.y]; // array with properties is ugly!
-    //         return point;
-    //     });
-    //
-    // console.log('start clustering kmeans');
-    // console.time('cluster kmeans');
-    // const timeCluster2 = process.hrtime();
-    //
-    //
-    // // const cluster2 = clusterfck.kmeans(points2, 20);
-    //
-    //
-    // const diffCluster2 = process.hrtime(timeCluster2);
-    // console.timeEnd('cluster kmeans');
-    // console.log(`end clustering kmeans: ${diffCluster2[0] + (diffCluster2[1] / 1e9)} seconds`);
-    //
+
+    /*
+        CLUSTERING - kmeans performance test
+     */
+    const points2 = Object.values(nodes)
+        .map((n, i) => {
+            const point = [n.x, n.y]; // array with properties is ugly!
+            return point;
+        });
+
+    console.log('start clustering kmeans');
+    console.time('cluster kmeans');
+    const timeCluster2 = process.hrtime();
+
+
+    // const cluster2 = clusterfck.kmeans(points2, 20);
+
+
+    const diffCluster2 = process.hrtime(timeCluster2);
+    console.timeEnd('cluster kmeans');
+    console.log(`end clustering kmeans: ${diffCluster2[0] + (diffCluster2[1] / 1e9)} seconds`);
+
 
     /*
    // calc kernel density estimation
@@ -194,13 +212,16 @@ export default socket => async (data) => {
     const timeStartSendNodes = process.hrtime();
 
     // doing everything for each node and send it back
-    await Promise.all(Object.values(nodes).map(async (node, index) => {
+    // await Promise.all(
+    Object.values(nodes).map(async (node, index) => {
         // that this is not inside !!! DONT FORGET THIS
         // console.time('map' + i)
         // console.log("start")
 
         // add index to nodes
         node.index = index;
+        // node.positives = [];
+        // node.negatives = [];
 
         // setting color based on label
         // if (colorHash[node.label]) {
@@ -221,11 +242,12 @@ export default socket => async (data) => {
             }
         }
 
-        // TODO Katjas code
+        // TODO Katja
         if (!node.clique) node.clique = [1, 2, 3];
         if (!node.rank && node.rank !== 0) node.rank = 0.5;
 
-        node.pics = Object.create(null);
+        /* node.pics = Object.create(null);
+        // node.cached = false; // this is interesting while performance messearuing
         // node.url = `/images_3000/${node.name}.jpg`;
 
         try {
@@ -264,30 +286,32 @@ export default socket => async (data) => {
                     // console.log({ filePath });
                     node.pics[size] = await sharp(filePath)
                         .resize(size, size, { fit: 'inside' })
-                        .png()
+                        // .png()
                         .ensureAlpha()
                         .raw()
                         .toBuffer({ resolveWithObject: true })
                         .catch((e) => {
-                            console.warn(filePath);
+                            console.log(filePath);
                             console.log(`exists?: ${fs.existsSync(filePath)}`);
                             throw Error(e);
                         });
                 }));
             }
 
+            // scaledPicsHash[node.name] = node.pics;
+
             // new archetecture 1
-            /* await Promise.all(arr.map(async (size) => {
+            /!* await Promise.all(arr.map(async (size) => {
                         const buffer = await sharp(file)
                             .resize(size, size)
                             .max()
                             .toFormat('jpg')
                             .toBuffer();
                         node.pics[size] = `data:image/jpg;base64,${buffer.toString('base64')}`; // save for faster reload TODO test with lots + large image
-                    })); */
+                    })); *!/
             // }
 
-            socket
+            /!*socket
                 .compress(false) // important - otherwise it's waiting for all nodes
             // .binary(true)    // todo check what this could be
                 .emit('node', node);
@@ -296,23 +320,42 @@ export default socket => async (data) => {
                 const diffStartSendNodes = process.hrtime(timeStartSendNodes);
                 console.log(`node is send: ${node.name} #${node.index} after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
                 // socket.compress(false).emit('nodesCount', node.index);
-            }
+            }*!/
         } catch (err) {
             console.log('Node was not send cause of missing image - how to handle?');
             console.error(err);
             console.log(node.index);
             console.log(node);
-        }
-    })).then(() => {
-        const diffStartSendNodes = process.hrtime(timeStartSendNodes);
-        console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
-        // console.log(a)
-        socket.emit('allNodesSend');
-
-        // socket.emit('updateKdtree', kdtree)
-
-        // sending back the labels and the colors
-        socket.emit('updateCategories', { labels });
-        console.log('labels are send');
+        } */
     });
+    // )
+
+    // .then(() => {
+    const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+    // console.log(a)
+    socket.emit('sendAllNodes', nodes);
+    console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
+
+    // socket.emit('updateKdtree', kdtree)
+
+    // sending back the labels and the colors
+    socket.emit('updateCategories', { labels });
+    console.log('labels are send');
+    // });
+    // console.log(nodes);
+
+    // const wstream = fs.createWriteStream(`${dataset.name}_${mockDataLength}.bin`);
+    //
+    //
+    // Object.values(nodes).map(n => Object.values(n.pics).map((p) => {
+    //     wstream.write(Buffer.from([p.info.width, p.info.height]));
+    //     // wstream.write(p.info.height);
+    //     wstream.write(p.data);
+    //     console.log(p.info.width, p.info.height, p.data.length);
+    // }));
+    // wstream.end();
+    // wstream.on('finish', () => {
+    //     console.log('All writes are now complete.');
+    //     console.log(wstream.path)
+    // });
 };

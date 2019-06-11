@@ -41,6 +41,7 @@ router.post('/stop', async (req, res) => {
             const data = await fetch(`${pythonApi}/stopSvm`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
+                body: JSON.stringify(req.body),
             }).then(response => response.json());
             const diff = process.hrtime(time);
             res.json(data);

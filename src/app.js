@@ -10,7 +10,24 @@ import dataset from './routes/dataset';
 import requestImage from './socket/requestImage';
 import updateEmbedding from './socket/updateEmbedding';
 import getNodes from './socket/getNodes';
+import login from "./routes/login";
+
+
 const app = express();
+
+
+/*
+const readFile = path =>
+    new Promise((res, rej) => {
+        fs.readFile(path, (err, data) => {
+            if (err) {
+                rej(err);
+            } else {
+                res(data);
+            }
+        });
+    });
+*/
 
 
 // TODO: Read dataset and check if all images are created corectly - otherwise stop app and tell user to resize pics
@@ -51,8 +68,22 @@ dataSet.map(async (set) => {
 }); */
 
 // Socket.io
-const io = socketIo({ pingTimeout: 1200000, pingInterval: 300000 });
+const io = socketIo({ pingTimeout: 4800000, pingInterval: 600000 });
 app.io = io;
+
+// const scaledPicsHash = {}; // scaled images in new archetecture 2
+
+// const stringImgHash = {};       // normal (50,50) images in old architecture
+
+// let nodesStore = {};
+
+// let clusterStore = null;
+
+
+// set different image path for prod/dev mode
+
+/* app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false })) */
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: false, limit: '5mb' }));
@@ -65,6 +96,7 @@ app.use(cors());
 
 // app.use('/api/v1/users', users)
 // TODO add python in route name and change frontend usage
+app.use('/api/v1/', login);
 app.use('/api/v1/', pythonRoute);
 app.use('/api/v1/svm/', svmRoute);
 app.use('/api/v1/dataset/', dataset);

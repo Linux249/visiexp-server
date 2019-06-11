@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "private": true,
   "scripts": {
-    "start": "node ./dist",
+    "start": "node --max-old-space-size=16384 ./dist",
     "dev": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./src",
     "build": "cross-env NODE_ENV=production babel src -s -D -d dist",
     "deploy": "git pull && npm run build",
@@ -11,6 +11,8 @@
     "profiling": "cross-env NODE_ENV=development babel-node --prof ./src",
     "resize:prod": "cross-env NODE_ENV=production babel-node -- ./src/util/resizePics.js",
     "resize:dev": "babel-node -- ./src/util/resizePics.js",
+    "dataset:dev": "cross-env NODE_ENV=development babel-node -- ./src/util/buildDatasets.js",
+    "dataset:prod": "cross-env NODE_ENV=production babel-node -- ./src/util/buildDatasets.js",
     "cluster": "cross-env NODE_ENV=development nodemon --exec babel-node -- ./performance/clustering",
     "clusterdebug": "cross-env NODE_ENV=development nodemon --exec babel-node %NODE_DEBUG_OPTION% -- ./performance/clustering",
     "perf:cluster": "babel-node %NODE_DEBUG_OPTION% -- ./test/clusterPerf.js",
@@ -19,12 +21,13 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.16.4",
+    "express": "^4.17.1",
     "kdbush": "^3.0.0",
+    "md5": "^2.2.1",
     "morgan": "^1.9.1",
-    "node-fetch": "^2.3.0",
-    "pm2": "^3.2.9",
-    "sharp": "^0.21.3",
+    "mysql": "^2.17.1",
+    "node-fetch": "^2.6.0",
+    "sharp": "^0.22.0",
     "socket.io": "^2.2.0",
     "supercluster": "^6.0.1",
     "tayden-clusterfck": "^0.7.0"
@@ -37,7 +40,7 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.15.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
-    "nodemon": "^1.18.9"
+    "nodemon": "^1.19.1"
   },
   "config": {
     "libvips": "8.7.4"
