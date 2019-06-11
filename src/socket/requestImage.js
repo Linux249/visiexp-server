@@ -1,6 +1,5 @@
 import path from 'path';
 import { promises as fsp } from 'fs';
-import imgPath from '../config/imgPath';
 import dataSets from "../config/datasets";
 
 export default socket => async (data) => {

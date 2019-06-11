@@ -115,16 +115,16 @@ export default socket => async (data) => {
     // Object.values(nodes).forEach(node => node.cluster = nodeDataLength);
 
     // starting the clustering
-    console.log('start clustering');
-    const timeCluster = process.hrtime();
-    const points = Object.values(nodes)
-        .map((n, i) => {
-            const point = [n.x, n.y]; // array with properties is ugly!
-            point.id = i;
-            point.x = n.x;
-            point.y = n.y;
-            return point;
-        });
+    // console.log('start clustering');
+    // const timeCluster = process.hrtime();
+    // const points = Object.values(nodes)
+    //     .map((n, i) => {
+    //         const point = [n.x, n.y]; // array with properties is ugly!
+    //         point.id = i;
+    //         point.x = n.x;
+    //         point.y = n.y;
+    //         return point;
+    //     });
 
     // const kdtree = kdbush(points, n => n.x, n => n.y)
     // console.log("finish kdtree")
@@ -132,47 +132,47 @@ export default socket => async (data) => {
     // const smallBox = kdtree.range(-3, -3, 3, 3)//.map(id => nodes[id])
     // console.log(smallBox)
     // const middlebox = index.range(-10, -10, 10, 10).map(id => nodes[id])
-    const hcCluster = clusterfck.hcluster(points);
-    console.log('finish hccluster');
-
-    const zoomStages = 20;
-    const nodesPerStage = Math.round(nodeDataLength / zoomStages) || 1; // small #nodes can result to 0
-    // loop trough the zoomstages
-    for (let i = nodesPerStage; i <= nodeDataLength; i += nodesPerStage) {
-        hcCluster.clusters(i).forEach((cluster) => {
-            // TODO why the first one? this is realy bad!
-            const agentId = cluster[0].id; // first value in cluster is represent
-            if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
-        });
-        console.log(`Building ${i} clusters finished`);
-    }
-    console.log('finish clusters');
-
-    const diffCluster = process.hrtime(timeCluster);
-    console.log(`end clustering: ${diffCluster[0] + (diffCluster[1] / 1e9)} seconds`);
-    // clusterStore = nodes;
+    // const hcCluster = clusterfck.hcluster(points);
+    // console.log('finish hccluster');
+    //
+    // const zoomStages = 20;
+    // const nodesPerStage = Math.round(nodeDataLength / zoomStages) || 1; // small #nodes can result to 0
+    // // loop trough the zoomstages
+    // for (let i = nodesPerStage; i <= nodeDataLength; i += nodesPerStage) {
+    //     hcCluster.clusters(i).forEach((cluster) => {
+    //         // TODO why the first one? this is realy bad!
+    //         const agentId = cluster[0].id; // first value in cluster is represent
+    //         if (nodes[agentId].cluster > i) nodes[agentId].cluster = i;
+    //     });
+    //     console.log(`Building ${i} clusters finished`);
     // }
-
-    /*
-        CLUSTERING - kmeans performance test
-     */
-    const points2 = Object.values(nodes)
-        .map((n, i) => {
-            const point = [n.x, n.y]; // array with properties is ugly!
-            return point;
-        });
-
-    console.log('start clustering kmeans');
-    console.time('cluster kmeans');
-    const timeCluster2 = process.hrtime();
+    // console.log('finish clusters');
+    //
+    // const diffCluster = process.hrtime(timeCluster);
+    // console.log(`end clustering: ${diffCluster[0] + (diffCluster[1] / 1e9)} seconds`);
+    // // clusterStore = nodes;
+    // // }
+    //
+    // /*
+    //     CLUSTERING - kmeans performance test
+    //  */
+    // const points2 = Object.values(nodes)
+    //     .map((n, i) => {
+    //         const point = [n.x, n.y]; // array with properties is ugly!
+    //         return point;
+    //     });
+    //
+    // console.log('start clustering kmeans');
+    // console.time('cluster kmeans');
+    // const timeCluster2 = process.hrtime();
 
 
     // const cluster2 = clusterfck.kmeans(points2, 20);
 
 
-    const diffCluster2 = process.hrtime(timeCluster2);
-    console.timeEnd('cluster kmeans');
-    console.log(`end clustering kmeans: ${diffCluster2[0] + (diffCluster2[1] / 1e9)} seconds`);
+    // const diffCluster2 = process.hrtime(timeCluster2);
+    // console.timeEnd('cluster kmeans');
+    // console.log(`end clustering kmeans: ${diffCluster2[0] + (diffCluster2[1] / 1e9)} seconds`);
 
 
     /*
