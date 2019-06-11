@@ -19,24 +19,46 @@ const buildDatasets = async (imgSizes) => {
             // check if path to source exists
             if (!fs.existsSync(imgPath)) throw new Error(`Path to images (source) invalid: ${imgPath}`);
 
-            let sourceFiles = await fsp.readdir(imgPath);
+            // create dataset name
             const datasetName = dataSets[d].name;
             const count = dataSets[d].count || sourceFiles.length;
             console.log(`Dataset: ${id} Count: ${count} Path: ${imgPath}`);
+            console.log('------------------------------------------')
 
+            // create path if not existing
             const outPath = path.join(__dirname, '../../images/bin/');
             if (!fs.existsSync(outPath)) fs.mkdirSync(outPath);
+
+            // files
+            const jsonFileName = `${datasetName}#${count}.json`;
+            const jsonFilePath = path.join(outPath, '..', jsonFileName);
+            let sourceFiles;
+
+            if (fs.existsSync(jsonFilePath)) {
+                console.log(`json file already exists for dataset: ${datasetName} - delete the file for recreating the dataset`);
+                console.log('dataset will be build from json file');
+                const jsonFile = await fsp.readFile(jsonFilePath);
+                sourceFiles = JSON.parse(jsonFile);
+            } else {
+                // create json file from #count random pics
+                sourceFiles = await fsp.readdir(imgPath);
+                sourceFiles.sort(() => Math.random() - 0.5);
+                sourceFiles = sourceFiles.slice(0, count);
+                await fsp.writeFile(jsonFilePath, JSON.stringify(sourceFiles));
+                console.log(`create json file for ${datasetName}: ${jsonFilePath}`);
+            }
+
+            // prepare write stream
             const binFileName = `${datasetName}#${count}.bin`;
             const binFilePath = path.join(outPath, binFileName);
             console.log(`binFilePath: ${binFilePath}`);
             if (fs.existsSync(binFilePath)) {
-                console.log(`bin file allready exists for dataset: ${datasetName} - delete the file for recreating the dataset`);
+                console.log(`bin file already exists for dataset: ${datasetName} - delete the file for recreating the dataset`);
                 // procede with the next dataset
                 continue;
             }
             const wstream = fs.createWriteStream(binFilePath);
 
-            if(dataSets[d].random) sourceFiles.sort(() => Math.random() - 0.5)
 
             console.log(`start building dataset for ${count} pics`);
             // console.log(sourceFiles) // dont' do this with 119k files!
@@ -44,7 +66,7 @@ const buildDatasets = async (imgSizes) => {
             // map through files
             for (let i = 0; i < count; i += 1) {
                 const file = sourceFiles[i];
-                console.log(imgPath, file)
+                // console.log(imgPath, file);
                 const imgFilePath = fs.realpathSync(path.join(imgPath, file));
                 console.log(`${i}: ${imgFilePath}`);
 
