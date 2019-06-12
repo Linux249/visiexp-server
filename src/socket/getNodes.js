@@ -63,8 +63,8 @@ export default socket => async (data) => {
     } else {
         console.log('get nodes from python');
 
+        const time2 = process.hrtime();
         try {
-            const time2 = process.hrtime();
             const res = await fetch(`${pythonApi}/nodes`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
@@ -75,17 +75,23 @@ export default socket => async (data) => {
                     // tripel,
                 }),
             });
+            console.log(res)
+            if (res.ok){
+                const data = await res.json();
+                nodes = data.nodes;
+                categories = data.categories;
+            } else {
+                console.error('fetch works but response is not working - why?')
+                console.log(res)
+            }
             // there are only nodes comming back from here
-            const data = await res.json();
-            nodes = data.nodes;
-            categories = data.categories;
-            const diff2 = process.hrtime(time2);
-            console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
         } catch (err) {
             // todo bedder error handling, return and emit to inform user
             console.error('error - get nodes from python - error');
             console.error(err);
         }
+        const diff2 = process.hrtime(time2);
+        console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
     }
 
 
