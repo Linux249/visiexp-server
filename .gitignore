@@ -3,6 +3,7 @@ images/*
 .idea
 /.idea
 .idea/*
+.idea*
 .idea\*
 /.idea/*
 /dist

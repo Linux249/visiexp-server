@@ -104,8 +104,8 @@ router.get('/stream', async (req, res, next) => {
     res.end(null);
 });
 */
-// GET - /api/v1/dataset/:id
-router.get('/:id', async (req, res, next) => {
+// GET - /api/v1/dataset/images/:id
+router.get('/images/:id', async (req, res, next) => {
     console.log('request dataset stream');
     const { name, count } = dataSet.find(e => e.id === req.params.id);
     // console.log({ name, count });
@@ -124,6 +124,24 @@ router.get('/:id', async (req, res, next) => {
     const readStream = fs.createReadStream(filePath);
     // We replaced all the event handlers with a simple call to readStream.pipe()
     readStream.pipe(res);
+});
+
+// GET - /api/v1/dataset/nodes/:id
+router.get('/nodes/:id', async (req, res, next) => {
+    console.log('request dataset nodes');
+    const { name, count } = dataSet.find(e => e.id === req.params.id);
+    // console.log({ name, count });
+    // if (!imgPath || !count) return next(new Error('keine gültige id oder name'));
+    const fileName = `${name}#${count}.json`;
+    const filePath = path.join(__dirname, '/../../../images/', fileName);
+
+    // const stat = fs.statSync(filePath);
+    // console.log(stat);
+
+    res.sendFile(filePath, (err) => {
+        if (err) next(err);
+        else console.log('Sent:', fileName);
+    });
 });
 
 
