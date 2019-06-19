@@ -95,15 +95,16 @@ export default socket => async (data) => {
     }
 
     if (Object.keys(nodes).length < dataset.count) {
-        const n = Object.keys(nodes).length; // maybe n = 1000, count = 2000
+        let n = Object.keys(nodes).length; // maybe n = 1000, count = 2000
         while (n < dataset.count) {
             nodes[n - 1] = {
                 index: n - 1,
                 x: (Math.random() * 40) - 20,
                 y: (Math.random() * 40) - 20,
-                name: `mock node: ${  n - 1}`,
+                name: `mock node: ${n - 1}`,
 
             };
+            n += 1;
         }
     }
 
