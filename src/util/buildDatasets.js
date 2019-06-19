@@ -91,9 +91,10 @@ const buildDatasets = async (imgSizes) => {
                         .raw()
                         .toBuffer({ resolveWithObject: true })
                         .catch((e) => {
-                            console.log(imgFilePath);
-                            console.log(`exists?: ${fs.existsSync(imgFilePath)}`);
-                            throw Error(e);
+                            console.error(e)
+                            console.error(imgFilePath);
+                            console.error(`exists?: ${fs.existsSync(imgFilePath)}`);
+                            // throw Error(e);
                         });
                 }));
 
