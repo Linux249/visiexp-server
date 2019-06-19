@@ -75,14 +75,14 @@ export default socket => async (data) => {
                     // tripel,
                 }),
             });
-            console.log(res)
-            if (res.ok){
+            console.log(res);
+            if (res.ok) {
                 const data = await res.json();
                 nodes = data.nodes;
                 categories = data.categories;
             } else {
-                console.error('fetch works but response is not working - why?')
-                console.log(res)
+                console.error('fetch works but response is not working - why?');
+                console.log(res);
             }
             // there are only nodes comming back from here
         } catch (err) {
@@ -94,6 +94,18 @@ export default socket => async (data) => {
         console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
     }
 
+    if (Object.keys(nodes).length < dataset.count) {
+        const n = Object.keys(nodes).length; // maybe n = 1000, count = 2000
+        while (n < dataset.count) {
+            nodes[n - 1] = {
+                index: n - 1,
+                x: (Math.random() * 40) - 20,
+                y: (Math.random() * 40) - 20,
+                name: `mock node: ${  n - 1}`,
+
+            };
+        }
+    }
 
     const nodeDataLength = Object.keys(nodes).length;
     socket.emit('totalNodesCount', { count: nodeDataLength });

@@ -40,7 +40,7 @@ const prodDataSet = [
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_test',
         count: 8000, // 8000
-    },{
+    }, {
         id: '011',
         name: 'STL_label_test_random',
         description: 'description text missing',
@@ -89,7 +89,7 @@ const devDataSets = [
         imgPath: `${__dirname}/../../images/images_3000`,
         mockDataFile: '',
         count: 250,
-    },{
+    }, {
         id: '003',
         name: 'test-3 - . bla',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
