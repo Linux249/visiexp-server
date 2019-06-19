@@ -94,7 +94,7 @@ export default socket => async (data) => {
         console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
     }
 
-    if (Object.keys(nodes).length < dataset.count) {
+    /*if (Object.keys(nodes).length < dataset.count) {
         let n = Object.keys(nodes).length; // maybe n = 1000, count = 2000
         while (n < dataset.count) {
             nodes[n - 1] = {
@@ -106,7 +106,7 @@ export default socket => async (data) => {
             };
             n += 1;
         }
-    }
+    }*/
 
     const nodeDataLength = Object.keys(nodes).length;
     socket.emit('totalNodesCount', { count: nodeDataLength });
