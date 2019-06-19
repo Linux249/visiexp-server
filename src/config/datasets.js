@@ -70,6 +70,12 @@ const prodDataSet = [
         description: 'description text missing',
         imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_Elgammal',
         count: 2000,
+    }, {
+        id: '011',
+        name: 'Bansky',
+        description: 'description text missing',
+        imgPath: '/net/hci-storage02/groupfolders/compvis/salang/Street-Art-Daten/Banksy-Datensatz',
+        count: 2000,
     },
 ];
 
