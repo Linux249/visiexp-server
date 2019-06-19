@@ -100,8 +100,10 @@ const buildDatasets = async (imgSizes) => {
 
 
                 Object.values(pics).forEach((p) => {
-                    wstream.write(Buffer.from([p.info.width, p.info.height]));
-                    wstream.write(p.data);
+                    if(p) {
+                        wstream.write(Buffer.from([p.info.width, p.info.height]));
+                        wstream.write(p.data);
+                    }
                     // console.log(p.info.width, p.info.height, p.data.length);
                 });
             }
