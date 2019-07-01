@@ -24,7 +24,7 @@ export default socket => async (data) => {
     let nodes = {};
     let categories = [];
     const {
-        datasetId, userId, count, init,
+        datasetId, userId, count
     } = data;
     const dataset = dataSets.find(e => e.id === datasetId);
     if (!dataset) {
@@ -74,7 +74,7 @@ export default socket => async (data) => {
                     dataset: dataset.name,
                     count,
                     userId,
-                    init,
+                    init: true,
                     // tripel,
                 }),
             });
