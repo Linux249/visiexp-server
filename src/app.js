@@ -10,7 +10,7 @@ import dataset from './routes/dataset';
 import requestImage from './socket/requestImage';
 import updateEmbedding from './socket/updateEmbedding';
 import getNodes from './socket/getNodes';
-import login from "./routes/login";
+import login from './routes/login';
 
 
 const app = express();

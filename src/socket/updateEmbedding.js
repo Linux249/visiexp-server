@@ -29,7 +29,7 @@ export default socket => async (data) => {
             const res = await fetch(`${pythonApi}/nodes`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
-                body: JSON.stringify({ nodes, userId }),
+                body: JSON.stringify({ nodes, userId, init: false }),
             });
             // there are only nodes comming back from here
             const result = await res.json();
