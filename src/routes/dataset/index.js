@@ -105,7 +105,7 @@ router.get('/stream', async (req, res, next) => {
 });
 */
 // GET - /api/v1/dataset/images/:id
-router.get('/images/:id', async (req, res, next) => {
+router.get('/images/:id/:count', async (req, res, next) => {
     console.log('request dataset stream');
     const { name, count } = dataSet.find(e => e.id === req.params.id);
     // console.log({ name, count });
@@ -121,6 +121,7 @@ router.get('/images/:id', async (req, res, next) => {
         'Content-Length': stat.size,
     });
 
+    // todo change to flexible files, chain readstreams;
     const readStream = fs.createReadStream(filePath);
     // We replaced all the event handlers with a simple call to readStream.pipe()
     readStream.pipe(res);

@@ -24,8 +24,11 @@ export default socket => async (data) => {
     let nodes = {};
     let categories = [];
     const {
-        datasetId, userId, count
+        datasetId, userId, count,
     } = data;
+    console.log({
+        datasetId, userId, count,
+    });
     const dataset = dataSets.find(e => e.id === datasetId);
     if (!dataset) {
         // TODO Error handling, maybe a error emit
