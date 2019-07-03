@@ -70,12 +70,13 @@ export default socket => async (data) => {
         const fileName = `${dataset.name}#${size}.json`;
         const filePath = path.join(__dirname, '/../../images/', fileName);
         console.log(filePath)
-        let files = await fsP.readFile(filePath);
-        console.log(files)
-        files = files.slice(0, count);
+        const rawData = await fsP.readFile(filePath)
+        let imgNames = JSON.parse(rawData);
+        console.log(imgNames)
+        imgNames = imgNames.slice(0, count);
 
         // todo remove after real files
-        files.forEach((f, i) => {
+        imgNames.forEach((f, i) => {
             nodes[i] = {
                 index: i,
                 name: f,
