@@ -156,14 +156,20 @@ export default socket => async (data) => {
             }),
         });
         if (res.ok) {
-            const data = await res.json();
-            nodes = data.nodes;
-            categories = data.categories;
-            socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
-            return socket.emit('updateEmbedding', { nodes });
+            try {
+                const data = await res.json();
+                nodes = data.nodes;
+                categories = data.categories;
+                socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
+                return socket.emit('updateEmbedding', { nodes });
+            } catch(e) {
+                // JSON Error here?
+                console.error('fetch works but response is not working - why?');
+                console.log(e)
+                console.log(res);
+            }
         }
-        console.error('fetch works but response is not working - why?');
-        console.log(res);
+
 
         // there are only nodes comming back from here
     } catch (err) {
