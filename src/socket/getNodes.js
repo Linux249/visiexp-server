@@ -6,7 +6,7 @@ import { mockDataLength } from '../config/env';
 import { pythonApi } from '../config/pythonApi';
 import dataSets, { dataSet } from '../config/datasets';
 import path from 'path';
-import {maxNodesCount} from "../config/maxNodesCount";
+import { maxNodesCount } from '../config/maxNodesCount';
 
 const exampleNodes = (process.env.NODE_ENV === 'development')
     ? require('../../mock/2582_sub_wikiarts').default
@@ -51,15 +51,18 @@ export default socket => async (data) => {
             nodes[n] = exampleNodes[i];
         }
 
-        // dummy category's
-        categories = ['kat1', 'kat2', 'kat3'];
-
         // generate dummy labels
         const n = categories.length;
         Object.values(nodes).forEach((node) => {
             node.labels = [];
             for (let i = 0; i < n; i += 1) node.labels.push(Math.random() >= 0.5 ? `${categories[i]}_label_${i}` : null);
         });
+
+        // dummy category's
+        categories = ['kat1', 'kat2', 'kat3'];
+        // build and sending back labels (- )labels are scanned on server-side)
+        socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
+        console.log('labels are send');
     } else {
         // read initial #count nodes
         console.log('request dataset nodes');
@@ -69,10 +72,10 @@ export default socket => async (data) => {
         const size = dataset.size < maxNodesCount ? dataset.size : maxNodesCount;
         const fileName = `${dataset.name}#${size}.json`;
         const filePath = path.join(__dirname, '/../../images/', fileName);
-        console.log(filePath)
-        const rawData = await fsP.readFile(filePath)
+        console.log(filePath);
+        const rawData = await fsP.readFile(filePath);
         let imgNames = JSON.parse(rawData);
-        console.log(imgNames)
+        console.log(imgNames);
         imgNames = imgNames.slice(0, count);
 
         // todo remove after real files
@@ -103,10 +106,6 @@ export default socket => async (data) => {
 
     const nodeDataLength = Object.keys(nodes).length;
     socket.emit('totalNodesCount', { count: nodeDataLength });
-
-    // build and sending back labels (- )labels are scanned on server-side)
-    socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
-    console.log('labels are send');
 
 
     // saving used colorKeys
