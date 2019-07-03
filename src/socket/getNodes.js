@@ -112,6 +112,56 @@ export default socket => async (data) => {
     const colorKeyHash = {};
     const timeStartSendNodes = process.hrtime();
 
+
+
+
+    // todo find proper error handling for missing python server
+    try {
+        const res = await fetch(`${pythonApi}/nodes`, {
+            method: 'POST',
+            header: { 'Content-type': 'application/json' },
+            body: JSON.stringify({
+                dataset: dataset.name,
+                count,
+                userId,
+                init: true,
+                // tripel,
+            }),
+        });
+        if (res.ok) {
+            try {
+                const data = await res.json();
+                nodes = data.nodes;
+                categories = data.categories;
+                socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
+                // return socket.emit('updateEmbedding', { nodes });
+                // return socket.emit('sendAllNodes', nodes);
+            } catch(err) {
+                // JSON Error here?
+                console.error('fetch works but response is not working - why?');
+                console.log(err)
+                console.log(res);
+                //socket.emit('sendAllNodes', nodes);
+                socket.emit('Error', { message: 'Invalid xxxx', err, res })
+            }
+        }
+
+
+        // there are only nodes comming back from here
+    } catch (err) {
+        // todo bedder error handling, return and emit to inform user
+        console.error('error - get nodes from python - error');
+        console.error(err);
+        socket.emit('Error', { message: 'Invalid yyyy', err })
+        // todo remove after right loading from file
+        // const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+        // console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
+        // return socket.emit('sendAllNodes', nodes);
+    }
+
+
+
+
     // doing everything for each node and send it back
     Object.values(nodes).map(async (node, index) => {
         // add index to nodes
@@ -143,49 +193,7 @@ export default socket => async (data) => {
     console.log('get nodes from python');
     const time2 = process.hrtime();
 
-    // todo find proper error handling for missing python server
-    try {
-        const res = await fetch(`${pythonApi}/nodes`, {
-            method: 'POST',
-            header: { 'Content-type': 'application/json' },
-            body: JSON.stringify({
-                dataset: dataset.name,
-                count,
-                userId,
-                init: true,
-                // tripel,
-            }),
-        });
-        if (res.ok) {
-            try {
-                const data = await res.json();
-                nodes = data.nodes;
-                categories = data.categories;
-                socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
-                // return socket.emit('updateEmbedding', { nodes });
-                return socket.emit('sendAllNodes', nodes);
-            } catch(err) {
-                // JSON Error here?
-                console.error('fetch works but response is not working - why?');
-                console.log(err)
-                console.log(res);
-                socket.emit('sendAllNodes', nodes);
-                return socket.emit('Error', { message: 'Invalid xxxx', err, res })
-            }
-        }
 
-
-        // there are only nodes comming back from here
-    } catch (err) {
-        // todo bedder error handling, return and emit to inform user
-        console.error('error - get nodes from python - error');
-        console.error(err);
-        socket.emit('Error', { message: 'Invalid yyyy', err })
-        // todo remove after right loading from file
-        const diffStartSendNodes = process.hrtime(timeStartSendNodes);
-        console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
-        return socket.emit('sendAllNodes', nodes);
-    }
     const diff2 = process.hrtime(time2);
     console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
 };
