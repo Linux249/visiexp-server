@@ -68,7 +68,7 @@ export default socket => async (data) => {
         // if (!imgPath || !count) return next(new Error('keine gültige id oder name'));
         const size = dataset.size < maxNodesCount ? dataset.size : maxNodesCount;
         const fileName = `${dataset.name}#${size}.json`;
-        const filePath = path.join(__dirname, '/../../../images/', fileName);
+        const filePath = path.join(__dirname, '/../../images/', fileName);
         let files = await fsP.readFile(filePath);
         files = files.slice(0, count);
 
