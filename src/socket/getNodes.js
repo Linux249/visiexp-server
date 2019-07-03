@@ -74,7 +74,7 @@ export default socket => async (data) => {
         console.log(filePath);
         const rawData = await fsP.readFile(filePath);
         let imgNames = JSON.parse(rawData);
-        console.log(imgNames);
+        // console.log(imgNames);
         imgNames = imgNames.slice(0, count);
 
         // todo remove after real files
@@ -156,7 +156,6 @@ export default socket => async (data) => {
             }),
         });
         if (res.ok) {
-            console.log(await res.text());
             const data = await res.json();
             nodes = data.nodes;
             categories = data.categories;
