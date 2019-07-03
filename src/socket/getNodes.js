@@ -19,7 +19,7 @@ export default socket => async (data) => {
     // console.log(data)
 
     // the nodes object for mutating differently in dev mode
-    let nodes = {};
+    const nodes = {};
     let categories = [];
     const {
         datasetId, userId, count,
@@ -113,8 +113,6 @@ export default socket => async (data) => {
     const timeStartSendNodes = process.hrtime();
 
 
-
-
     // todo find proper error handling for missing python server
     try {
         const res = await fetch(`${pythonApi}/nodes`, {
@@ -131,18 +129,21 @@ export default socket => async (data) => {
         if (res.ok) {
             try {
                 const data = await res.json();
-                nodes = data.nodes;
+                Object.keys((k) => {
+                    nodes[k].x = data.nodes[k].x;
+                    nodes[k].y = data.nodes[k].y;
+                });
                 categories = data.categories;
                 socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
                 // return socket.emit('updateEmbedding', { nodes });
                 // return socket.emit('sendAllNodes', nodes);
-            } catch(err) {
+            } catch (err) {
                 // JSON Error here?
                 console.error('fetch works but response is not working - why?');
-                console.log(err)
+                console.log(err);
                 console.log(res);
-                //socket.emit('sendAllNodes', nodes);
-                socket.emit('Error', { message: 'Invalid xxxx', err, res })
+                // socket.emit('sendAllNodes', nodes);
+                socket.emit('Error', { message: 'Invalid xxxx', err, res });
             }
         }
 
@@ -152,14 +153,12 @@ export default socket => async (data) => {
         // todo bedder error handling, return and emit to inform user
         console.error('error - get nodes from python - error');
         console.error(err);
-        socket.emit('Error', { message: 'Invalid yyyy', err })
+        socket.emit('Error', { message: 'Invalid yyyy', err });
         // todo remove after right loading from file
         // const diffStartSendNodes = process.hrtime(timeStartSendNodes);
         // console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
         // return socket.emit('sendAllNodes', nodes);
     }
-
-
 
 
     // doing everything for each node and send it back
