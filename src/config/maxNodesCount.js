@@ -1,2 +1,2 @@
-export const maxNodesCount = 4000;
+export const maxNodesCount = 10000;
 export default maxNodesCount;
