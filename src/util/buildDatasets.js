@@ -66,7 +66,7 @@ const buildDatasets = async (imgSizes) => {
                     if (fs.existsSync(binFilePath)) {
                         console.log(`bin file already exists for dataset: ${datasetName} - delete the file for recreating the dataset`);
                         // procede with the next dataset
-                        i = i + 499
+                        i += 499;
                         continue;
                     }
                     wstream = fs.createWriteStream(binFilePath);
@@ -74,7 +74,7 @@ const buildDatasets = async (imgSizes) => {
                 const file = sourceFiles[i];
                 // console.log(imgPath, file);
                 const imgFilePath = fs.realpathSync(path.join(imgPath, file));
-                if(!(i % 10)) console.log(`${i}: ${imgFilePath}`);
+                if (!(i % 10)) console.log(`${i}: ${imgFilePath}`);
 
                 const pics = Object.create(null);
                 await Promise.all(imgSizes.map(async (size) => {
@@ -99,11 +99,13 @@ const buildDatasets = async (imgSizes) => {
                     }
                 });
             }
-            wstream.end();
-            wstream.on('finish', () => {
-                console.log('All writes are now complete.');
-                console.log(wstream.path);
-            });
+            if (wstream) {
+                wstream.end();
+                wstream.on('finish', () => {
+                    console.log('All writes are now complete.');
+                    console.log(wstream.path);
+                });
+            }
         } catch (err) {
             console.error(err);
             if (err) throw new Error(err);

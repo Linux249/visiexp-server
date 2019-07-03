@@ -5,6 +5,7 @@ import { Readable } from 'stream';
 import { Router } from 'express';
 import { dataSet } from '../../config/datasets';
 import { imgSizes } from '../../config/imgSizes';
+const ss = require('stream-stream');
 
 const router = Router();
 
@@ -12,14 +13,14 @@ const router = Router();
 router.get('/all', async (req, res) => {
     // TODO check if there bin files exist
     const datasets = dataSet.map(({
-        id, name, description, count,
+        id, name, description, size,
     }) => {
         // check if byte file exists
-        const byteFileName = path.join(__dirname, '/../../../images/bin', `${name}#${count}.bin`);
-        const exists = fs.existsSync(byteFileName);
-        console.log({ byteFileName, exists });
+        // const byteFileName = path.join(__dirname, '/../../../images/bin', `${name}#${count}.bin`);
+        const exists = true; //= fs.existsSync(byteFileName);
+        // console.log({ byteFileName, exists });
         return {
-            id, name, description, count, exists,
+            id, name, description, size, exists,
         };
     });
     return res.json(datasets);
@@ -107,24 +108,37 @@ router.get('/stream', async (req, res, next) => {
 // GET - /api/v1/dataset/images/:id
 router.get('/images/:id/:count', async (req, res, next) => {
     console.log('request dataset stream');
-    const { name, count } = dataSet.find(e => e.id === req.params.id);
-    // console.log({ name, count });
+    let contentSize = 0;
+    let { id, count } = req.params;
+    const { name, size } = dataSet.find(e => e.id === id);
+    if (count > size) count = size;
+    console.log({
+        id, name, count, size,
+    });
+    const files = [];
     // if (!imgPath || !count) return next(new Error('keine gültige id oder name'));
-    const fileName = `${name}#${count}.bin`;
-    const filePath = path.join(__dirname, '/../../../images/bin/', fileName);
-
-    const stat = fs.statSync(filePath);
-    console.log(stat);
+    let i = 0;
+    while (i < count) {
+        i = (i + 500) < count ? i + 500 : +count;
+        const fileName = `${name}#${i}.bin`;
+        const filePath = path.join(__dirname, '/../../../images/bin/', fileName);
+        const stat = fs.statSync(filePath);
+        console.log(i, stat.size, filePath);
+        contentSize += stat.size;
+        files.push(filePath);
+    }
 
     res.writeHead(200, {
         'Content-Type': 'application/octet-stream',
-        'Content-Length': stat.size,
+        'Content-Length': contentSize,
     });
 
-    // todo change to flexible files, chain readstreams;
-    const readStream = fs.createReadStream(filePath);
-    // We replaced all the event handlers with a simple call to readStream.pipe()
-    readStream.pipe(res);
+    const stream = ss();
+    files.forEach((file) => {
+        stream.write(fs.createReadStream(file));
+    });
+    stream.end();
+    stream.pipe(res, { end: false });
 });
 
 // GET - /api/v1/dataset/nodes/:id

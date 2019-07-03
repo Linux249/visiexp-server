@@ -29,6 +29,7 @@
     "node-fetch": "^2.6.0",
     "sharp": "^0.22.0",
     "socket.io": "^2.2.0",
+    "stream-stream": "^1.2.6",
     "supercluster": "^6.0.1",
     "tayden-clusterfck": "^0.7.0"
   },
