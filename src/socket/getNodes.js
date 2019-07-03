@@ -6,6 +6,7 @@ import { mockDataLength } from '../config/env';
 import { pythonApi } from '../config/pythonApi';
 import dataSets, { dataSet } from '../config/datasets';
 import path from 'path';
+import {maxNodesCount} from "../config/maxNodesCount";
 
 const exampleNodes = (process.env.NODE_ENV === 'development')
     ? require('../../mock/2582_sub_wikiarts').default
@@ -65,7 +66,7 @@ export default socket => async (data) => {
 
         // console.log({ name, count });
         // if (!imgPath || !count) return next(new Error('keine gültige id oder name'));
-        const size = dataset.size < 10000 ? dataset.size : 10000;
+        const size = dataset.size < maxNodesCount ? dataset.size : maxNodesCount;
         const fileName = `${dataset.name}#${size}.json`;
         const filePath = path.join(__dirname, '/../../../images/', fileName);
         let files = await fsP.readFile(filePath);
