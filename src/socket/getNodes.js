@@ -69,7 +69,9 @@ export default socket => async (data) => {
         const size = dataset.size < maxNodesCount ? dataset.size : maxNodesCount;
         const fileName = `${dataset.name}#${size}.json`;
         const filePath = path.join(__dirname, '/../../images/', fileName);
+        console.log(filePath)
         let files = await fsP.readFile(filePath);
+        console.log(files)
         files = files.slice(0, count);
 
         // todo remove after real files
