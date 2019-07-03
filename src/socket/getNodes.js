@@ -196,6 +196,8 @@ export default socket => async (data) => {
 
     const diff2 = process.hrtime(time2);
     console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
+
+    return socket.emit('sendAllNodes', nodes);
 };
 
 // THE OLD CLUSTERING
