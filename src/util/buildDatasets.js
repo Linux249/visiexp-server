@@ -47,7 +47,9 @@ const buildDatasets = async (imgSizes) => {
                 sourceFiles.sort(() => Math.random() - 0.5);
                 sourceFiles = sourceFiles.slice(0, count);
                 await fsp.writeFile(jsonFilePath, JSON.stringify(sourceFiles));
-                console.log(`create json file for ${datasetName}: ${jsonFilePath}`);
+                console.log('create json file for:');
+                console.log(datasetName);
+                console.log(jsonFilePath);
             }
             let wstream;
 

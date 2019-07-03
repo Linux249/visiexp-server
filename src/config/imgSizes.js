@@ -9,11 +9,11 @@ export const imgSizes = [
     80, // zoomStage: 7
     90, // zoomStage: 8
     100, // zoomStage: 9
-    110, // zoomStage: 10
-    120, // zoomStage: 11
-    130, // zoomStage: 12
-    140, // zoomStage: 13
-    150, // zoomStage: 14
+    // 110, // zoomStage: 10
+    // 120, // zoomStage: 11
+    // 130, // zoomStage: 12
+    // 140, // zoomStage: 13
+    // 150, // zoomStage: 14
 ];
 
 export default imgSizes;
