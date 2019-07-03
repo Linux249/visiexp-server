@@ -132,10 +132,11 @@ export default socket => async (data) => {
         if (!node.clique) node.clique = [1, 2, 3];
         if (!node.rank && node.rank !== 0) node.rank = 0.5;
     });
-    const diffStartSendNodes = process.hrtime(timeStartSendNodes);
-    // console.log(a)
-    socket.emit('sendAllNodes', nodes);
-    console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
+
+    // socket.emit('sendAllNodes', nodes);
+    // const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+    // console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
+
     // socket.emit('updateKdtree', kdtree)
 
     // trigger init call on python backend
@@ -161,7 +162,11 @@ export default socket => async (data) => {
                 nodes = data.nodes;
                 categories = data.categories;
                 socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
-                return socket.emit('updateEmbedding', { nodes });
+                // return socket.emit('updateEmbedding', { nodes });
+                // todo remove after right loading from file
+                const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+                console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
+                return socket.emit('sendAllNodes', nodes);
             } catch(err) {
                 // JSON Error here?
                 console.error('fetch works but response is not working - why?');
