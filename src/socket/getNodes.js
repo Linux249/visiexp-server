@@ -162,11 +162,12 @@ export default socket => async (data) => {
                 categories = data.categories;
                 socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
                 return socket.emit('updateEmbedding', { nodes });
-            } catch(e) {
+            } catch(err) {
                 // JSON Error here?
                 console.error('fetch works but response is not working - why?');
-                console.log(e)
+                console.log(err)
                 console.log(res);
+                return socket.emit('Error', { message: 'Invalid xxxx', err, res })
             }
         }
 
@@ -176,6 +177,7 @@ export default socket => async (data) => {
         // todo bedder error handling, return and emit to inform user
         console.error('error - get nodes from python - error');
         console.error(err);
+        return socket.emit('Error', { message: 'Invalid yyyy', err })
     }
     const diff2 = process.hrtime(time2);
     console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
