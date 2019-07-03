@@ -163,15 +163,13 @@ export default socket => async (data) => {
                 categories = data.categories;
                 socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
                 // return socket.emit('updateEmbedding', { nodes });
-                // todo remove after right loading from file
-                const diffStartSendNodes = process.hrtime(timeStartSendNodes);
-                console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
                 return socket.emit('sendAllNodes', nodes);
             } catch(err) {
                 // JSON Error here?
                 console.error('fetch works but response is not working - why?');
                 console.log(err)
                 console.log(res);
+                socket.emit('sendAllNodes', nodes);
                 return socket.emit('Error', { message: 'Invalid xxxx', err, res })
             }
         }
@@ -182,7 +180,11 @@ export default socket => async (data) => {
         // todo bedder error handling, return and emit to inform user
         console.error('error - get nodes from python - error');
         console.error(err);
-        return socket.emit('Error', { message: 'Invalid yyyy', err })
+        socket.emit('Error', { message: 'Invalid yyyy', err })
+        // todo remove after right loading from file
+        const diffStartSendNodes = process.hrtime(timeStartSendNodes);
+        console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
+        return socket.emit('sendAllNodes', nodes);
     }
     const diff2 = process.hrtime(time2);
     console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
