@@ -11,6 +11,7 @@ const buildDatasets = async (imgSizes) => {
     console.time('buildDatasets');
     // const timeResizePics = process.hrtime();
 
+    // for each dataset
     const l = dataSets.length;
     for (let d = 0; d < l; d += 1) {
         try {
@@ -21,15 +22,16 @@ const buildDatasets = async (imgSizes) => {
 
             // create dataset name
             const datasetName = dataSets[d].name;
-            const count = dataSets[d].count || sourceFiles.length;
+            // max dataset size
+            const count = dataSets[d].size > 10000 ? 2000 : dataSets[d].size;
             console.log(`Dataset: ${id} Count: ${count} Path: ${imgPath}`);
-            console.log('------------------------------------------')
+            console.log('------------------------------------------');
 
             // create path if not existing
             const outPath = path.join(__dirname, '../../images/bin/');
             if (!fs.existsSync(outPath)) fs.mkdirSync(outPath);
 
-            // files
+            //  JSON files with nodes
             const jsonFileName = `${datasetName}#${count}.json`;
             const jsonFilePath = path.join(outPath, '..', jsonFileName);
             let sourceFiles;
@@ -47,42 +49,33 @@ const buildDatasets = async (imgSizes) => {
                 await fsp.writeFile(jsonFilePath, JSON.stringify(sourceFiles));
                 console.log(`create json file for ${datasetName}: ${jsonFilePath}`);
             }
-
-            // prepare write stream
-            const binFileName = `${datasetName}#${count}.bin`;
-            const binFilePath = path.join(outPath, binFileName);
-            console.log(`binFilePath: ${binFilePath}`);
-            if (fs.existsSync(binFilePath)) {
-                console.log(`bin file already exists for dataset: ${datasetName} - delete the file for recreating the dataset`);
-                // procede with the next dataset
-                continue;
-            }
-            const wstream = fs.createWriteStream(binFilePath);
+            let wstream;
 
 
             console.log(`start building dataset for ${count} pics`);
-            // console.log(sourceFiles) // dont' do this with 119k files!
 
             // map through files
             for (let i = 0; i < count; i += 1) {
+                if (i % 500 === 0) {
+                    if (wstream) wstream.end();
+                    // prepare write stream
+                    const number = (i + 500) < count ? i + 500 : count;
+                    const binFileName = `${datasetName}#${number}.bin`;
+                    const binFilePath = path.join(outPath, binFileName);
+                    console.log(`binFilePath: ${binFilePath}`);
+                    if (fs.existsSync(binFilePath)) {
+                        console.log(`bin file already exists for dataset: ${datasetName} - delete the file for recreating the dataset`);
+                        // procede with the next dataset
+                        i = i + 499
+                        continue;
+                    }
+                    wstream = fs.createWriteStream(binFilePath);
+                }
                 const file = sourceFiles[i];
                 // console.log(imgPath, file);
                 const imgFilePath = fs.realpathSync(path.join(imgPath, file));
-                console.log(`${i}: ${imgFilePath}`);
+                if(!(i % 10)) console.log(`${i}: ${imgFilePath}`);
 
-                // console.log(`check: ${sourceImagePath}`);
-                // try {
-                //     fs.accessSync(sourceImagePath, fs.constants.F_OK);
-                //     console.log('file exists');
-                //     fs.accessSync(sourceImagePath, fs.constants.R_OK);
-                //     console.log('can read');
-                //     fs.accessSync(sourceImagePath, fs.constants.W_OK);
-                //     console.log('can write');
-                // } catch (err) {
-                //     console.error('no access!');
-                //     console.error(err);
-                //     return;
-                // }
                 const pics = Object.create(null);
                 await Promise.all(imgSizes.map(async (size) => {
                     pics[size] = await sharp(imgFilePath)
@@ -91,7 +84,7 @@ const buildDatasets = async (imgSizes) => {
                         .raw()
                         .toBuffer({ resolveWithObject: true })
                         .catch((e) => {
-                            console.error(e)
+                            console.error(e);
                             console.error(imgFilePath);
                             console.error(`exists?: ${fs.existsSync(imgFilePath)}`);
                             // throw Error(e);
@@ -100,11 +93,10 @@ const buildDatasets = async (imgSizes) => {
 
 
                 Object.values(pics).forEach((p) => {
-                    if(p) {
+                    if (p) {
                         wstream.write(Buffer.from([p.info.width, p.info.height]));
                         wstream.write(p.data);
                     }
-                    // console.log(p.info.width, p.info.height, p.data.length);
                 });
             }
             wstream.end();

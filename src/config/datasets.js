@@ -63,21 +63,21 @@ const devDataSets = [
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
         imgPath: `${__dirname}/../../images/images_3000`,
         mockDataFile: '',
-        count: 50,
+        size: 11788,
     }, {
         id: '002',
         name: 'test-2 - bla bla',
         description: 'description text missing',
-        imgPath: `${__dirname}/../../images/images_3000`,
+        imgPath: `${__dirname}/../../images/2582_sub_wikiarts#90`,
         mockDataFile: '',
-        count: 250,
+        size: 90,
     }, {
         id: '003',
         name: 'test-3 - . bla',
         description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
-        imgPath: `${__dirname}/../../images/images_3000/`,
+        imgPath: `${__dirname}/../../images/2582_sub_wikiarts/`,
         mockDataFile: '',
-        count: 2582,
+        size: 2582,
     },
 ];
 
