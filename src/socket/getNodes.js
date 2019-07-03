@@ -45,21 +45,20 @@ export default socket => async (data) => {
     if (process.env.NODE_ENV === 'development') {
         console.log(`nodes generated from mock #: ${mockDataLength}`);
 
+        // dummy category's
+        categories = ['kat1', 'kat2', 'kat3'];
+        const c = categories.length;
+
         // generate dummy nodes
         for (let n = 0; n < mockDataLength; n += 1) {
             const i = n % mockDataLength;
             nodes[n] = exampleNodes[i];
+
+            // generate dummy labels
+            nodes[n].labels = [];
+            for (let i = 0; i < c; i += 1) nodes[n].labels.push(Math.random() >= 0.5 ? `${categories[i]}_label_${i}` : null);
         }
 
-        // generate dummy labels
-        const n = categories.length;
-        Object.values(nodes).forEach((node) => {
-            node.labels = [];
-            for (let i = 0; i < n; i += 1) node.labels.push(Math.random() >= 0.5 ? `${categories[i]}_label_${i}` : null);
-        });
-
-        // dummy category's
-        categories = ['kat1', 'kat2', 'kat3'];
         // build and sending back labels (- )labels are scanned on server-side)
         socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
         console.log('labels are send');
@@ -85,6 +84,7 @@ export default socket => async (data) => {
                 name: f,
                 x: (Math.random() * 40) - 20,
                 y: (Math.random() * 40) - 20,
+                labels: [],
             };
         });
     }
