@@ -23,7 +23,7 @@ const buildDatasets = async (imgSizes) => {
             // create dataset name
             const datasetName = dataSets[d].name;
             // max dataset size
-            const count = dataSets[d].size > 10000 ? 2000 : dataSets[d].size;
+            const count = dataSets[d].size > 10000 ? 10000 : dataSets[d].size;
             console.log(`Dataset: ${id} Count: ${count} Path: ${imgPath}`);
             console.log('------------------------------------------');
 
