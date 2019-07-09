@@ -98,6 +98,36 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
 
         self.end_headers()
 
+    def do_GET(self):
+        if "/getNodes" in self.path:
+            print("GET /getNodes")
+            ### POST Request Header ###
+            self.send_response(200)
+            # self.send_header('Content-type', 'application/json')
+            #self.send_header('Access-Control-Allow-Origin', self.headers['origin'])
+            self.end_headers()
+
+            # get query from paths
+            query = self.path.split('?')[1]
+            # check for more than one param
+            if("&" in self.path): 
+                return self.wfile.write("ERROR: API /getNodes does not allow multi params")
+            # get file name from query and add .json ending
+            fileName = query.split('=')[1] + '.json'
+
+            # absolute path to .json files location
+            filePath = 'where are the datasets?' ### TODO change here
+            
+            file = filePath + fileName
+            print('Request file: ' + file)
+            
+        
+            with open(file, 'rb') as file: 
+                self.wfile.write(file.read()) # Read the file and send the contents 
+            # self.wfile.write("Hello World !" + filePath)
+
+
+
     def do_POST(self):
         """
         definiert den Umgang mit POST Requests
@@ -127,6 +157,8 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             # make json
             data = json.dumps({'nodes': {}}).encode()
             self.wfile.write(data)  #body zurueckschicken
+
+        
 
         if self.path == "/trainSvm":
             print("post /trainsvm")

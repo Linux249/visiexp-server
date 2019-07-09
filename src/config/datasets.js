@@ -9,50 +9,97 @@
     }
  */
 
+// "/net/hcihome/storage/www-data-login-cv/visiexp/datasets/Wikiart_Elgammal_EQ_style_train.json
 const prodDataSet = [
     {
         id: '001',
-        name: 'Wikiart_Elgammal_EQ_artist_test',
+        name: 'Wikiart_Elgammal_EQ_style_train',
         description: 'description text missing',
-        imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_Elgammal',
-        count: 1000,
-        size: 119312,
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/Wikiart_Elgammal/',
+        size: 6336,
+
     }, {
         id: '002',
-        name: 'Wikiart_artist49_images',
-        description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
-        imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_artist49_images/',
-        count: 1000, // 16164
-        size: 16164,
+        name: 'Wikiart_Elgammal_EQ_style_test',
+        description: 'description text missing',
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/Wikiart_Elgammal/',
+        size: 1584,
     }, {
         id: '003',
-        name: 'AwA2_vectors_train',
+        name: 'Wikiart_Elgammal_EQ_genre_train',
         description: 'description text missing',
-        imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
-        count: 1000,
-        size: 37372,
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/Wikiart_Elgammal/',
+        size: 14020,
     }, {
         id: '004',
-        name: 'STL_label_train',
+        name: 'Wikiart_Elgammal_EQ_genre_test',
         description: 'description text missing',
-        imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_train',
-        count: 5000,
-        size: 5000,
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/Wikiart_Elgammal/',
+        size: 3500,
     }, {
         id: '005',
+        name: 'Wikiart_Elgammal_EQ_artist_train',
+        description: 'description text missing',
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/Wikiart_Elgammal/',
+        size: 5704,
+    }, {
+        id: '006',
+        name: 'Wikiart_Elgammal_EQ_artist_test',
+        description: 'description text missing',
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/Wikiart_Elgammal/',
+        size: 1403,
+    }, {
+        id: '007',
+        name: 'STL_label_train',
+        description: 'description text missing',
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/STL_label_train/',
+        size: 5000,
+    }, {
+        id: '008',
         name: 'STL_label_test',
         description: 'description text missing',
-        imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_test',
-        count: 8000,
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/STL_label_test/',
         size: 8000,
-    }, {
-        id: '06',
-        name: 'Bansky',
-        description: 'description text missing',
-        imgPath: '/net/hci-storage02/groupfolders/compvis/salang/Street-Art-Daten/Banksy-Datensatz',
-        count: 2000,
-        size: 4916,
     },
+    // {
+    //     id: '009',
+    //     name: 'BreakHis_tumor_train',
+    //     description: 'description text missing',
+    //     imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/STL_label_test/',
+    //     size: 119312,
+    // },
+
+    // {
+    //     id: '002',
+    //     name: 'Wikiart_artist49_images',
+    //     description: 'this contains X Nodes, Y datas, Z cliques, K ranks',
+    //     imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/Wikiart_artist49_images/',
+    //     size: 16164,
+    // }, {
+    //     id: '003',
+    //     name: 'AwA2_vectors_train',
+    //     description: 'description text missing',
+    //     imgPath: '/net/hci-storage02/groupfolders/compvis/datasets/Animals_with_Attributes2/single_folder_images2',
+    //     size: 37372,
+    // }, {
+    //     id: '004',
+    //     name: 'STL_label_train',
+    //     description: 'description text missing',
+    //     imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_train',
+    //     size: 5000,
+    // }, {
+    //     id: '005',
+    //     name: 'STL_label_test',
+    //     description: 'description text missing',
+    //     imgPath: '/net/hciserver03/storage/kschwarz/Documents/Data/STL/single_folder_images_test',
+    //     size: 8000,
+    // }, {
+    //     id: '06',
+    //     name: 'Bansky',
+    //     description: 'description text missing',
+    //     imgPath: '/net/hci-storage02/groupfolders/compvis/salang/Street-Art-Daten/Banksy-Datensatz',
+    //     size: 4916,
+    // },
 ];
 
 // dev mode
@@ -82,7 +129,7 @@ const devDataSets = [
 ];
 
 
-export const dataSet = process.env.NODE_ENV === 'development' ? devDataSets : prodDataSet;
+export const dataSet = process.env.NODE_ENV === 'devel2opment' ? devDataSets : prodDataSet;
 
 export default dataSet;
 
