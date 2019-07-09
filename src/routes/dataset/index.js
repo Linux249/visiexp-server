@@ -120,7 +120,8 @@ router.get('/images/:id/:count', async (req, res, next) => {
     let i = 0;
     while (i < count) {
         i = (i + 500) < count ? i + 500 : +count;
-        const fileName = `${name}#${i}.bin`;
+        // const fileName = `${name}#${i}.bin`;
+        const fileName = `Wikiart_Elgammal_EQ_artist_test#${i}.bin`;
         const filePath = path.join(__dirname, '/../../../images/bin/', fileName);
         const stat = fs.statSync(filePath);
         console.log(i, stat.size, filePath);
