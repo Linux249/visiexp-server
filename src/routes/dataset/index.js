@@ -107,39 +107,49 @@ router.get('/stream', async (req, res, next) => {
 */
 // GET - /api/v1/dataset/images/:id
 router.get('/images/:id/:count', async (req, res, next) => {
-    console.log('request dataset stream');
-    let contentSize = 0;
-    let { id, count } = req.params;
-    const { name, size } = dataSet.find(e => e.id === id);
-    if (count > size) count = size;
-    console.log({
-        id, name, count, size,
-    });
-    const files = [];
-    // if (!imgPath || !count) return next(new Error('keine gültige id oder name'));
-    let i = 0;
-    while (i < count) {
-        i = (i + 500) < count ? i + 500 : +count;
-        // const fileName = `${name}#${i}.bin`;
-        const fileName = `Wikiart_Elgammal_EQ_artist_test#${i}.bin`;
-        const filePath = path.join(__dirname, '/../../../images/bin/', fileName);
-        const stat = fs.statSync(filePath);
-        console.log(i, stat.size, filePath);
-        contentSize += stat.size;
-        files.push(filePath);
+    try {
+        console.log('request dataset stream');
+        let contentSize = 0;
+        let { id, count } = req.params;
+        const { name, size } = dataSet.find(e => e.id === id);
+        if (count > size) count = size;
+        console.log({
+            id, name, count, size,
+        });
+        const files = [];
+        // if (!imgPath || !count) return next(new Error('keine gültige id oder name'));
+        let i = 0;
+        while (i < count) {
+            i = (i + 500) < count ? i + 500 : +count;
+            // const fileName = `${name}#${i}.bin`;
+            const fileName = `Wikiart_Elgammal_EQ_artist_test#${i}.bin`;
+            const filePath = path.join(__dirname, '/../../../images/bin/', fileName);
+            const stat = fs.statSync(filePath);
+            console.log(i, stat.size, filePath);
+            contentSize += stat.size;
+            files.push(filePath);
+        }
+
+        res.writeHead(200, {
+            'Content-Type': 'application/octet-stream',
+            'Content-Length': contentSize,
+        });
+
+        const stream = ss();
+        files.forEach((file) => {
+            stream.write(fs.createReadStream(file));
+        });
+        stream.end();
+        stream.pipe(res, { end: false });
+    } catch (e) {
+        console.log('error in GET /images/:id/:count');
+        console.log(e);
+        // check for wrong file path
+        if (e.code === 'ENOENT') {
+            const file = path.basename(e.path);
+            next(new Error(`Couldn't find image file: ${file}`));
+        } else next(e);
     }
-
-    res.writeHead(200, {
-        'Content-Type': 'application/octet-stream',
-        'Content-Length': contentSize,
-    });
-
-    const stream = ss();
-    files.forEach((file) => {
-        stream.write(fs.createReadStream(file));
-    });
-    stream.end();
-    stream.pipe(res, { end: false });
 });
 
 // GET - /api/v1/dataset/nodes/:id

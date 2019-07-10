@@ -101,7 +101,7 @@ app.use('/api/v1/', pythonRoute);
 app.use('/api/v1/svm/', svmRoute);
 app.use('/api/v1/dataset/', dataset);
 // app.use('/api', express.static('images'));// todo with imgPath outside the root folder not possible
-app.use('/', express.static('public'));
+// app.use('/', express.static('public'));
 /* app.get('/images/!*', (req, res) => {
     console.log(req.path)
     res.send()
@@ -114,12 +114,14 @@ app.use((req, res, next) => {
     next(err);
 });
 
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
+    console.error('Send Error vie JSON:')
+    console.log(err)
     res.status(err.status || 500);
     res.json({
-        errors: {
+        error: {
             message: err.message,
-            error: {},
+            err,
         },
     });
 });
