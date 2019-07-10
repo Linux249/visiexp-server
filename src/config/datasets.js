@@ -52,13 +52,13 @@ const prodDataSet = [
         id: '007',
         name: 'STL_label_train',
         description: 'description text missing',
-        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/STL_train/',
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/STL_train/imgs',
         size: 5000,
     }, {
         id: '008',
         name: 'STL_label_test',
         description: 'description text missing',
-        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/STL_test/',
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/STL_test/imgs',
         size: 8000,
     },
     // {
