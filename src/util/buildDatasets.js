@@ -3,7 +3,7 @@ import path from 'path';
 import sharp from 'sharp';
 import sizes from '../config/imgSizes';
 import dataSets from '../config/datasets';
-import {maxNodesCount} from "../config/maxNodesCount";
+import { maxNodesCount } from '../config/maxNodesCount';
 
 const fsp = fs.promises;
 
@@ -33,32 +33,40 @@ const buildDatasets = async (imgSizes) => {
             if (!fs.existsSync(outPath)) fs.mkdirSync(outPath);
 
             //  JSON files with nodes
-            const jsonFileName = `${datasetName}#${count}.json`;
-            const jsonFilePath = path.join(outPath, '..', jsonFileName);
-            let sourceFiles;
+            const jsonFileName = `${datasetName}.json`;
+            const jsonFilePath = path.join('/net/hcihome/storage/www-data-login-cv/visiexp/datasets', jsonFileName);
 
-            if (fs.existsSync(jsonFilePath)) {
-                console.log(`json file already exists for dataset: ${datasetName} - delete the file for recreating the dataset`);
-                console.log('dataset will be build from json file');
-                const jsonFile = await fsp.readFile(jsonFilePath);
-                sourceFiles = JSON.parse(jsonFile);
-            } else {
-                // create json file from #count random pics
-                sourceFiles = await fsp.readdir(imgPath);
-                sourceFiles.sort(() => Math.random() - 0.5);
-                sourceFiles = sourceFiles.slice(0, count);
-                await fsp.writeFile(jsonFilePath, JSON.stringify(sourceFiles));
-                console.log('create json file for:');
-                console.log(datasetName);
-                console.log(jsonFilePath);
-            }
+
+            const jsonFile = await fsp.readFile(jsonFilePath);
+            const { nodes } = JSON.parse(jsonFile);
+            const sortedNodes = {};
+            Object.keys(nodes).forEach((name) => {
+                sortedNodes[nodes[name].idx] = name;
+            });
+
+            const sourceFiles = Object.values(sortedNodes);
+            // if (fs.existsSync(jsonFilePath)) {
+            //     console.log(`json file already exists for dataset: ${datasetName} - delete the file for recreating the dataset`);
+            //     console.log('dataset will be build from json file');
+            //     const jsonFile = await fsp.readFile(jsonFilePath);
+            //     sourceFiles = JSON.parse(jsonFile);
+            // } else {
+            //     // create json file from #count random pics
+            //     sourceFiles = await fsp.readdir(imgPath);
+            //     sourceFiles.sort(() => Math.random() - 0.5);
+            //     sourceFiles = sourceFiles.slice(0, count);
+            //     await fsp.writeFile(jsonFilePath, JSON.stringify(sourceFiles));
+            //     console.log('create json file for:');
+            //     console.log(datasetName);
+            //     console.log(jsonFilePath);
+            // }
             let wstream;
 
 
             console.log(`start building dataset for ${count} pics`);
 
             // map through files
-            for (let i = 0; i < count; i += 1) {
+            for (let i = 0; i < 1; i += 1) {
                 if (i % 500 === 0) {
                     if (wstream) wstream.end();
                     // prepare write stream
