@@ -140,12 +140,12 @@ export default socket => async (data) => {
             }).then(async (res) => {
                 if (res.ok) {
                     try {
-                        const data = await res.json();
+                        const data2 = await res.json();
                         // Object.keys((k) => {
                         //     nodes[k].x = data.nodes[k].x;
                         //     nodes[k].y = data.nodes[k].y;
                         // });
-                        categories = data.categories;
+                        categories = data2.categories;
                         socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
                         socket.emit('init');
                         // return socket.emit('updateEmbedding', { nodes });
@@ -155,6 +155,8 @@ export default socket => async (data) => {
                         console.error('fetch works but response is not working - why?');
                         console.log(err);
                         console.log(res);
+                        const testData = await res.text()
+                        console.error(testData)
                         // socket.emit('sendAllNodes', nodes);
                         socket.emit('Error', { message: 'fetch works but response is not working - why?', err, res });
                     }
