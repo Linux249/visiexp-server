@@ -10,7 +10,7 @@ export default socket => async (data) => {
     if (!name) throw Error('that shouldn happen - report please!!! (requests image withoutname');
     try {
         // TODO .jpg is not the default every time!
-        const imagePath = path.join(dataset.imgPath, name, '.jpg');
+        const imagePath = path.join(dataset.imgPath, `${name}.jpg`);
         const file = await fsp.readFile(imagePath);
         const buffer = file.toString('base64');
         socket.emit('requestImage', {
@@ -20,6 +20,6 @@ export default socket => async (data) => {
         console.log(`Image is send: ${name}`);
     } catch (err) {
         console.error(err);
-        socket.emit('Error', { message: 'Error loading full image', err })
+        socket.emit('Error', { message: 'Error loading full image', err });
     }
 };
