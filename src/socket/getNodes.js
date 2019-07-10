@@ -4,7 +4,7 @@ import { getRandomColor } from '../util/getRandomColor';
 import { buildLabels } from '../util/buildLabels';
 import { pythonApi } from '../config/pythonApi';
 import dataSets from '../config/datasets';
-import {devMode} from "../config/env";
+import { devMode } from '../config/env';
 // import path from 'path';
 // import { maxNodesCount } from '../config/maxNodesCount';
 // import jsonNodes from './../../mock/AwA2_vectors_test.json';
@@ -145,7 +145,7 @@ export default socket => async (data) => {
                         //     nodes[k].x = data.nodes[k].x;
                         //     nodes[k].y = data.nodes[k].y;
                         // });
-                        categories = data2.categories;
+                        if (data2.categories) categories = data2.categories;
                         socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
                         socket.emit('init');
                         // return socket.emit('updateEmbedding', { nodes });
@@ -155,8 +155,6 @@ export default socket => async (data) => {
                         console.error('fetch works but response is not working - why?');
                         console.log(err);
                         console.log(res);
-                        const testData = await res.text()
-                        console.error(testData)
                         // socket.emit('sendAllNodes', nodes);
                         socket.emit('Error', { message: 'fetch works but response is not working - why?', err, res });
                     }
