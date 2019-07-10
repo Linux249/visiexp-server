@@ -4,6 +4,7 @@ import path from 'path';
 // import { Readable } from 'stream';
 import { Router } from 'express';
 import { dataSet } from '../../config/datasets';
+import {devMode} from "../../config/env";
 // import { imgSizes } from '../../config/imgSizes';
 const ss = require('stream-stream');
 
@@ -122,7 +123,7 @@ router.get('/images/:id/:count', async (req, res, next) => {
         while (i < count) {
             i = (i + 500) < count ? i + 500 : +count;
             // const fileName = `${name}#${i}.bin`;
-            const fileName = `Wikiart_Elgammal_EQ_artist_test#${i}.bin`;
+            const fileName = devMode ? `2582_sub_wikiarts#${i}.bin` : `Wikiart_Elgammal_EQ_artist_test#${i}.bin`;
             const filePath = path.join(__dirname, '/../../../images/bin/', fileName);
             const stat = fs.statSync(filePath);
             console.log(i, stat.size, filePath);

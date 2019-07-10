@@ -4,12 +4,12 @@ import { buildLabels } from '../util/buildLabels';
 
 export default socket => async (data) => {
     console.log('updateEmbedding');
-    // console.log(data);
+    console.log(data);
 
     let newNodes = {};
 
     // HINT The data should never by empty - inital nodes comes from getNodes
-    const { nodes, userId } = data;
+    const { nodes, userId, count } = data;
     // categories can but don't have to change
     let categories;
 
@@ -40,14 +40,25 @@ export default socket => async (data) => {
         } catch (err) {
             console.error('error - get nodes from python - error');
             console.error(err);
+            socket.emit('error', { message: 'Error getting nodes from python', err });
         }
     }
 
     // build labels - labels are scanned server side
-    const labels = categories ? buildLabels(categories, nodes) : undefined;
+    const labels = categories ? buildLabels(categories, newNodes) : undefined;
 
     // if new categories comes from server than send new labels back
     if (labels) socket.emit('updateCategories', { labels });
 
+    const keys = Object.keys(newNodes);
+    if (keys.length < count) {
+        socket.emit('error', { message: `Python update online ${keys.length} nodes` });
+    } else if (keys.length > count) {
+        socket.emit('error', { message: `Python update ${keys.length} nodes - ${keys.length - count} removed` });
+        keys.forEach((k) => {
+            if (k < count) nodes[k] = newNodes[k];
+            newNodes = nodes;
+        });
+    }
     socket.emit('updateEmbedding', { nodes: newNodes });
 };

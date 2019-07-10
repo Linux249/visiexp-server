@@ -5,8 +5,6 @@ import buildLabels from '../../util/buildLabels';
 import { getRandomUnusedId } from '../../util/getRandomUnusedId';
 import { pythonApi } from '../../config/pythonApi';
 
-const mockDataLength = require('../../config/env').mockDataLength;
-
 const router = Router();
 
 router.post('/updateLabels', async (req, res, next) => {
@@ -137,10 +135,9 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
         res.status = 200;
 
         const dumyNeighbours = {};
-        console.log({ mockDataLength });
 
         for (let n = 0; n < 8; n += 1) {
-            const id = getRandomUnusedId(mockDataLength, body.positives);
+            const id = getRandomUnusedId(500, body.positives);
             dumyNeighbours[id] = Math.random();
         }
 

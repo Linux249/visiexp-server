@@ -3,12 +3,12 @@ import fetch from 'node-fetch';
 import { getRandomColor } from '../util/getRandomColor';
 import { buildLabels } from '../util/buildLabels';
 import { pythonApi } from '../config/pythonApi';
-import dataSets, { dataSet } from '../config/datasets';
+import dataSets from '../config/datasets';
+import {devMode} from "../config/env";
 // import path from 'path';
 // import { maxNodesCount } from '../config/maxNodesCount';
 // import jsonNodes from './../../mock/AwA2_vectors_test.json';
 
-const devMode = (process.env.NODE_ENV === 'development');
 
 // const exampleNodes = devMode ? require('../../mock/2582_sub_wikiarts').default : {};
 
