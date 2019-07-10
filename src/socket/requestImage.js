@@ -7,7 +7,7 @@ export default socket => async (data) => {
     // console.log(data.name)
     const { name, datasetId } = data;
     const dataset = dataSets.find(e => e.id === datasetId);
-    if (!name) new Error('that shouldn happen - report please!!! (requests image withoutname');
+    if (!name) throw Error('that shouldn happen - report please!!! (requests image withoutname');
     try {
         // TODO .jpg is not the default every time!
         const imagePath = path.join(dataset.imgPath, name, '.jpg');
@@ -20,5 +20,6 @@ export default socket => async (data) => {
         console.log(`Image is send: ${name}`);
     } catch (err) {
         console.error(err);
+        socket.emit('Error', { message: 'Error loading full image', err })
     }
 };

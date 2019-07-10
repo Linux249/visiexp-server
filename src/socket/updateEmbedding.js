@@ -4,7 +4,7 @@ import { buildLabels } from '../util/buildLabels';
 
 export default socket => async (data) => {
     console.log('updateEmbedding');
-    console.log(data);
+    // console.log(data);
 
     let newNodes = {};
 
@@ -40,7 +40,7 @@ export default socket => async (data) => {
         } catch (err) {
             console.error('error - get nodes from python - error');
             console.error(err);
-            socket.emit('error', { message: 'Error getting nodes from python', err });
+            socket.emit('Error', { message: 'Error getting nodes from python', err });
         }
     }
 
@@ -52,9 +52,9 @@ export default socket => async (data) => {
 
     const keys = Object.keys(newNodes);
     if (keys.length < count) {
-        socket.emit('error', { message: `Python update online ${keys.length} nodes` });
+        socket.emit('Error', { message: `Python update online ${keys.length} nodes` });
     } else if (keys.length > count) {
-        socket.emit('error', { message: `Python update ${keys.length} nodes - ${keys.length - count} removed` });
+        socket.emit('Error', { message: `Python update ${keys.length} nodes - ${keys.length - count} removed` });
         keys.forEach((k) => {
             if (k < count) nodes[k] = newNodes[k];
             newNodes = nodes;
