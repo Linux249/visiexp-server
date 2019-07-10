@@ -66,7 +66,7 @@ const buildDatasets = async (imgSizes) => {
             console.log(`start building dataset for ${count} pics`);
 
             // map through files
-            for (let i = 0; i < 1; i += 1) {
+            for (let i = 0; i < count; i += 1) {
                 if (i % 500 === 0) {
                     if (wstream) wstream.end();
                     // prepare write stream
@@ -84,7 +84,7 @@ const buildDatasets = async (imgSizes) => {
                 }
                 const file = sourceFiles[i];
                 // console.log(imgPath, file);
-                const imgFilePath = fs.realpathSync(path.join(imgPath, file));
+                const imgFilePath = fs.realpathSync(path.join(imgPath, `${file}.jpg`));
                 if (!(i % 10)) console.log(`${i}: ${imgFilePath}`);
 
                 const pics = Object.create(null);
