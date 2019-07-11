@@ -2,8 +2,8 @@ module.exports = {
     apps: [{
         name: 'API(Node)',
         script: 'dist/index.js',
-        instances : "max",
-        exec_mode : "cluster",
+        instances: 'max',
+        exec_mode: 'cluster',
         env: {
             NODE_ENV: 'production',
         },
@@ -11,9 +11,9 @@ module.exports = {
             NODE_ENV: 'production',
         },
         watch: true,
-        log_date_format: "YYYY-MM-DD HH:mm Z",
-        merge_logs: true,
-    }, /*{
+        log_date_format: 'YYYY-MM-DD HH:mm Z',
+        combine_logs: true,
+    }, /* {
         name: 'API(python)',
         script: 'server.py',
         env: {
@@ -23,7 +23,7 @@ module.exports = {
             NODE_ENV: 'production',
         },
         watch: true,
-    }*/],
+    } */],
 
     deploy: {
         production: {
