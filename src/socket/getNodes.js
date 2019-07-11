@@ -156,7 +156,7 @@ export default socket => async (data) => {
                         console.log(err);
                         console.log(res);
                         // socket.emit('sendAllNodes', nodes);
-                        socket.emit('Error', { message: 'fetch works but response is not working - why?', err, res });
+                        socket.emit('Error', { message: err.message, err, res });
                     }
                 }
             });

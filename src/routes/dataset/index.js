@@ -107,7 +107,7 @@ router.get('/stream', async (req, res, next) => {
 });
 */
 // GET - /api/v1/dataset/images/:id
-router.get('/images/:id/:count', async (req, res, next) => {
+router.get('/images/:id/:count', async (req,    res, next) => {
     try {
         console.log('request dataset stream');
         let contentSize = 0;
@@ -123,7 +123,7 @@ router.get('/images/:id/:count', async (req, res, next) => {
         while (i < count) {
             i = (i + 500) < count ? i + 500 : +count;
             // const fileName = `${name}#${i}.bin`;
-            const fileName = devMode ? `2582_sub_wikiarts#${i}.bin` : `Wikiart_Elgammal_EQ_artist_test#${i}.bin`;
+            const fileName = devMode ? `2582_sub_wikiarts#${i}.bin` : `${name}#${i}.bin`;
             const filePath = path.join(__dirname, '/../../../images/bin/', fileName);
             const stat = fs.statSync(filePath);
             console.log(i, stat.size, filePath);
