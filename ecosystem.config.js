@@ -11,7 +11,8 @@ module.exports = {
             NODE_ENV: 'production',
         },
         watch: true,
-        log_date_format: "YYYY-MM-DD HH:mm Z"
+        log_date_format: "YYYY-MM-DD HH:mm Z",
+        merge_logs: true,
     }, /*{
         name: 'API(python)',
         script: 'server.py',
