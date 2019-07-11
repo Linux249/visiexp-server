@@ -50,12 +50,24 @@ const prodDataSet = [
         size: 1403,
     }, {
         id: '007',
+        name: 'AwA2_vectors_test',
+        description: 'description text missing',
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/AwA2/imgs',
+        size: 5000,
+    }, {
+        id: '008',
+        name: 'AwA2_vectors_train',
+        description: 'description text missing',
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/AwA2/imgs',
+        size: 8000,
+    }, {
+        id: '009',
         name: 'STL_label_train',
         description: 'description text missing',
         imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/STL_train/imgs',
         size: 5000,
     }, {
-        id: '008',
+        id: '010',
         name: 'STL_label_test',
         description: 'description text missing',
         imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/STL_test/imgs',
