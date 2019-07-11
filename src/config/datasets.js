@@ -53,13 +53,13 @@ const prodDataSet = [
         name: 'AwA2_vectors_test',
         description: 'description text missing',
         imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/AwA2/imgs',
-        size: 5000,
+        size: 7388,
     }, {
         id: '008',
         name: 'AwA2_vectors_train',
         description: 'description text missing',
         imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/AwA2/imgs',
-        size: 8000,
+        size: 29551,
     }, {
         id: '009',
         name: 'STL_label_train',
