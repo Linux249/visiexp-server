@@ -38,11 +38,11 @@ export default socket => async (data) => {
         const time2 = process.hrtime();
 
         // check counts of all datasets
-        await Promise.all(dataSets.map(async (d) => {
-            const all = await fetch(`${pythonApi}/getNodes?dataset=${d.name}`).then(res => res.json());
-            const length = Object.keys(all.nodes).length;
-            console.log(d.name, length);
-        }));
+        // await Promise.all(dataSets.map(async (d) => {
+        //     const all = await fetch(`${pythonApi}/getNodes?dataset=${d.name}`).then(res => res.json());
+        //     const length = Object.keys(all.nodes).length;
+        //     console.log(d.name, length);
+        // }));
 
         const jsonAll = devMode
             ? require('./../../mock/AwA2_vectors_test.json')
