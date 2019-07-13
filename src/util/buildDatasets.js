@@ -84,24 +84,25 @@ const buildDatasets = async (imgSizes) => {
                 }
                 const file = sourceFiles[i];
                 // console.log(imgPath, file);
+
                 const imgFilePath = fs.realpathSync(path.join(imgPath, `${file}.jpg`));
                 if (!(i % 10)) console.log(`${i}: ${imgFilePath}`);
 
                 const pics = Object.create(null);
-                await Promise.all(imgSizes.map(async (size) => {
-                    pics[size] = await sharp(imgFilePath)
-                        .resize(size, size, { fit: 'inside' })
-                        .ensureAlpha()
-                        .raw()
-                        .toBuffer({ resolveWithObject: true })
-                        .catch((e) => {
-                            console.error(e);
-                            console.error(imgFilePath);
-                            console.error(`exists?: ${fs.existsSync(imgFilePath)}`);
-                            console.error(fs.statSync(imgFilePath));
-                            // throw Error(e);
-                        });
-                }));
+                try {
+                    await Promise.all(imgSizes.map(async (size) => {
+                        pics[size] = await sharp(imgFilePath)
+                            .resize(size, size, {fit: 'inside'})
+                            .ensureAlpha()
+                            .raw()
+                            .toBuffer({resolveWithObject: true})
+                    }));
+                } catch (e) {
+                    console.error(e);
+                    console.error(`exists?: ${fs.existsSync(imgFilePath)}`, imgFilePath);
+                    console.error(fs.statSync(imgFilePath));
+                    console.log(parsed)
+                }
 
 
                 Object.values(pics).forEach((p) => {
