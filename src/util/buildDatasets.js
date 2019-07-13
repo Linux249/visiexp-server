@@ -98,6 +98,7 @@ const buildDatasets = async (imgSizes) => {
                             console.error(e);
                             console.error(imgFilePath);
                             console.error(`exists?: ${fs.existsSync(imgFilePath)}`);
+                            console.error(fs.statSync(imgFilePath));
                             // throw Error(e);
                         });
                 }));
