@@ -21,6 +21,8 @@ export default socket => async (data) => {
 
     const nodes = {}; // the nodes object for mutating differently in dev mode
     let categories = [];
+    let rangeX,
+        rangeY;
     const {
         datasetId, userId, count,
     } = data;
@@ -54,6 +56,10 @@ export default socket => async (data) => {
         const jsonNodes = jsonAll.nodes;
         const keys = Object.keys(jsonNodes);
         console.log(keys.length);
+        let minX = Number.POSITIVE_INFINITY,
+            maxX = Number.NEGATIVE_INFINITY,
+            minY = Number.POSITIVE_INFINITY,
+            maxY = Number.NEGATIVE_INFINITY;
         keys.forEach((key) => {
             // maybe count is higher but than max nodes in dataset will automatically the highest
             if (jsonNodes[key].idx < count) {
@@ -65,7 +71,16 @@ export default socket => async (data) => {
                     labels: [],
                     index: jsonNodes[key].idx,
                 };
+                if (jsonNodes[key].x > maxX) maxX = jsonNodes[key].x;
+                if (jsonNodes[key].x < minX) minX = jsonNodes[key].x;
+                if (jsonNodes[key].y > maxY) maxY = jsonNodes[key].y;
+                if (jsonNodes[key].y < minY) minY = jsonNodes[key].y;
             }
+        });
+        rangeX = Math.abs(maxX - minX);
+        rangeY = Math.abs(maxY - minY);
+        console.log({
+            minX, maxX, minY, maxY, rangeX, rangeY,
         });
         const diff2 = process.hrtime(time2);
         console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
@@ -76,7 +91,7 @@ export default socket => async (data) => {
 
 
     const nodeDataLength = Object.keys(nodes).length;
-    socket.emit('totalNodesCount', { count: nodeDataLength });
+    socket.emit('totalNodesCount', { count: nodeDataLength, rangeX, rangeY });
 
     // before they should be cleaned and compared with maybe old data
     // const time = process.hrtime();
@@ -126,7 +141,7 @@ export default socket => async (data) => {
         //     };
         // });
         try {
-            await fetch(`${pythonApi}/nodes`, {
+            fetch(`${pythonApi}/nodes`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({
