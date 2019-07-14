@@ -9,9 +9,7 @@ import { devMode } from '../config/env';
 // import { maxNodesCount } from '../config/maxNodesCount';
 // import jsonNodes from './../../mock/AwA2_vectors_test.json';
 
-
 // const exampleNodes = devMode ? require('../../mock/2582_sub_wikiarts').default : {};
-
 
 // on: getNodes
 export default socket => async (data) => {
@@ -22,10 +20,12 @@ export default socket => async (data) => {
     const nodes = {}; // the nodes object for mutating differently in dev mode
     let categories = [];
     let rangeX,
-        rangeY;
-    const {
-        datasetId, userId, count,
-    } = data;
+        rangeY,
+        minX = Number.POSITIVE_INFINITY,
+        maxX = Number.NEGATIVE_INFINITY,
+        minY = Number.POSITIVE_INFINITY,
+        maxY = Number.NEGATIVE_INFINITY;
+    const { datasetId, userId, count } = data;
     console.log({ datasetId, userId, count });
     const dataset = dataSets.find(e => e.id === datasetId);
     if (!dataset) {
@@ -56,10 +56,7 @@ export default socket => async (data) => {
         const jsonNodes = jsonAll.nodes;
         const keys = Object.keys(jsonNodes);
         console.log(keys.length);
-        let minX = Number.POSITIVE_INFINITY,
-            maxX = Number.NEGATIVE_INFINITY,
-            minY = Number.POSITIVE_INFINITY,
-            maxY = Number.NEGATIVE_INFINITY;
+
         keys.forEach((key) => {
             // maybe count is higher but than max nodes in dataset will automatically the highest
             if (jsonNodes[key].idx < count) {
@@ -80,25 +77,36 @@ export default socket => async (data) => {
         rangeX = Math.abs(maxX - minX);
         rangeY = Math.abs(maxY - minY);
         console.log({
-            minX, maxX, minY, maxY, rangeX, rangeY,
+            minX,
+            maxX,
+            minY,
+            maxY,
+            rangeX,
+            rangeY,
         });
         const diff2 = process.hrtime(time2);
-        console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
+        console.log(`getNodesFromPython took ${diff2[0] + diff2[1] / 1e9} seconds`);
     } catch (e) {
         console.error('Error while getting nodes from python/json files');
         console.error(e);
     }
 
-
     const nodeDataLength = Object.keys(nodes).length;
-    socket.emit('totalNodesCount', { count: nodeDataLength, rangeX, rangeY });
+    socket.emit('totalNodesCount', {
+        count: nodeDataLength,
+        minX,
+        maxX,
+        minY,
+        maxY,
+        rangeX,
+        rangeY,
+    });
 
     // before they should be cleaned and compared with maybe old data
     // const time = process.hrtime();
     // updatedNodes = compareAndClean({}, updatedNodes);
     // const diff = process.hrtime(time);
     // console.log(`compareAndClean took ${diff[0] + diff[1] / 1e9} seconds`);
-
 
     if (devMode) {
         // dummy category's
@@ -109,7 +117,9 @@ export default socket => async (data) => {
         for (let n = 0; n < nodeDataLength; n += 1) {
             // generate dummy labels
             nodes[n].labels = [];
-            for (let i = 0; i < c; i += 1) nodes[n].labels.push(Math.random() >= 0.5 ? `${categories[i]}_label_${i}` : null);
+            for (let i = 0; i < c; i += 1) {
+                nodes[n].labels.push(Math.random() >= 0.5 ? `${categories[i]}_label_${i}` : null);
+            }
         }
 
         // build and sending back labels (- )labels are scanned on server-side)
@@ -203,16 +213,12 @@ export default socket => async (data) => {
         }
     } */
 
-
     // saving used colorKeys
     const colorKeyHash = {};
     // const timeStartSendNodes = process.hrtime();
 
     // doing everything for each node and send it back
     Object.values(nodes).map(async (node) => {
-        // add index to nodes
-        // node.index = index;
-
         // get a unique color for each node as a key
         while (true) {
             const colorKey = getRandomColor();
@@ -295,14 +301,11 @@ export default socket => async (data) => {
 // console.time('cluster kmeans');
 // const timeCluster2 = process.hrtime();
 
-
 // const cluster2 = clusterfck.kmeans(points2, 20);
-
 
 // const diffCluster2 = process.hrtime(timeCluster2);
 // console.timeEnd('cluster kmeans');
 // console.log(`end clustering kmeans: ${diffCluster2[0] + (diffCluster2[1] / 1e9)} seconds`);
-
 
 /*
 // calc kernel density estimation
@@ -331,7 +334,6 @@ const out = kde2d(x, y, {
 const diffKde = process.hrtime(timeKde);
 console.log(`end kde: ${diffKde[0] + diffKde[1] / 1e9} seconds`);
 */
-
 
 // THE OLD IMAGE LOD WAY
 /*
