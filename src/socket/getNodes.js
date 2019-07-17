@@ -129,6 +129,7 @@ export default socket => async (data) => {
         // build and sending back labels (- )labels are scanned on server-side)
         socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
         console.log('updateCategories: labels are send');
+        socket.emit('initPython', { done: true });
     } else {
         // read initial #count nodes
         // console.log('request dataset nodes');
@@ -162,7 +163,7 @@ export default socket => async (data) => {
                     dataset: dataset.name,
                     count,
                     userId,
-                    init: true,
+                    init: 'new',
                     nodes,
                     // tripel,
                 }),
@@ -176,7 +177,7 @@ export default socket => async (data) => {
                         // });
                         if (data2.categories) categories = data2.categories;
                         socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
-                        socket.emit('init');
+                        socket.emit('initPython', data2);
                         // return socket.emit('updateEmbedding', { nodes });
                         // return socket.emit('sendAllNodes', nodes);
                     } catch (err) {
