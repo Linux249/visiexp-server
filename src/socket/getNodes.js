@@ -25,8 +25,8 @@ export default socket => async (data) => {
         maxX = Number.NEGATIVE_INFINITY,
         minY = Number.POSITIVE_INFINITY,
         maxY = Number.NEGATIVE_INFINITY;
-    const { datasetId, userId, count } = data;
-    console.log({ datasetId, userId, count });
+    const { datasetId, userId, count, init } = data;
+    console.log({ datasetId, userId, count, init });
     const dataset = dataSets.find(e => e.id === datasetId);
     if (!dataset) {
         // TODO Error handling, maybe a error emit
@@ -163,7 +163,7 @@ export default socket => async (data) => {
                     dataset: dataset.name,
                     count,
                     userId,
-                    init: 'new',
+                    init,
                     nodes,
                     // tripel,
                 }),
@@ -178,6 +178,7 @@ export default socket => async (data) => {
                         if (data2.categories) categories = data2.categories;
                         socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
                         socket.emit('initPython', data2);
+                        if (data2.nodes) socket.emit('updateEmbedding', { nodes: data2.nodes });
                         // return socket.emit('updateEmbedding', { nodes });
                         // return socket.emit('sendAllNodes', nodes);
                     } catch (err) {
