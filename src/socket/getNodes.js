@@ -55,7 +55,7 @@ export default socket => async (data) => {
         });
         const jsonNodes = jsonAll.nodes;
         const keys = Object.keys(jsonNodes);
-        console.log(keys.length);
+        console.log(`get #${keys.length} nodes from python`);
 
         keys.forEach((key) => {
             // maybe count is higher but than max nodes in dataset will automatically the highest
@@ -84,8 +84,12 @@ export default socket => async (data) => {
             rangeX,
             rangeY,
         });
+        Object.keys(nodes).forEach((k) => {
+            nodes[k].x = (((nodes[k].x - minX) / rangeX) * 30) - 15;
+            nodes[k].y = (((nodes[k].y - minY) / rangeY) * 30) - 15;
+        });
         const diff2 = process.hrtime(time2);
-        console.log(`getNodesFromPython took ${diff2[0] + diff2[1] / 1e9} seconds`);
+        console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
     } catch (e) {
         console.error('Error while getting nodes from python/json files');
         console.error(e);
