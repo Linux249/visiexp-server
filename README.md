@@ -2,25 +2,28 @@
 
 #### clone
 ```
-git clone https://github.com/Linux249/bachelor-node.git myNodeProject
+git clone https://github.com/Linux249/visiexp-server.git myNodeProject
 cd myNodeProject
 npm i
 ```
 
-Nun den `images` folder noch kopieren und dann
-
-#### starten
+#### start
+Deployed to `compvis10` with the `www-data-user`
 ```
-python server.py
-npm start
-```
-
-Der dev modus liefert 100 Bilder mit zufälligen x,y-coords
-```
-npm start dev
+cd ~/visiexp/visiexp-server
+pm2 start
 ```
 
-Nun ist die App unter `localhost:3000` erreichbar
+#### update
+Pull everything from remote/master and run build
+```
+cd ~/jl_visiexp/visiexp-server
+npm run deploy
+pm2 restart all
+```
+
+The app is provided under `localhost:3000`. The Apache2 server is configured to redirect everything with `[domain}/api/v1/..` here. 
+ 
 
 
 ### Node schema
