@@ -19,6 +19,7 @@ export default socket => async (data) => {
 
     const nodes = {}; // the nodes object for mutating differently in dev mode
     let categories = [];
+    let time = 0;
     let rangeX;
     let rangeY;
     let minX = Number.POSITIVE_INFINITY;
@@ -40,7 +41,7 @@ export default socket => async (data) => {
     }
 
     try {
-        console.log('get nodes from python');
+        console.log('get init nodes from python');
         const time2 = process.hrtime();
 
         // check counts of all datasets
@@ -54,12 +55,12 @@ export default socket => async (data) => {
             ? require('./../../mock/AwA2_vectors_test.json')
             : await fetch(`${pythonApi}/getNodes?dataset=${dataset.name}`).then(res => res.json());
 
-        Object.keys(jsonAll).forEach((k) => {
-            console.log(k);
-        });
+        // Object.keys(jsonAll).forEach((k) => {
+        //     console.log(k);
+        // });
         const jsonNodes = jsonAll.nodes;
         const keys = Object.keys(jsonNodes);
-        console.log(`get #${keys.length} nodes from python`);
+        console.log(`get #${keys.length} nodes from init`);
 
         keys.forEach((key) => {
             // maybe count is higher but than max nodes in dataset will automatically the highest
@@ -93,14 +94,15 @@ export default socket => async (data) => {
             nodes[k].y = (((nodes[k].y - minY) / rangeY) * 30) - 15;
         });
         const diff2 = process.hrtime(time2);
-        console.log(`getNodesFromPython took ${diff2[0] + (diff2[1] / 1e9)} seconds`);
+        time = diff2[0] + (diff2[1] / 1e9);
+        console.log(`get init nodes from json took ${time} seconds`);
     } catch (e) {
         console.error('Error while getting nodes from python/json files');
         console.error(e);
     }
 
-    const nodeDataLength = Object.keys(nodes).length;
-    socket.emit('totalNodesCount', { count: nodeDataLength });
+    const nodesLength = Object.keys(nodes).length;
+    socket.emit('totalNodesCount', { count: nodesLength });
 
     // before they should be cleaned and compared with maybe old data
     // const time = process.hrtime();
@@ -114,7 +116,7 @@ export default socket => async (data) => {
         const c = categories.length;
 
         // generate dummy nodes
-        for (let n = 0; n < nodeDataLength; n += 1) {
+        for (let n = 0; n < nodesLength; n += 1) {
             // generate dummy labels
             nodes[n].labels = [];
             for (let i = 0; i < c; i += 1) {
@@ -125,7 +127,7 @@ export default socket => async (data) => {
         // build and sending back labels (- )labels are scanned on server-side)
         socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
         console.log('updateCategories: labels are send');
-        socket.emit('initPython', { done: false });
+        socket.emit('initPython', { done: true });
     } else {
         // read initial #count nodes
         // console.log('request dataset nodes');
@@ -152,6 +154,7 @@ export default socket => async (data) => {
         //     };
         // });
         try {
+            const time1 = process.hrtime();
             fetch(`${pythonApi}/nodes`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
@@ -173,8 +176,10 @@ export default socket => async (data) => {
                         // });
                         if (data2.categories) categories = data2.categories;
                         socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
+                        const diff1 = process.hrtime(time1);
+                        time = diff1[0] + (diff1[1] / 1e9);
+                        if (data2.nodes) socket.emit('updateEmbedding', { nodes: data2.nodes, time });
                         socket.emit('initPython', data2);
-                        if (data2.nodes) socket.emit('updateEmbedding', { nodes: data2.nodes });
                         // return socket.emit('updateEmbedding', { nodes });
                         // return socket.emit('sendAllNodes', nodes);
                     } catch (err) {
@@ -245,7 +250,7 @@ export default socket => async (data) => {
     // trigger init call on python backend
 
     console.log('sendAllNodes');
-    return socket.emit('sendAllNodes', nodes);
+    return socket.emit('sendAllNodes', {nodes, time});
 };
 
 // THE OLD CLUSTERING

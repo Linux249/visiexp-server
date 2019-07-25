@@ -7,6 +7,7 @@ export default socket => async (data) => {
     // console.log(data);
 
     let newNodes = {};
+    let time = 0;
 
     // HINT The data should never by empty - inital nodes comes from getNodes
     const { nodes, userId, count } = data;
@@ -36,7 +37,8 @@ export default socket => async (data) => {
             newNodes = result.nodes;
             categories = result.categories;
             const diff2 = process.hrtime(time2);
-            console.log(`getNodesFromPython took ${diff2[0] + diff2[1] / 1e9} seconds`);
+            time = diff2[0] + (diff2[1] / 1e9);
+            console.log(`updateNodesFromPython took ${time} seconds`);
         } catch (err) {
             console.error('error - get nodes from python - error');
             console.error(err);
@@ -60,5 +62,5 @@ export default socket => async (data) => {
             newNodes = nodes;
         });
     }
-    socket.emit('updateEmbedding', { nodes: newNodes });
+    socket.emit('updateEmbedding', { nodes: newNodes, time });
 };
