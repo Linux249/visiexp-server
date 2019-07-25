@@ -125,7 +125,7 @@ export default socket => async (data) => {
         // build and sending back labels (- )labels are scanned on server-side)
         socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
         console.log('updateCategories: labels are send');
-        socket.emit('initPython', { done: true });
+        socket.emit('initPython', { done: false });
     } else {
         // read initial #count nodes
         // console.log('request dataset nodes');
