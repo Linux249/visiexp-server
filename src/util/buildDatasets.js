@@ -86,12 +86,18 @@ const buildDatasets = async (imgSizes) => {
                 // console.log(imgPath, file);
 
                 let imgFilePath;
+                // test the file extension -
                 try {
                     imgFilePath = fs.realpathSync(path.join(imgPath, `${file}.jpg`));
                 } catch (e) {
                     // nothing to because file is maybe a .png and next try will error if file not exists
+                    try {
+                        if (!imgFilePath) imgFilePath = fs.realpathSync(path.join(imgPath, `${file}.png`));
+                    } catch (e) {
+                        imgFilePath = fs.realpathSync(path.join(imgPath, file));
+                    }
                 }
-                if (!imgFilePath) imgFilePath = fs.realpathSync(path.join(imgPath, `${file}.png`));
+
                 if (!(i % 10)) console.log(`${i}: ${imgFilePath}`);
 
                 const pics = Object.create(null);
