@@ -72,6 +72,12 @@ const prodDataSet = [
         description: 'description text missing',
         imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/STL_test/imgs',
         size: 8000,
+    }, {
+        id: '011',
+        name: 'Demo_Wiki_1',
+        description: 'description text missing',
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/demo_wiki_1/imgs',
+        size: 1011,
     },
     // {
     //     id: '009',
