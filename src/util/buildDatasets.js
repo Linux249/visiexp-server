@@ -142,10 +142,10 @@ const buildDatasets = async (imgSizes) => {
 
 export default buildDatasets;
 
-buildDatasets(sizes).then((e) => {
-    console.log('Finished: all images resized');
-}).catch((err) => {
-    console.error('Error: resizePics not finished');
-    console.error(err.message);
-    console.error(err);
-});
+buildDatasets(sizes)
+    .then(() => console.log('Finished: all images resized'))
+    .catch((err) => {
+        console.error('Error: resizePics not finished');
+        console.error(err.message);
+        console.error(err);
+    });

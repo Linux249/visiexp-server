@@ -10,7 +10,10 @@ export default socket => async (data) => {
     if (!name) throw Error('that shouldn happen - report please!!! (requests image withoutname');
     try {
         let imagePath = path.join(dataset.imgPath, `${name}.jpg`);
-        await fsp.access(imagePath).catch(() => imagePath = path.join(dataset.imgPath, `${name}.png`));
+        await fsp.access(imagePath).catch(async () => {
+            imagePath = path.join(dataset.imgPath, `${name}.png`);
+            await fsp.access(imagePath).catch(() => imagePath = path.join(dataset.imgPath, name));
+        });
         const file = await fsp.readFile(imagePath);
         const buffer = file.toString('base64');
         socket.emit('requestImage', {
