@@ -34,8 +34,10 @@ const buildDatasets = async (imgSizes) => {
 
             //  JSON files with nodes
             const jsonFileName = `${datasetName}.json`;
-            const jsonFilePath = path.join('/net/hcihome/storage/www-data-login-cv/visiexp/datasets', jsonFileName);
-
+            const jsonFilePath = path.join(
+                '/net/hcihome/storage/www-data-login-cv/visiexp/datasets',
+                jsonFileName,
+            );
 
             const jsonFile = await fsp.readFile(jsonFilePath);
             const { nodes } = JSON.parse(jsonFile);
@@ -62,7 +64,6 @@ const buildDatasets = async (imgSizes) => {
             // }
             let wstream;
 
-
             console.log(`start building dataset for ${count} pics`);
 
             // map through files
@@ -70,7 +71,7 @@ const buildDatasets = async (imgSizes) => {
                 if (i % 500 === 0) {
                     if (wstream) wstream.end();
                     // prepare write stream
-                    const number = (i + 500) < count ? i + 500 : count;
+                    const number = i + 500 < count ? i + 500 : count;
                     const binFileName = `${datasetName}#${number}.bin`;
                     const binFilePath = path.join(outPath, binFileName);
                     console.log(`binFilePath: ${binFilePath}`);
@@ -116,7 +117,6 @@ const buildDatasets = async (imgSizes) => {
                     console.log(parsed);
                 }
 
-
                 Object.values(pics).forEach((p) => {
                     if (p) {
                         wstream.write(Buffer.from([p.info.width, p.info.height]));
@@ -138,7 +138,6 @@ const buildDatasets = async (imgSizes) => {
     }
     console.timeEnd('buildDatasets');
 };
-
 
 export default buildDatasets;
 

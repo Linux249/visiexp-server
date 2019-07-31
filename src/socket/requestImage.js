@@ -12,7 +12,7 @@ export default socket => async (data) => {
         let imagePath = path.join(dataset.imgPath, `${name}.jpg`);
         await fsp.access(imagePath).catch(async () => {
             imagePath = path.join(dataset.imgPath, `${name}.png`);
-            await fsp.access(imagePath).catch(() => imagePath = path.join(dataset.imgPath, name));
+            await fsp.access(imagePath).catch(() => (imagePath = path.join(dataset.imgPath, name)));
         });
         const file = await fsp.readFile(imagePath);
         const buffer = file.toString('base64');
