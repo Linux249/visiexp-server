@@ -54,7 +54,6 @@ router.post('/updateEmbedding', async (req, res, next) => {
     });
 });
 
-
 router.post('/startUpdateEmbedding', async (req, res, next) => {
     console.log('POST /startUpdateEmbedding');
     const { body } = req;
@@ -93,7 +92,6 @@ router.post('/stopUpdateEmbedding', async (req, res, next) => {
     // console.log(app)
     if (!socketId) return next(new Error('No Socket ID delivered'));
 
-
     try {
         const time = process.hrtime();
         const data = await fetch(`${pythonApi}/stopUpdateEmbedding`, {
@@ -115,19 +113,19 @@ router.post('/stopUpdateEmbedding', async (req, res, next) => {
 router.post('/getGroupNeighbours', async (req, res, next) => {
     console.log('POST /getGroupNeighbours');
     console.log(req.body);
-    const { neighbours, removedNeighbours, threshold } = req.body;
+    const {
+        threshold, positives, groupId, userId, negatives,
+    } = req.body;
     const body = {
-        threshold, // TODO maybe the python code need this or can perfom the sorting?
-        positives: req.body.group,
-        groupId: req.body.groupId,
-        userId: req.body.userId,
+        threshold, // TODO maybe the python code need this or can perform the sorting?
+        positives,
+        groupId,
+        userId,
     };
 
-    // no neighbours => no negatives => initial function call
-    if (neighbours) {
-        Object.keys(neighbours).forEach(key => body.positives.push(+key));
-        body.negatives = [];
-        Object.keys(removedNeighbours).forEach(key => body.negatives.push(+key));
+    // no negatives => initial function call
+    if (negatives) {
+        body.negatives = negatives;
     }
     console.log({ body });
 
@@ -141,11 +139,11 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
             dumyNeighbours[id] = Math.random();
         }
 
-        const newNeighbours = {}
+        const newNeighbours = {};
         Object.keys(dumyNeighbours)
             .sort((a, b) => dumyNeighbours[b] - dumyNeighbours[a])
             .slice(0, +threshold)
-            .forEach(e  => newNeighbours[e] = dumyNeighbours[e]);
+            .forEach(e => (newNeighbours[e] = dumyNeighbours[e]));
         res.send({
             group: body.positives,
             neighbours: newNeighbours,
@@ -161,13 +159,13 @@ router.post('/getGroupNeighbours', async (req, res, next) => {
             }).then(response => response.json());
             const { group, neighbours: allNeighbours } = data;
             console.log({ group, allNeighbours });
-            const newNeighbours = {}
+            const newNeighbours = {};
             Object.keys(allNeighbours)
                 .sort((a, b) => allNeighbours[b] - allNeighbours[a])
                 .slice(0, +threshold)
-                .forEach(e => newNeighbours[e] = allNeighbours[e]);
+                .forEach(e => (newNeighbours[e] = allNeighbours[e]));
 
-            res.json({ group, neighbours: newNeighbours });
+            res.json({ group, neighbours: newNeighbours, allData: data });
             const diff = process.hrtime(time);
             console.log(`getGroupNeighbours from python took ${diff[0] + diff[1] / 1e9} seconds`);
         } catch (err) {
