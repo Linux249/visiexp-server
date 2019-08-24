@@ -98,8 +98,9 @@ export default socket => async (data) => {
         console.log(`get init nodes from json took ${time} seconds`);
     } catch (e) {
         console.error('Error while getting nodes from python/json files');
+        console.error(e.message);
         console.error(e);
-        socket.emit('error', e.message)
+        socket.emit('error', 'Failed to load init data from json file.');
     }
 
     const nodesLength = Object.keys(nodes).length;
@@ -251,7 +252,7 @@ export default socket => async (data) => {
     // trigger init call on python backend
 
     console.log('sendAllNodes');
-    return socket.emit('sendAllNodes', {nodes, time});
+    return socket.emit('sendAllNodes', { nodes, time });
 };
 
 // THE OLD CLUSTERING
