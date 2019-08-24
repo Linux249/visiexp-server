@@ -99,6 +99,7 @@ export default socket => async (data) => {
     } catch (e) {
         console.error('Error while getting nodes from python/json files');
         console.error(e);
+        socket.emit('error', e.message)
     }
 
     const nodesLength = Object.keys(nodes).length;
