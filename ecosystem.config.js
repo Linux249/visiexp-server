@@ -11,8 +11,9 @@ module.exports = {
             NODE_ENV: 'production',
         },
         watch: true,
+        time: true, // add timestamp
         log_date_format: 'YYYY-MM-DD HH:mm Z',
-        combine_logs: true,
+        combine_logs: true, // one file for all cluster
     }, /* {
         name: 'API(python)',
         script: 'server.py',

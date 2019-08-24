@@ -12,60 +12,7 @@ import updateEmbedding from './socket/updateEmbedding';
 import getNodes from './socket/getNodes';
 import login from './routes/login';
 
-
 const app = express();
-
-
-/*
-const readFile = path =>
-    new Promise((res, rej) => {
-        fs.readFile(path, (err, data) => {
-            if (err) {
-                rej(err);
-            } else {
-                res(data);
-            }
-        });
-    });
-*/
-
-
-// TODO: Read dataset and check if all images are created corectly - otherwise stop app and tell user to resize pics
-// TODO resize will work off all datasets
-// loop through each dataset and check
-// 1. folder structure is similar to imageSizes
-/* console.log('Check if all images are available for each dataset');
-dataSet.map(async (set) => {
-    try {
-        // test if folder path exists
-        // set.imgPath
-        // Error: Path in dataset incorrect
-
-        // count all images in main dir
-        const files = await fsP.readdir(set.imgPath);
-        const imgCount = files.length - imgSizes.length;
-        console.log(`Path: ${set.imgPath} #${imgCount}`);
-
-        // check all subdir
-        imgSizes.map(async (size) => {
-            try {
-                const subDir = path.join(set.imgPath, size.toString());
-                const subDirFiles = await fsP.readdir(subDir);
-                const subDirCount = subDirFiles.length - imgSizes.length;
-                console.log(`Path: ${subDir} #${subDirCount}`);
-            } catch (e) {
-                console.error(e);
-                console.error("Fehler beim Starten der Anwendung: bitte Bildpfad überprüfen oder 'npm run resize' ausführen");
-                process.exit(0)
-            }
-            // test if subDir exists
-        });
-    } catch (e) {
-        console.error(e);
-        console.error("Fehler beim Starten der Anwendung: bitte Bildpfad überprüfen oder 'npm run resize' ausführen");
-        process.exit(0)
-    }
-}); */
 
 // Socket.io
 const io = socketIo({ pingTimeout: 4800000, pingInterval: 600000 });
@@ -79,7 +26,6 @@ app.io = io;
 
 // let clusterStore = null;
 
-
 // set different image path for prod/dev mode
 
 /* app.use(bodyParser.json())
@@ -89,10 +35,6 @@ app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: false, limit: '5mb' }));
 app.use(morgan('dev'));
 app.use(cors());
-
-
-// console.log(process.env.NODE_ENV === 'development')
-
 
 // app.use('/api/v1/users', users)
 // TODO add python in route name and change frontend usage
@@ -115,8 +57,8 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-    console.error('Send Error vie JSON:')
-    console.log(err)
+    console.error('Send Error vie JSON:');
+    console.log(err);
     res.status(err.status || 500);
     res.json({
         error: {
@@ -131,7 +73,6 @@ if (!fs.existsSync(imgPath)) throw Error(`IMAGE PATH NOT EXISTS - ${imgPath}`);
 io.sockets.on('connection', (socket) => {
     console.log('A user connected: ', socket.id);
     console.log('# sockets connected', io.engine.clientsCount);
-
 
     socket.on('requestImage', requestImage(socket));
 
@@ -151,4 +92,3 @@ io.sockets.on('connection', (socket) => {
 });
 
 module.exports = app;
-
