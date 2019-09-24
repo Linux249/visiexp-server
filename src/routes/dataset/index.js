@@ -1,10 +1,9 @@
-import fs, { promises as fsP } from 'fs';
+import fs from 'fs';
 import path from 'path';
-// import sharp from 'sharp';
 // import { Readable } from 'stream';
 import { Router } from 'express';
 import { dataSet } from '../../config/datasets';
-import {devMode} from "../../config/env";
+import { devMode } from '../../config/env';
 // import { imgSizes } from '../../config/imgSizes';
 const ss = require('stream-stream');
 
@@ -107,7 +106,7 @@ router.get('/stream', async (req, res, next) => {
 });
 */
 // GET - /api/v1/dataset/images/:id
-router.get('/images/:id/:count', async (req,    res, next) => {
+router.get('/images/:id/:count', async (req, res, next) => {
     try {
         console.log('request dataset stream');
         let contentSize = 0;

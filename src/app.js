@@ -52,6 +52,7 @@ app.use('/api/v1/dataset/', dataset);
 // / catch 404 and forward to error handler
 app.use((req, res, next) => {
     const err = new Error('URL Not Found');
+    console.error(req.path)
     err.status = 404;
     next(err);
 });
