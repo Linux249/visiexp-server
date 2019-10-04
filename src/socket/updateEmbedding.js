@@ -10,7 +10,7 @@ export default socket => async (data) => {
     let time = 0;
 
     // HINT The data should never by empty - inital nodes comes from getNodes
-    const { nodes, userId, count } = data;
+    const { nodes, userId, count, embeddingDegree } = data;
     // categories can but don't have to change
     let categories;
 
@@ -30,7 +30,7 @@ export default socket => async (data) => {
             const res = await fetch(`${pythonApi}/nodes`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
-                body: JSON.stringify({ nodes, userId }),
+                body: JSON.stringify({ nodes, userId, embeddingDegree }),
             });
             // there are only nodes comming back from here
             const result = await res.json();
