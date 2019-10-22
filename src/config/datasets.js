@@ -78,6 +78,12 @@ const prodDataSet = [
         description: 'description text missing',
         imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/demo_wiki_1/imgs',
         size: 1011,
+    }, {
+        id: '012',
+        name: 'catcac',
+        description: 'Cats and cacti',
+        imgPath: '/net/hcihome/storage/www-data-login-cv/visiexp/datasets/raw/catcac/imgs',
+        size: 1011,
     },
     // {
     //     id: '009',
