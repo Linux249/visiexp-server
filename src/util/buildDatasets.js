@@ -95,7 +95,13 @@ const buildDatasets = async (imgSizes) => {
                     try {
                         if (!imgFilePath) imgFilePath = fs.realpathSync(path.join(imgPath, `${file}.png`));
                     } catch (e) {
-                        imgFilePath = fs.realpathSync(path.join(imgPath, file));
+                        try {
+                            imgFilePath = fs.realpathSync(path.join(imgPath, file));
+                        } catch (e) {
+                            console.error('Error Loading img - check path:');
+                            console.log(imgPath, file, imgFilePath);
+                            throw e;
+                        }
                     }
                 }
 
