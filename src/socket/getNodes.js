@@ -1,15 +1,9 @@
 import fetch from 'node-fetch';
-// import { promises as fsP } from 'fs';
 import { getRandomColor } from '../util/getRandomColor';
 import { buildLabels } from '../util/buildLabels';
 import { pythonApi } from '../config/pythonApi';
 import dataSets from '../config/datasets';
 import { devMode } from '../config/env';
-// import path from 'path';
-// import { maxNodesCount } from '../config/maxNodesCount';
-// import jsonNodes from './../../mock/AwA2_vectors_test.json';
-
-// const exampleNodes = devMode ? require('../../mock/2582_sub_wikiarts').default : {};
 
 // on: getNodes
 export default socket => async (data) => {
@@ -55,9 +49,6 @@ export default socket => async (data) => {
             ? require('./../../mock/AwA2_vectors_test.json')
             : await fetch(`${pythonApi}/getNodes?dataset=${dataset.name}`).then(res => res.json());
 
-        // Object.keys(jsonAll).forEach((k) => {
-        //     console.log(k);
-        // });
         const jsonNodes = jsonAll.nodes;
         const keys = Object.keys(jsonNodes);
         console.log(`get #${keys.length} nodes from init`);
@@ -106,12 +97,6 @@ export default socket => async (data) => {
     const nodesLength = Object.keys(nodes).length;
     socket.emit('totalNodesCount', { count: nodesLength });
 
-    // before they should be cleaned and compared with maybe old data
-    // const time = process.hrtime();
-    // updatedNodes = compareAndClean({}, updatedNodes);
-    // const diff = process.hrtime(time);
-    // console.log(`compareAndClean took ${diff[0] + diff[1] / 1e9} seconds`);
-
     if (devMode) {
         // dummy category's
         categories = ['kat1', 'kat2', 'kat3'];
@@ -131,30 +116,6 @@ export default socket => async (data) => {
         console.log('updateCategories: labels are send');
         socket.emit('initPython', { done: true });
     } else {
-        // read initial #count nodes
-        // console.log('request dataset nodes');
-
-        // console.log({ name, count });
-        // if (!imgPath || !count) return next(new Error('keine gültige id oder name'));
-        // const size = dataset.size < maxNodesCount ? dataset.size : maxNodesCount;
-        // const fileName = `${dataset.name}#${size}.json`;
-        // const filePath = path.join(__dirname, '/../../images/', fileName);
-        // console.log(filePath);
-        // const rawData = await fsP.readFile(filePath);
-        // let imgNames = JSON.parse(rawData);
-        // console.log(imgNames);
-        // imgNames = imgNames.slice(0, count);
-
-        // todo remove after real files
-        // imgNames.forEach((f, i) => {
-        //     nodes[i] = {
-        //         index: i,
-        //         name: f,
-        //         x: (Math.random() * 40) - 20,
-        //         y: (Math.random() * 40) - 20,
-        //         labels: [],
-        //     };
-        // });
         try {
             const time1 = process.hrtime();
             fetch(`${pythonApi}/nodes`, {
@@ -172,18 +133,13 @@ export default socket => async (data) => {
                 if (res.ok) {
                     try {
                         const data2 = await res.json();
-                        // Object.keys((k) => {
-                        //     nodes[k].x = data.nodes[k].x;
-                        //     nodes[k].y = data.nodes[k].y;
-                        // });
+
                         if (data2.categories) categories = data2.categories;
                         socket.emit('updateCategories', { labels: buildLabels(categories, nodes) });
                         const diff1 = process.hrtime(time1);
                         time = diff1[0] + (diff1[1] / 1e9);
                         if (data2.nodes) socket.emit('updateEmbedding', { nodes: data2.nodes, time });
                         socket.emit('initPython', data2);
-                        // return socket.emit('updateEmbedding', { nodes });
-                        // return socket.emit('sendAllNodes', nodes);
                     } catch (err) {
                         // JSON Error here?
                         console.error('fetch works but response is not working - why?');
@@ -242,14 +198,6 @@ export default socket => async (data) => {
         if (!node.clique) node.clique = [1, 2, 3];
         if (!node.rank && node.rank !== 0) node.rank = 0.5;
     });
-
-    // socket.emit('sendAllNodes', nodes);
-    // const diffStartSendNodes = process.hrtime(timeStartSendNodes);
-    // console.log(`all ${nodeDataLength} nodes send after: ${diffStartSendNodes[0] + (diffStartSendNodes[1] / 1e9)}s`);
-
-    // socket.emit('updateKdtree', kdtree)
-
-    // trigger init call on python backend
 
     console.log('sendAllNodes');
     return socket.emit('sendAllNodes', { nodes, time });

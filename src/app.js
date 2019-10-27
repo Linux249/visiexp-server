@@ -7,6 +7,7 @@ import pythonRoute from './routes/python/index';
 import svmRoute from './routes/svm';
 import imgPath from './config/imgPath';
 import dataset from './routes/dataset';
+import snapshots from './routes/snapshots';
 import requestImage from './socket/requestImage';
 import updateEmbedding from './socket/updateEmbedding';
 import getNodes from './socket/getNodes';
@@ -42,6 +43,7 @@ app.use('/api/v1/', login);
 app.use('/api/v1/', pythonRoute);
 app.use('/api/v1/svm/', svmRoute);
 app.use('/api/v1/dataset/', dataset);
+app.use('/api/v1/snapshots/', snapshots);
 // app.use('/api', express.static('images'));// todo with imgPath outside the root folder not possible
 // app.use('/', express.static('public'));
 /* app.get('/images/!*', (req, res) => {
