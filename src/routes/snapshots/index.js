@@ -4,19 +4,42 @@ import { pythonApi } from '../../config/pythonApi';
 
 const router = Router();
 
-router.get('/:dataset', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
     console.log('GET: snapshots');
-    const dataset = req.params.dataset;
-    console.log(dataset);
+    const { dataset, userid } = req.query;
+    console.log(dataset, userid);
+    if (!dataset || !userid) return next(new Error('dataset od userid missing'));
 
-    res.json({ datasets: [] });
+    if (process.env.NODE_ENV === 'development') {
+        res.json({
+            snapshots: [{
+                nodes: {},
+                groups: [],
+                count: 500,
+                createdAt: "Mon Oct 28 2019 12:14:15 GMT+0100 (Mitteleuropäische Normalzeit)",
+            }],
+        });
+    } else {
+        try {
+            const data = await fetch(`${pythonApi}/snapshot?dataset=${dataset}&userid=${userid}`)
+                .then(response => response.json());
+            res.json(data);
+        } catch (err) {
+            console.error('error - updateLabels python error');
+            console.error(err);
+            next(err);
+        }
+        res.json({ snapshots: [] });
+    }
+
+    // res.json({ snapshots: [] });
 });
 
 router.post('/', async (req, res, next) => {
     console.log('POST: snapshots');
 
-    const { nodes, groups, dataset } = req.body;
-    console.log(dataset);
+    const { nodes, groups, dataset, count, userid } = req.body;
+    // console.log({nodes, groups, dataset, count, userid});
 
     if (process.env.NODE_ENV === 'development') {
         res.json({
@@ -28,7 +51,7 @@ router.post('/', async (req, res, next) => {
             await fetch(`${pythonApi}/snapshot`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
-                body: JSON.stringify({ nodes, groups }),
+                body: JSON.stringify(nodes, groups, dataset, count, userid),
             }).then(response => response.json());
             res.json({
                 message: 'Snapshot saved',

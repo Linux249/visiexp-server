@@ -21,10 +21,10 @@ export default socket => async (data) => {
     let minY = Number.POSITIVE_INFINITY;
     let maxY = Number.NEGATIVE_INFINITY;
     const {
-        datasetId, userId, count, init,
+        datasetId, userId, count, init, nodesFromSnapshot,
     } = data;
     console.log({
-        datasetId, userId, count, init,
+        datasetId, userId, count, init, nodesFromSnapshot,
     });
     const dataset = dataSets.find(e => e.id === datasetId);
     if (!dataset) {
@@ -53,23 +53,33 @@ export default socket => async (data) => {
         const keys = Object.keys(jsonNodes);
         console.log(`get #${keys.length} nodes from init`);
 
-        keys.forEach((key) => {
-            // maybe count is higher but than max nodes in dataset will automatically the highest
-            if (jsonNodes[key].idx < count) {
-                nodes[jsonNodes[key].idx] = {
-                    x: jsonNodes[key].x,
-                    y: jsonNodes[key].y,
-                    name: key,
-                    label: jsonNodes[key].label,
-                    labels: [],
-                    index: jsonNodes[key].idx,
-                };
-                if (jsonNodes[key].x > maxX) maxX = jsonNodes[key].x;
-                if (jsonNodes[key].x < minX) minX = jsonNodes[key].x;
-                if (jsonNodes[key].y > maxY) maxY = jsonNodes[key].y;
-                if (jsonNodes[key].y < minY) minY = jsonNodes[key].y;
-            }
-        });
+        if (!nodesFromSnapshot) {
+            keys.forEach((key) => {
+                // maybe count is higher but than max nodes in dataset will automatically the highest
+                if (jsonNodes[key].idx < count) {
+                    nodes[jsonNodes[key].idx] = {
+                        x: jsonNodes[key].x,
+                        y: jsonNodes[key].y,
+                        name: key,
+                        label: jsonNodes[key].label,
+                        labels: [],
+                        index: jsonNodes[key].idx,
+                    };
+                    if (jsonNodes[key].x > maxX) maxX = jsonNodes[key].x;
+                    if (jsonNodes[key].x < minX) minX = jsonNodes[key].x;
+                    if (jsonNodes[key].y > maxY) maxY = jsonNodes[key].y;
+                    if (jsonNodes[key].y < minY) minY = jsonNodes[key].y;
+                }
+            });
+        } else {
+            Object.keys(nodesFromSnapshot).forEach((i) => {
+                nodes[i] = nodesFromSnapshot[i]
+                if (nodes[i].x > maxX) maxX = nodes[i].x;
+                if (nodes[i].x < minX) minX = nodes[i].x;
+                if (nodes[i].y > maxY) maxY = nodes[i].y;
+                if (nodes[i].y < minY) minY = nodes[i].y;
+            });
+        }
         rangeX = Math.abs(maxX - minX);
         rangeY = Math.abs(maxY - minY);
         console.log({
