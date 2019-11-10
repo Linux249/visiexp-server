@@ -131,7 +131,7 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
         Save a snapshot persistently
         """
         if("/snapshots" in self.path):
-            print("post /nodes")
+            print("POST /snapshots")
             ### POST Request Header ###
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -167,7 +167,7 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             with open(snapfile, 'w') as f:
                 json.dump(data, f)
 
-            self.wfile.write('ok')  #body zurueckschicken
+            self.wfile.write('ok')
 
         return
 
