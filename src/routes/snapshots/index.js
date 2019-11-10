@@ -23,10 +23,10 @@ router.get('/', async (req, res, next) => {
         });
     } else {
         try {
-            const data = await fetch(`${pythonApi}/snapshot?dataset=${dataset}&userid=${userid}`).then(response => response.json());
+            const data = await fetch(`${pythonApi}/snapshots?dataset=${dataset}&userid=${userid}`).then(response => response.json());
             res.json(data);
         } catch (err) {
-            console.error('error - updateLabels python error');
+            console.error('error - loading snapshots - python error');
             console.error(err);
             next(err);
         }
