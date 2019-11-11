@@ -57,11 +57,12 @@ router.post('/', async (req, res, next) => {
     } else {
         console.log('send snapshot to python');
         try {
-            await fetch(`${pythonApi}/snapshot`, {
+            const r = await fetch(`${pythonApi}/snapshot`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
-                body: JSON.stringify(nodes, groups, dataset, count, userid),
+                body: JSON.stringify({nodes, groups, dataset, count, userid}),
             }).then(response => response.json());
+            console.log({r})
             res.json({
                 message: 'Snapshot saved',
             });
