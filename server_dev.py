@@ -58,7 +58,7 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
         example: /snapshots?userid=3&dataset=003
         used for loading all saved snapshots for the given dataset
         """
-        if("/snapshots" in self.path):
+        if "/snapshots" in self.path:
             print("GET /snapshot")
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -72,7 +72,7 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             print 'DEBUG: loading snapshots: ', userid, dataset
 
             # path to jsons
-            json_dir = os.path.join(sys.path[0], 'user_models', userid, dataset)
+            json_dir = os.path.join(DATA_DIR, 'user_models', userid, dataset)
 
             print 'DEBUG: ' ,json_dir # DEBUG
 
@@ -80,6 +80,7 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             if not os.path.isdir(json_dir):
                 print 'DEBUG: no files found' # DEBUG
                 self.wfile.write('[]')
+                return
 
             # get all json files name
             json_files = [pos_json for pos_json in os.listdir(json_dir) if pos_json.endswith('.json')]
@@ -130,7 +131,7 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
         """
         Save a snapshot persistently
         """
-        if("/snapshots" in self.path):
+        if "/snapshots" in self.path:
             print("POST /snapshots")
             ### POST Request Header ###
             self.send_response(200)
@@ -152,7 +153,7 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             print 'DEBUG: ', userid, dataset, count
 
             #path for file to save snapshot
-            snapfile = "./user_models/{}/".format(userid)
+            snapfile = os.path.join(DATA_DIR, '{}'.format(userid))
 
             if not os.path.isdir(snapfile):
                 os.makedirs(snapfile)
