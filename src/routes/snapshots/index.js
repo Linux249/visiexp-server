@@ -61,7 +61,7 @@ router.post('/', async (req, res, next) => {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
                 body: JSON.stringify({nodes, groups, dataset, count, userid}),
-            }).then(response => response.json());
+            }).then(response => response.text());
             console.log({r})
             res.json({
                 message: 'Snapshot saved',
