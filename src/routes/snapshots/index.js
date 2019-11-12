@@ -11,16 +11,12 @@ router.get('/', async (req, res, next) => {
     if (!dataset || !userid) return next(new Error('dataset od userid missing'));
 
     if (process.env.NODE_ENV === 'development') {
-        res.json({
-            snapshots: [
-                {
-                    nodes: {},
-                    groups: [],
-                    count: 500,
-                    createdAt: 'Mon Oct 28 2019 12:14:15 GMT+0100 (Mitteleuropäische Normalzeit)',
-                },
-            ],
-        });
+        res.json([{
+            nodes: {},
+            groups: [],
+            count: 500,
+            createdAt: 'Mon Oct 28 2019 12:14:15 GMT+0100 (Mitteleuropäische Normalzeit)',
+        }]);
     } else {
         try {
             const data = await fetch(`${pythonApi}/snapshots?dataset=${dataset}&userid=${userid}`).then(response => response.json());
@@ -60,9 +56,11 @@ router.post('/', async (req, res, next) => {
             const r = await fetch(`${pythonApi}/snapshot`, {
                 method: 'POST',
                 header: { 'Content-type': 'application/json' },
-                body: JSON.stringify({nodes, groups, dataset, count, userid}),
+                body: JSON.stringify({
+                    nodes, groups, dataset, count, userid,
+                }),
             }).then(response => response.text());
-            console.log({r})
+            console.log({ r });
             res.json({
                 message: 'Snapshot saved',
             });
