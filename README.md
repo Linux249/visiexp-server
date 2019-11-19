@@ -35,6 +35,15 @@ A `.json` file have to exists before adding a new dataset here
 4. run `npm run datasets:prod` to build the image files for the client
 5. after finishing 4. the new dataset can used in the UI.
 
+### Python API
+To change the url where to find the python api just change this file 
+1. change file here on github and commit: [/src/config/pythonApi.js](/src/config/pythonApi.js)
+2. login to compvis10 with `www-data-login` and go to `cd ~/jl_visiexp/visiexp-client`
+3. run `npm run deploy`
+
+That way 
+
+
 ### (old) Node schema
 ```
 node = {
